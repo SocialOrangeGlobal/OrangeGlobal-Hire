@@ -20,29 +20,29 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentHash(window.location.hash);
+      window.scrollTo(0, 0);
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  if (currentHash === '#signin') {
-    return <SignIn />;
-  }
-  if (currentHash === '#signup-employer') {
-    return <SignUpEmployer />;
-  }
-  if (currentHash === '#signup-talent') {
-    return <SignUpTalent />;
-  }
-  if (currentHash === '#signup-choice') {
-    return <SignUpChoice />;
-  }
+  const renderContent = () => {
+    if (currentHash === '#signin') {
+      return <SignIn />;
+    }
+    if (currentHash === '#signup-employer') {
+      return <SignUpEmployer />;
+    }
+    if (currentHash === '#signup-talent') {
+      return <SignUpTalent />;
+    }
+    if (currentHash === '#signup-choice') {
+      return <SignUpChoice />;
+    }
 
-  return (
-    <div className="font-sans text-gray-900 bg-white">
-      <Navbar />
-      <main>
+    return (
+      <>
         <Hero />
         <Stats />
         <Services />
@@ -51,6 +51,15 @@ function App() {
         <Testimonials />
         <Industries />
         <Cta />
+      </>
+    );
+  };
+
+  return (
+    <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1">
+        {renderContent()}
       </main>
       <Footer />
     </div>

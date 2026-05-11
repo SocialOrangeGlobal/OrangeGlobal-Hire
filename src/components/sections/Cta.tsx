@@ -23,7 +23,7 @@ export default function Cta() {
           }}
         >
           <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 leading-tight tracking-tight">
-            Ready to transform your <span className="text-rh-red font-[300] tracking-tight">workforce?</span>
+            Ready to transform your <span className="text-rh-red font-[300] tracking-tight">Workforce?</span>
           </motion.h2>
           <motion.p variants={fadeUp} className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
             Partner with Orange Global to access the top 5% of industry professionals. Build teams that drive measurable business impact.

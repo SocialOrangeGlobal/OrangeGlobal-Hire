@@ -8,6 +8,7 @@ export default {
         'rh-teal': '#004b4d',
         'rh-dark': '#0d1117',
         'rh-light': '#f4f4f4',
+        'rh-teal-lighter': '#00b5bbff',
       },
       fontFamily: {
         sans: ['Noto Sans Light', 'sans-serif'],

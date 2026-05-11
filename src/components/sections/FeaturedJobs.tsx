@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Building, DollarSign, Clock, ChevronRight } from 'lucide-react';
+import { MapPin, Building, DollarSign, Clock } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
-import SectionLabel from '../ui/SectionLabel';
 import Button from '../ui/Button';
 
 export default function FeaturedJobs() {
@@ -14,9 +13,9 @@ export default function FeaturedJobs() {
     : jobs.filter(job => job.category === activeCategory);
 
   return (
-    <section id="jobs" className="bg-rh-light py-24">
+    <section id="jobs" className="bg-rh-light py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 md:mb-12">
           <motion.div
             variants={staggerContainer}
             initial="hidden"
@@ -24,7 +23,7 @@ export default function FeaturedJobs() {
             viewport={{ once: true, amount: 0.2 }}
             className="max-w-2xl"
           >
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-light text-gray-900 mt-4 leading-tight">
+            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-5xl font-light text-gray-900 mt-2 md:mt-4 leading-tight">
               Featured jobs from <span className="text-rh-red font-[300] tracking-tight">top employers</span>
             </motion.h2>
           </motion.div>
@@ -33,23 +32,24 @@ export default function FeaturedJobs() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            className="hidden sm:block"
           >
-            <Button variant="outline" className="hidden sm:flex">
+            <Button variant="outline">
               View All Openings
             </Button>
           </motion.div>
         </div>
 
         {/* Filters */}
-        <div className="mb-10 overflow-x-auto pb-4 no-scrollbar">
+        <div className="mb-8 md:mb-10 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="flex gap-2 min-w-max">
             {jobCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`relative px-5 py-2.5 text-sm font-bold rounded-full transition-all ${activeCategory === category
-                    ? 'text-rh-teal bg-white shadow-sm'
-                    : 'text-gray-500 hover:text-rh-teal hover:bg-white/50'
+                className={`relative px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-bold rounded-full transition-all ${activeCategory === category
+                  ? 'text-rh-teal bg-white shadow-sm'
+                  : 'text-gray-500 hover:text-rh-teal hover:bg-white/50'
                   }`}
               >
                 {category}
@@ -73,47 +73,47 @@ export default function FeaturedJobs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-white rounded-[24px] border border-gray-100 p-6 sm:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
+              className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
             >
               {/* Left Side */}
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-3 py-1 rounded-full">
+                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
                     {job.category}
                   </span>
                   {job.featured && (
-                    <span className="text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> Featured
                     </span>
                   )}
                 </div>
-                <h3 className="text-xl font-bold text-rh-teal mb-4 group-hover:text-rh-red transition-colors">
+                <h3 className="text-lg md:text-xl font-bold text-rh-teal mb-3 md:mb-4 group-hover:text-rh-red transition-colors">
                   {job.title}
                 </h3>
 
-                <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-sm text-gray-500 font-medium">
+                <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-xs md:text-sm text-gray-500 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <Building className="w-4 h-4 text-gray-400" />
+                    <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
                     {job.company}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    {job.location} <span className="text-gray-300 ml-1">• {job.mode}</span>
+                    <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                    {job.location} <span className="text-gray-300 ml-1 hidden xs:inline">• {job.mode}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-4 h-4 text-gray-400" />
+                    <DollarSign className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
                     {job.salary}
                   </div>
                 </div>
               </div>
 
               {/* Right Side */}
-              <div className="flex flex-col sm:flex-row lg:flex-col lg:items-end justify-between gap-4">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                  <Clock className="w-3.5 h-3.5" />
+              <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
+                <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400">
+                  <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
                   {job.postedAt}
                 </div>
-                <Button variant="primary" className="opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="primary" className="opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity px-6 py-2.5 text-sm">
                   Apply Now
                 </Button>
               </div>
@@ -124,8 +124,8 @@ export default function FeaturedJobs() {
           ))}
         </div>
 
-        <div className="mt-8 sm:hidden flex justify-center">
-          <Button variant="outline" className="w-full">
+        <div className="mt-8 sm:hidden">
+          <Button variant="outline" className="w-full py-4">
             View All Openings
           </Button>
         </div>

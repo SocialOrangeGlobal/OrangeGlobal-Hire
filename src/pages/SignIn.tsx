@@ -1,124 +1,133 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, ChevronDown, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
-import Footer from '../components/layouts/Footer';
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<'talent' | 'employer'>('talent');
 
-  const goBack = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.hash = '';
-  };
-
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex flex-col font-sans">
-      {/* Professional Header */}
-      <header className="bg-white border-b border-gray-100 py-5 px-6 md:px-12 flex items-center justify-between relative z-20">
-        <a href="#" onClick={goBack} className="flex items-center gap-2">
-          <div className="w-40">
-            <img src="/images/brand-logo-dark.png" alt="Orange Global" className="w-full h-auto object-contain" />
-          </div>
-        </a>
-        <a href="#" onClick={goBack} className="text-sm font-bold text-gray-500 hover:text-rh-red flex items-center gap-2 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to Home
-        </a>
-      </header>
+    <div className="bg-white min-h-screen pt-20 lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
+      {/* Left Side: Professional Branding with Background Image */}
+      <div className="w-full lg:w-1/2 min-h-[350px] md:min-h-[450px] lg:min-h-screen relative flex items-center justify-center p-6 md:p-12 lg:p-24 border-b lg:border-b-0 lg:border-r border-gray-100 shrink-0 overflow-hidden">
+        {/* Background Image & Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
+            alt="Corporate Background"
+            className="w-full h-full object-cover scale-105"
+          />
+          <div className="absolute inset-0 bg-[#12161A]/90 backdrop-blur-[2px]" />
+        </div>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center pt-16 px-4 pb-20">
-        <h1 className="text-[48px] font-light text-gray-900 mb-10 tracking-tight">Sign <span className='text-rh-red'>in</span></h1>
-
-        <div className="w-full max-w-[580px]">
-          {/* Custom Tabs to match screenshot */}
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('talent')}
-              className={`px-12 py-3.5 text-sm font-bold rounded-t-2xl transition-all duration-200 border-x border-t ${activeTab === 'talent'
-                ? 'bg-white text-rh-teal border-gray-200 relative z-10'
-                : 'bg-[#eff2f6] text-gray-500 border-transparent hover:text-gray-900'
-                }`}
-            >
-              <span className={activeTab === 'talent' ? 'border-b-2 border-rh-teal pb-1' : ''}>Talent</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('employer')}
-              className={`px-12 py-3.5 text-sm font-bold rounded-t-2xl transition-all duration-200 border-x border-t -ml-2 ${activeTab === 'employer'
-                ? 'bg-white text-rh-teal border-gray-200 relative z-10 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]'
-                : 'bg-[#eff2f6] text-gray-500 border-transparent hover:text-gray-900'
-                }`}
-            >
-              <span className={activeTab === 'employer' ? 'border-b-2 border-rh-teal pb-1' : ''}>Employer</span>
-            </button>
-          </div>
+        <div className="relative z-10 max-w-md text-center lg:text-left">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 lg:mb-6 tracking-tight leading-tight">
+              Welcome to <br />
+              <span className="text-rh-red font-normal italic">Orange Global</span>
+            </h1>
+            <p className="text-gray-200 text-sm sm:text-base lg:text-xl font-medium leading-relaxed max-w-sm mx-auto lg:mx-0 opacity-90">
+              Access your account and explore elite opportunities waiting for you across the globe.
+            </p>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white rounded-r-2xl rounded-bl-2xl shadow-[0_4px_25px_rgba(0,0,0,0.05)] p-10 md:p-14 border border-gray-200 -mt-px"
+            transition={{ delay: 0.5, duration: 1 }}
+            className="mt-8 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 text-white/60 text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]"
           >
-            {/* Form */}
-            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+            <div className="w-8 h-[1px] bg-white/30" />
+            <span>Trusted by global leaders</span>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Right Side: Simple Form */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-12 lg:p-16 bg-white overflow-y-auto custom-scrollbar">
+        <div className="w-full max-w-[440px] py-8 lg:py-12">
+          {/* Custom Tabs */}
+          <div className="flex bg-gray-100 p-1 rounded-2xl mb-8 lg:mb-10">
+            <button
+              onClick={() => setActiveTab('talent')}
+              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${activeTab === 'talent' ? 'bg-white text-rh-teal shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+            >
+              Talent
+            </button>
+            <button
+              onClick={() => setActiveTab('employer')}
+              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${activeTab === 'employer' ? 'bg-white text-rh-teal shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+            >
+              Employer
+            </button>
+          </div>
+
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="space-y-6"
+          >
+            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                 <input
-                  type="text"
-                  className="w-full px-6 py-5 bg-[#eff2f6] border-none rounded-2xl focus:ring-2 focus:ring-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-500"
-                  placeholder="Username"
+                  type="email"
+                  className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium"
+                  placeholder="name@example.com"
                 />
               </div>
 
               <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full px-6 py-5 bg-[#eff2f6] border-none rounded-2xl focus:ring-2 focus:ring-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-500"
-                    placeholder="Password"
+                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium"
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-rh-teal hover:text-rh-teal/80 focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-teal transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="w-6 h-6 rounded-md border-gray-300 text-rh-red focus:ring-rh-red cursor-pointer"
-                />
-                <label htmlFor="remember" className="text-base text-gray-600 font-medium cursor-pointer">Remember Me</label>
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-rh-red focus:ring-rh-red" />
+                  <span className="text-xs sm:text-sm text-gray-500 group-hover:text-gray-700">Remember me</span>
+                </label>
+                <a href="#" className="text-xs sm:text-sm font-bold text-rh-teal hover:text-rh-red transition-colors">Forgot Password?</a>
               </div>
 
-              <Button type="submit" className="w-full py-5 text-xl font-bold bg-[#081B2D] hover:bg-[#0c2a46] text-white rounded-full transition-all">
+              <Button type="submit" className="w-full py-4 text-base font-bold bg-[#081B2D] hover:bg-rh-teal text-white rounded-2xl transition-all shadow-lg shadow-blue-900/10 mt-2">
                 Sign In
               </Button>
             </form>
 
-            {/* Footer Links - Precise Colors from Screenshot */}
-            <div className="mt-10 flex flex-col items-center gap-6">
-              <div className="flex gap-2 text-sm font-bold text-rh-teal">
-                <a href="#" className="hover:underline">Forgot username</a>
-                <span className="text-gray-300">or</span>
-                <a href="#" className="text-rh-red hover:underline">Password?</a>
-              </div>
-              <p className="text-sm text-gray-600 font-semibold">
+            <div className="pt-8 text-center">
+              <p className="text-gray-500 text-sm">
                 Don't have an account?{' '}
-                <a href="#signup-choice" className="text-rh-red hover:underline underline-offset-4">
-                  Sign up
+                <a href="#signup-choice" className="text-rh-red font-bold hover:underline underline-offset-4 ml-1">
+                  Sign Up
                 </a>
               </p>
             </div>
           </motion.div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
