@@ -47,6 +47,8 @@ src/
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/SocialOrangeGlobal/OrangeGlobal-Hire.git
+
+   cd OrangeGlobal-Hire
    ```
 
 2. **Install dependencies**:
