@@ -136,11 +136,10 @@ export default function Chatbot() {
                       <Bot className="w-4 h-4 text-rh-red" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] p-4 rounded-[20px] text-sm leading-relaxed shadow-sm ${
-                    msg.sender === 'user' 
-                    ? 'bg-rh-red text-white rounded-br-none' 
-                    : 'bg-white text-rh-teal border border-gray-100 rounded-bl-none'
-                  }`}>
+                  <div className={`max-w-[80%] p-4 rounded-[20px] text-sm leading-relaxed shadow-sm ${msg.sender === 'user'
+                      ? 'bg-rh-red text-white rounded-br-none'
+                      : 'bg-white text-rh-teal border border-gray-100 rounded-bl-none'
+                    }`}>
                     {msg.text}
                   </div>
                   {msg.sender === 'user' && (
@@ -167,7 +166,7 @@ export default function Chatbot() {
 
             {/* Input */}
             <div className="p-4 bg-white border-t border-gray-100">
-              <form 
+              <form
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="relative"
               >
@@ -225,12 +224,12 @@ export default function Chatbot() {
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {/* Tooltip */}
         {!isOpen && (
-          <div className="absolute right-20 bg-rh-red text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 pointer-events-none shadow-xl">
+          <div className="absolute right-20 bg-rh-teal text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 pointer-events-none shadow-xl">
             Chat with Orange
-            <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 border-l-4 border-l-rh-red border-t-4 border-t-transparent border-b-4 border-b-transparent" />
+            <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 border-l-4 border-l-rh-teal border-t-4 border-t-transparent border-b-4 border-b-transparent" />
           </div>
         )}
       </motion.button>
