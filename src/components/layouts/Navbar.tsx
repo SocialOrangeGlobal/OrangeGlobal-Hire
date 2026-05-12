@@ -69,8 +69,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || isAuthPage || isSubPage || currentHash.startsWith('#apply-job')
-        ? 'bg-white shadow-sm'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage || currentHash.startsWith('#apply-job')
+        ? 'bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
         : panelOpen || mobileOpen
           ? 'bg-[#12161A]'
           : 'bg-transparent'
@@ -295,7 +295,7 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={`fixed inset-0 top-[72px] z-40 xl:hidden overflow-y-auto transition-colors duration-300 ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
+            className={`fixed inset-0 top-[72px] z-40 xl:hidden overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
               }`}
           >
             <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
