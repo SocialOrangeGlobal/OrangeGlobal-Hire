@@ -17,6 +17,7 @@ export default function Navbar() {
       setCurrentHash(window.location.hash);
       setMobileOpen(false);
       setSearchOpen(false);
+      setOpenDropdown(null);
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -29,9 +30,45 @@ export default function Navbar() {
     window.location.hash = '';
   };
 
+  // Close all panels when clicking outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('header')) {
+        setOpenDropdown(null);
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const activePanel = searchOpen ? '__search__' : openDropdown;
+
+  const handleNavEnter = (label: string, hasChildren: boolean) => {
+    if (!hasChildren) return;
+    setSearchOpen(false);
+    setOpenDropdown(label);
+  };
+
+  const handleNavLeave = () => {
+    setOpenDropdown(null);
+  };
+
+  const handleSearchToggle = () => {
+    setOpenDropdown(null);
+    setSearchOpen((prev) => !prev);
+  };
+
+  const panelOpen = activePanel !== null;
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${(scrolled || isAuthPage) ? 'bg-white shadow-sm' : (searchOpen || mobileOpen) ? 'bg-[#12161A]' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || isAuthPage
+          ? 'bg-white shadow-sm'
+          : panelOpen || mobileOpen
+            ? 'bg-[#12161A]'
+            : 'bg-transparent'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,20 +94,22 @@ export default function Navbar() {
               </div>
             </a>
 
-            {/* Desktop Nav - Hidden on Auth Pages */}
+            {/* Desktop Nav */}
             {!isAuthPage && (
               <nav className="hidden lg:flex items-center gap-1">
                 {navItems.map((item) => (
                   <div
                     key={item.label}
                     className="relative"
-                    onMouseEnter={() => item.children && setOpenDropdown(item.label)}
-                    onMouseLeave={() => setOpenDropdown(null)}
+                    onMouseEnter={() => handleNavEnter(item.label, !!item.children)}
+                    onMouseLeave={handleNavLeave}
                   >
                     <a
                       href={item.href}
-                      className={`flex items-center gap-1 px-4 py-2 text-[15px] font-[500] rounded transition-colors ${scrolled ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
-                        }`}
+                      className={`flex items-center gap-1 px-4 py-2 text-[15px] font-[500] rounded transition-colors ${scrolled
+                          ? 'text-[#081B2D] hover:text-rh-red'
+                          : 'text-white hover:text-rh-red'
+                        } ${openDropdown === item.label ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
                     >
                       {item.label}
                       {item.children && (
@@ -80,31 +119,6 @@ export default function Navbar() {
                         />
                       )}
                     </a>
-                    {item.children && (
-                      <AnimatePresence>
-                        {openDropdown === item.label && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 mt-4 w-64 bg-white rounded-[24px] shadow-2xl border border-gray-100 p-4 z-50 before:content-[''] before:absolute before:-top-4 before:left-0 before:right-0 before:h-4"
-                          >
-                            <div className="flex flex-col gap-1">
-                              {item.children.map((child) => (
-                                <a
-                                  key={child.label}
-                                  href={child.href}
-                                  className="block px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-50 hover:text-rh-red transition-all"
-                                >
-                                  {child.label}
-                                </a>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    )}
                   </div>
                 ))}
               </nav>
@@ -127,8 +141,8 @@ export default function Navbar() {
                 <div className="hidden lg:flex items-center gap-6">
                   <button
                     className={`transition-colors flex items-center justify-center ${scrolled ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      }`}
-                    onClick={() => setSearchOpen(!searchOpen)}
+                      } ${searchOpen ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
+                    onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
@@ -146,7 +160,7 @@ export default function Navbar() {
                   <button
                     className={`p-2 rounded-full transition-colors ${scrolled ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
-                    onClick={() => setSearchOpen(!searchOpen)}
+                    onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
@@ -165,66 +179,106 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Search Dropdown */}
+      {/* ─── Full-width Dropdown Panel (Search + Nav items) ─── */}
       <AnimatePresence>
-        {searchOpen && !isAuthPage && (
+        {activePanel && !isAuthPage && (
           <motion.div
+            key={activePanel}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
             className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 ${scrolled ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
               }`}
+            // Keep open while hovering the panel itself (for nav items)
+            onMouseEnter={() => {
+              if (activePanel !== '__search__') setOpenDropdown(activePanel);
+            }}
+            onMouseLeave={() => {
+              if (activePanel !== '__search__') setOpenDropdown(null);
+            }}
           >
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-              <div className="relative">
-                <Search
-                  className={`absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 ${scrolled ? 'text-gray-400' : 'text-gray-500'
-                    }`}
-                />
-                <input
-                  type="text"
-                  placeholder="Search jobs, talent, or insights..."
-                  className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled
-                    ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
-                    : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
-                    }`}
-                  autoFocus
-                />
-              </div>
-              <div className="mt-8 md:mt-12">
-                <h4
-                  className={`text-xs font-bold tracking-widest uppercase mb-6 ${scrolled ? 'text-gray-500' : 'text-gray-400'
-                    }`}
-                >
-                  Quick Links
-                </h4>
-                <div className="flex flex-wrap gap-3 md:gap-4">
-                  {[
-                    'Browse jobs',
-                    'Find your next hire',
-                    'Our locations',
-                    'Salary guide',
-                    'Career advice',
-                  ].map((link) => (
-                    <a
-                      key={link}
-                      href="#"
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
-                        ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                        : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+              {/* ── Search panel ── */}
+              {activePanel === '__search__' && (
+                <>
+                  <div className="relative">
+                    <Search
+                      className={`absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 ${scrolled ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search jobs, talent, or insights..."
+                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled
+                          ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
+                          : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
+                        }`}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="mt-8 md:mt-12">
+                    <h4
+                      className={`text-xs font-bold tracking-widest uppercase mb-6 ${scrolled ? 'text-gray-500' : 'text-gray-400'
                         }`}
                     >
-                      {link}
-                    </a>
-                  ))}
-                </div>
-              </div>
+                      Quick Links
+                    </h4>
+                    <div className="flex flex-wrap gap-3 md:gap-4">
+                      {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
+                        (link) => (
+                          <a
+                            key={link}
+                            href="#"
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
+                                ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                              }`}
+                          >
+                            {link}
+                          </a>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── Nav item dropdown panel ── */}
+              {activePanel !== '__search__' && (() => {
+                const item = navItems.find((n) => n.label === activePanel);
+                if (!item?.children) return null;
+                return (
+                  <>
+                    <h4
+                      className={`text-xs font-bold tracking-widest uppercase mb-6 ${scrolled ? 'text-gray-500' : 'text-gray-400'
+                        }`}
+                    >
+                      {item.label}
+                    </h4>
+                    <div className="flex flex-wrap gap-3 md:gap-4">
+                      {item.children.map((child) => (
+                        <a
+                          key={child.label}
+                          href={child.href}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
+                              ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                              : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                            }`}
+                        >
+                          {child.label}
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu */}
+      {/* ─── Mobile Menu ─── */}
       <AnimatePresence>
         {mobileOpen && !isAuthPage && (
           <motion.div
@@ -238,8 +292,10 @@ export default function Navbar() {
             <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
               <div className="space-y-2">
                 {navItems.map((item) => (
-                  <div key={item.label} className={`border-b last:border-none ${scrolled ? 'border-gray-50' : 'border-white/5'
-                    }`}>
+                  <div
+                    key={item.label}
+                    className={`border-b last:border-none ${scrolled ? 'border-gray-50' : 'border-white/5'}`}
+                  >
                     <button
                       className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled ? 'text-[#081B2D]' : 'text-white'
                         } active:text-rh-red`}
@@ -259,16 +315,17 @@ export default function Navbar() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className={`overflow-hidden rounded-2xl mb-4 ${scrolled ? 'bg-gray-50' : 'bg-white/5'
-                            }`}
+                          className="overflow-hidden mb-4"
                         >
-                          <div className="py-2 px-4 space-y-1">
+                          <div className="flex flex-wrap gap-3 pb-2">
                             {item.children.map((child) => (
                               <a
                                 key={child.label}
                                 href={child.href}
-                                className={`block py-3 text-base font-medium transition-colors ${scrolled ? 'text-gray-600' : 'text-gray-300'
-                                  } hover:text-rh-red`}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
+                                    ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                    : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                                  }`}
                               >
                                 {child.label}
                               </a>
@@ -282,10 +339,7 @@ export default function Navbar() {
               </div>
 
               <div className="mt-auto pt-10 space-y-4">
-                <a
-                  href="#signin"
-                  className={`block w-full text-center py-4 text-lg font-bold rounded-2xl transition-all`}
-                >
+                <a href="#signin" className="block w-full text-center py-4 text-lg font-bold rounded-2xl transition-all">
                   <Button size="lg" className="w-full py-5 text-lg font-bold rounded-2xl shadow-xl">
                     Sign In
                   </Button>

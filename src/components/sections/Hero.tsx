@@ -31,7 +31,7 @@ export default function Hero() {
               variants={fadeUp}
               className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold text-white leading-[1.1] mb-6 tracking-tight"
             >
-              Build Your Career <br /> <span className='text-rh-red font-[300] tracking-tight'>in Australia</span> with the Right Talent.
+              Build Your Future <br /> <span className='text-rh-red font-[300] tracking-tight'>in Australia</span> with the right Talent.
             </motion.h1>
 
             <motion.p
