@@ -35,7 +35,7 @@ export default function Industries() {
             viewport={{ once: true }}
             className="max-w-3xl"
           >
-            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-[56px] font-light text-gray-900 leading-[1.1] tracking-tight">
+            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-[56px] font-light text-rh-teal leading-[1.1] tracking-tight">
               Deep domain expertise across <br />
               <span className="text-rh-red font-[300]">core economic sectors</span>
             </motion.h2>
@@ -58,8 +58,8 @@ export default function Industries() {
             prevEl: '.industries-prev',
             nextEl: '.industries-next',
           }}
-          pagination={{ 
-            clickable: true, 
+          pagination={{
+            clickable: true,
             el: '.industries-pagination',
             type: 'bullets',
           }}
@@ -107,19 +107,19 @@ export default function Industries() {
 
         {/* Carousel Footer: Progress Bar + Navigation */}
         <div className="mt-12 md:mt-16 flex flex-col items-center gap-6 md:gap-8">
-            <div className="w-full max-w-xs md:max-w-md h-[2px] bg-gray-200 relative overflow-hidden">
-                <div className="industries-pagination absolute inset-0 !static !w-full h-full flex gap-0">
-                </div>
+          <div className="w-full max-w-xs md:max-w-md h-[2px] bg-gray-200 relative overflow-hidden">
+            <div className="industries-pagination absolute inset-0 !static !w-full h-full flex gap-0">
             </div>
-            
-            <div className="flex items-center gap-4">
-                <button className="industries-prev w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm z-20 cursor-pointer">
-                    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                </button>
-                <button className="industries-next w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm z-20 cursor-pointer">
-                    <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-                </button>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="industries-prev w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm z-20 cursor-pointer">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+            <button className="industries-next w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm z-20 cursor-pointer">
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+          </div>
         </div>
       </div>
 

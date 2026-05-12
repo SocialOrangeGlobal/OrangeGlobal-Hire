@@ -24,7 +24,7 @@ export default function Stats() {
           <div className="flex flex-col text-center lg:text-left">
             <motion.h2
               variants={fadeUp}
-              className="text-3xl xs:text-4xl sm:text-5xl font-light text-gray-900 mb-8 md:mb-12 lg:mb-20"
+              className="text-3xl xs:text-4xl sm:text-5xl text-rh-teal font-light mb-8 md:mb-12 lg:mb-20"
             >
               Why <span className='text-rh-red font-[300] tracking-tight'>Orange Global</span>
             </motion.h2>

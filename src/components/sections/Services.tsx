@@ -73,7 +73,7 @@ export default function Services() {
             viewport={{ once: true }}
             className="max-w-2xl"
           >
-            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-[52px] font-light text-gray-900 leading-[1.1] tracking-tight">
+            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-[52px] font-light text-rh-teal leading-[1.1] tracking-tight">
               Specialized staffing across <br />
               <span className="text-rh-red font-[300]">every discipline</span>
             </motion.h2>
@@ -96,8 +96,8 @@ export default function Services() {
             prevEl: '.services-prev',
             nextEl: '.services-next',
           }}
-          pagination={{ 
-            clickable: true, 
+          pagination={{
+            clickable: true,
             el: '.services-pagination',
             type: 'bullets',
           }}
@@ -115,9 +115,9 @@ export default function Services() {
                 className="group cursor-pointer h-full"
               >
                 <div className="relative aspect-[4/3] rounded-[24px] md:rounded-[32px] overflow-hidden mb-6 md:mb-8 shadow-sm group-hover:shadow-xl transition-all duration-500 border border-gray-50">
-                  <img 
-                    src={service.image} 
-                    alt={service.title} 
+                  <img
+                    src={service.image}
+                    alt={service.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-40 group-hover:opacity-60 transition-opacity lg:opacity-0 lg:group-hover:opacity-100" />
@@ -125,7 +125,7 @@ export default function Services() {
                     <service.icon className="w-5 h-5 md:w-6 md:h-6" />
                   </div>
                 </div>
-                
+
                 <div className="px-1 md:px-2">
                   <h3 className="text-xl md:text-[24px] font-bold text-rh-teal mb-2 md:mb-3 group-hover:text-rh-red transition-colors">
                     {service.title}
@@ -141,26 +141,27 @@ export default function Services() {
             </SwiperSlide>
           ))}
         </Swiper>
-        
+
         {/* Carousel Footer: Progress Bar + Navigation */}
         <div className="mt-12 md:mt-16 flex flex-col items-center gap-6 md:gap-8">
-            <div className="w-full max-w-xs md:max-w-md h-[2px] bg-gray-100 relative overflow-hidden">
-                <div className="services-pagination absolute inset-0 !static !w-full h-full flex gap-0">
-                </div>
+          <div className="w-full max-w-xs md:max-w-md h-[2px] bg-gray-100 relative overflow-hidden">
+            <div className="services-pagination absolute inset-0 !static !w-full h-full flex gap-0">
             </div>
-            
-            <div className="flex items-center gap-4">
-                <button className="services-prev w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm bg-white z-20 cursor-pointer">
-                    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                </button>
-                <button className="services-next w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm bg-white z-20 cursor-pointer">
-                    <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-                </button>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="services-prev w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm bg-white z-20 cursor-pointer">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+            <button className="services-next w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-rh-teal hover:text-rh-teal hover:bg-rh-light transition-all shadow-sm bg-white z-20 cursor-pointer">
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+          </div>
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .services-pagination .swiper-pagination-bullet {
           flex: 1;
           height: 100%;

@@ -26,7 +26,7 @@ export default function FeaturedJobs() {
             viewport={{ once: true, amount: 0.2 }}
             className="max-w-2xl"
           >
-            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-5xl font-light text-gray-900 mt-2 md:mt-4 leading-tight">
+            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-5xl font-light text-rh-teal mt-2 md:mt-4 leading-tight">
               Featured jobs from <span className="text-rh-red font-[300] tracking-tight">top employers</span>
             </motion.h2>
           </motion.div>
@@ -37,7 +37,7 @@ export default function FeaturedJobs() {
             viewport={{ once: true }}
             className="hidden sm:block"
           >
-            <Button 
+            <Button
               onClick={() => window.location.hash = '#jobs'}
               variant="outline"
             >
@@ -143,9 +143,9 @@ export default function FeaturedJobs() {
         </div>
 
         <div className="mt-8 sm:hidden">
-          <Button 
+          <Button
             onClick={() => window.location.hash = '#jobs'}
-            variant="outline" 
+            variant="outline"
             className="w-full py-4"
           >
             View All Openings
@@ -153,9 +153,9 @@ export default function FeaturedJobs() {
         </div>
       </div>
 
-      <JobDetailsModal 
-        job={selectedJob} 
-        onClose={() => setSelectedJob(null)} 
+      <JobDetailsModal
+        job={selectedJob}
+        onClose={() => setSelectedJob(null)}
       />
     </section>
   );

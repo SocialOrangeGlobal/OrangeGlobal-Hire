@@ -38,7 +38,7 @@ export default function WhyChooseUs() {
             viewport={{ once: true, amount: 0.2 }}
           >
             <motion.div variants={fadeUp}>
-              <h2 className="text-3xl xs:text-4xl sm:text-5xl font-light text-gray-900 mt-2 md:mt-4 mb-6 leading-tight">
+              <h2 className="text-3xl xs:text-4xl sm:text-5xl font-light text-rh-teal mt-2 md:mt-4 mb-6 leading-tight">
                 Why industry leaders choose <span className="text-rh-red font-[300] tracking-tight">Orange Global</span> to build their teams.
               </h2>
               <p className="text-base md:text-lg text-gray-600 mb-8 md:mb-10 leading-relaxed max-w-xl">

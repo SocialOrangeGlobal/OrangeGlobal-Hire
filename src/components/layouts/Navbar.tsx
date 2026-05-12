@@ -112,7 +112,7 @@ export default function Navbar() {
                     <a
                       href={item.href}
                       className={`flex items-center gap-1 px-3 xl:px-4 py-2 text-[14px] xl:text-[15px] font-[500] rounded transition-colors ${scrolled || isAuthPage || isSubPage
-                        ? 'text-[#081B2D] hover:text-rh-red'
+                        ? 'text-rh-teal hover:text-rh-red'
                         : 'text-white hover:text-rh-red'
                         } ${openDropdown === item.label ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
                     >
@@ -145,7 +145,7 @@ export default function Navbar() {
               <>
                 <div className="hidden xl:flex items-center gap-6">
                   <button
-                    className={`transition-colors flex items-center justify-center ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
+                    className={`transition-colors flex items-center justify-center ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } ${searchOpen ? 'text-rh-red' : ''}`}
                     onClick={handleSearchToggle}
                   >
@@ -153,7 +153,7 @@ export default function Navbar() {
                   </button>
                   <a
                     href="#signin"
-                    className={`text-md font-[500] transition-all ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
+                    className={`text-md font-[500] transition-all ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } hover:underline hover:underline-offset-4`}
                   >
                     Sign in
@@ -163,14 +163,14 @@ export default function Navbar() {
                 {/* Mobile Toggle */}
                 <div className="flex items-center gap-2 xl:hidden">
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={() => setMobileOpen(!mobileOpen)}
                     aria-label="Toggle menu"
@@ -302,7 +302,7 @@ export default function Navbar() {
                   <a
                     href="#"
                     onClick={() => setMobileOpen(false)}
-                    className={`w-full block py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D]' : 'text-white'} active:text-rh-red`}
+                    className={`w-full block py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
                   >
                     Home
                   </a>
@@ -314,7 +314,7 @@ export default function Navbar() {
                   >
                     <a
                       href={item.href}
-                      className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D]' : 'text-white'
+                      className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'
                         } active:text-rh-red`}
                       onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
                     >
