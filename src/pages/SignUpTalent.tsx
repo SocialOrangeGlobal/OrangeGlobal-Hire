@@ -109,13 +109,8 @@ export default function SignUpTalent() {
       {/* Left Side: Professional Branding (Swapped for mobile consistency) */}
       <aside className="w-full lg:w-[40%] relative flex flex-col justify-between p-6 md:p-12 lg:p-16 overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-100 min-h-[450px] md:min-h-[550px] lg:min-h-screen shrink-0">
         {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80"
-            alt="Young Professional"
-            className="w-full h-full object-cover scale-105"
-          />
-          <div className="absolute inset-0 bg-[#12161A]/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-0 bg-rh-dark">
+          <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
 
         <div className="relative z-10">
@@ -124,7 +119,7 @@ export default function SignUpTalent() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8 lg:mb-12 mt-2 lg:mt-8 text-center lg:text-left"
           >
-            <h1 className="text-3xl lg:text-4xl font-medium text-white mb-3 lg:mb-4 tracking-tight leading-tight">
+            <h1 className="text-xl lg:text-4xl font-medium text-white mb-3 lg:mb-4 tracking-tight leading-tight">
               Get Your
               <span className='text-rh-teal-lighter font-medium italic ml-2'>Dream Job!</span>
             </h1>
@@ -185,8 +180,8 @@ export default function SignUpTalent() {
                 exit={{ opacity: 0, scale: 1.02 }}
                 className="bg-white rounded-[48px] p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
               >
-                <div className="mb-12">
-                  <h2 className="text-3xl font-bold text-rh-teal mb-4">Upload Resume</h2>
+                <div className="mb-8 lg:mb-12">
+                  <h2 className="text-xl lg:text-3xl font-bold text-rh-teal mb-4">Upload Resume</h2>
                   <p className="text-gray-500 font-medium">Get a head start by pre-filling your profile with your CV.</p>
                 </div>
 
@@ -204,9 +199,9 @@ export default function SignUpTalent() {
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white shadow-sm rounded-[24px] flex items-center justify-center mx-auto mb-6 sm:mb-8 group-hover:scale-110 transition-transform text-rh-teal border border-gray-50">
                         <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
                       </div>
-                      <h3 className="text-lg sm:text-xl font-bold text-[#081B2D] mb-2">Drop your resume here</h3>
-                      <p className="text-gray-400 text-xs sm:text-sm mb-8 sm:mb-10">PDF or Word documents (Max 10MB)</p>
-                      <Button variant="primary" className="px-10 sm:px-14 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-2xl shadow-rh-teal/10 font-bold text-sm sm:text-base">Select File</Button>
+                      <h3 className="text-base sm:text-xl font-bold text-[#081B2D] mb-2">Drop your resume here</h3>
+                      <p className="text-gray-400 text-[10px] sm:text-sm mb-8 sm:mb-10">PDF or Word documents (Max 10MB)</p>
+                      <Button variant="primary" className="px-10 sm:px-14 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-2xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base">Select File</Button>
                     </>
                   )}
                 </div>
@@ -231,22 +226,22 @@ export default function SignUpTalent() {
                 className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
               >
                 <div className="mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-rh-teal mb-2">Personal Details</h2>
-                  <p className="text-gray-500 text-sm sm:text-base font-medium">Please provide your contact information.</p>
+                  <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Personal Details</h2>
+                  <p className="text-gray-500 text-[13px] sm:text-base font-medium">Please provide your contact information.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 sm:gap-y-10 mb-8 sm:mb-12">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                    <input type="text" placeholder="e.g. John Doe" className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-300" />
+                    <input type="text" placeholder="e.g. John Doe" className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Work Email</label>
-                    <input type="email" placeholder="john@example.com" className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-300" />
+                    <input type="email" placeholder="john@example.com" className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Current Location</label>
-                    <input type="text" placeholder="City, Country" className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-300" />
+                    <input type="text" placeholder="City, Country" className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
                   </div>
                 </div>
 
@@ -254,7 +249,7 @@ export default function SignUpTalent() {
                   <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1">
                     <ArrowLeft className="w-5 h-5" /> Back
                   </button>
-                  <Button onClick={() => setStep('education')} variant="primary" className="w-full sm:w-auto px-12 py-4 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold order-1 sm:order-2">Continue</Button>
+                  <Button onClick={() => setStep('education')} variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-sm sm:text-base order-1 sm:order-2">Continue</Button>
                 </div>
               </motion.div>
             )}
@@ -269,8 +264,8 @@ export default function SignUpTalent() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12 border-b border-gray-50 pb-6">
                   <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-rh-teal mb-2">Education</h2>
-                    <p className="text-gray-500 text-sm sm:text-base font-medium">Tell us about your academic background.</p>
+                    <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Education</h2>
+                    <p className="text-gray-500 text-[13px] sm:text-base font-medium">Tell us about your academic background.</p>
                   </div>
                   <button
                     onClick={addEducation}
@@ -299,7 +294,7 @@ export default function SignUpTalent() {
                             value={edu.school}
                             onChange={(e) => updateEducation(edu.id, 'school', e.target.value)}
                             placeholder="e.g. Harvard University"
-                            className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium placeholder:text-gray-300"
+                            className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                           />
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
@@ -310,7 +305,7 @@ export default function SignUpTalent() {
                               value={edu.degree}
                               onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                               placeholder="e.g. Master of Science"
-                              className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium placeholder:text-gray-300"
+                              className="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                             />
                           </div>
                           <div className="space-y-2">
@@ -320,7 +315,7 @@ export default function SignUpTalent() {
                               value={edu.year}
                               onChange={(e) => updateEducation(edu.id, 'year', e.target.value)}
                               placeholder="YYYY"
-                              className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium placeholder:text-gray-300"
+                              className="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                             />
                           </div>
                         </div>
@@ -333,7 +328,7 @@ export default function SignUpTalent() {
                   <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1">
                     <ArrowLeft className="w-5 h-5" /> Back
                   </button>
-                  <Button onClick={() => setStep('skills')} variant="primary" className="w-full sm:w-auto px-12 py-4 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold order-1 sm:order-2">Continue</Button>
+                  <Button onClick={() => setStep('skills')} variant="primary" className="w-full sm:w-auto px-12 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base order-1 sm:order-2">Continue</Button>
                 </div>
               </motion.div>
             )}
@@ -347,8 +342,8 @@ export default function SignUpTalent() {
                 className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
               >
                 <div className="mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-rh-teal mb-2">Skills & Expertise</h2>
-                  <p className="text-gray-500 text-sm sm:text-base font-medium">Highlight your specialized skills.</p>
+                  <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Skills & Expertise</h2>
+                  <p className="text-gray-500 text-[13px] sm:text-base font-medium">Highlight your specialized skills.</p>
                 </div>
 
                 <div className="space-y-8 sm:space-y-12 mb-8 sm:mb-12">
@@ -359,13 +354,13 @@ export default function SignUpTalent() {
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addSkill()}
                       placeholder="e.g. Product Strategy, React..."
-                      className="flex-1 px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                      className="flex-1 px-5 py-3 sm:px-6 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                     />
-                    <Button onClick={addSkill} variant="outline" className="w-full sm:w-auto px-12 py-3.5 sm:py-4 rounded-2xl border-2 border-gray-100 text-[#081B2D] font-bold hover:bg-rh-teal hover:text-white hover:border-rh-teal transition-all">Add</Button>
+                    <Button onClick={addSkill} variant="outline" className="w-full sm:w-auto px-12 py-3 sm:py-4 rounded-2xl border-2 border-gray-100 text-[#081B2D] font-bold hover:bg-rh-teal hover:text-white hover:border-rh-teal transition-all text-[13px] sm:text-sm">Add</Button>
                   </div>
                   <div className="flex flex-wrap gap-3 sm:gap-4">
                     {skills.map(s => (
-                      <span key={s} className="px-4 sm:px-8 py-2.5 sm:py-3.5 bg-white border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-gray-600 flex items-center gap-3 sm:gap-4 shadow-sm hover:border-rh-teal/30 transition-all group">
+                      <span key={s} className="px-4 py-2.5 sm:px-8 sm:py-3.5 bg-white border border-gray-100 rounded-xl sm:rounded-2xl text-[11px] sm:text-sm font-bold text-gray-600 flex items-center gap-3 sm:gap-4 shadow-sm hover:border-rh-teal/30 transition-all group">
                         {s}
                         <button onClick={() => removeSkill(s)}>
                           <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 group-hover:text-rh-red cursor-pointer transition-colors" />
@@ -379,7 +374,7 @@ export default function SignUpTalent() {
                   <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1">
                     <ArrowLeft className="w-5 h-5" /> Back
                   </button>
-                  <Button onClick={() => setStep('experience')} variant="primary" className="w-full sm:w-auto px-12 py-4 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold order-1 sm:order-2">Continue</Button>
+                  <Button onClick={() => setStep('experience')} variant="primary" className="w-full sm:w-auto px-12 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base order-1 sm:order-2">Continue</Button>
                 </div>
               </motion.div>
             )}
@@ -394,8 +389,8 @@ export default function SignUpTalent() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12 border-b border-gray-50 pb-6">
                   <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-rh-teal mb-2">Work Experience</h2>
-                    <p className="text-gray-500 text-sm sm:text-base font-medium">Detail your professional journey.</p>
+                    <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Work Experience</h2>
+                    <p className="text-gray-500 text-[13px] sm:text-base font-medium">Detail your professional journey.</p>
                   </div>
                   <button
                     onClick={addExperience}
@@ -425,7 +420,7 @@ export default function SignUpTalent() {
                               value={exp.title}
                               onChange={(e) => updateExperience(exp.id, 'title', e.target.value)}
                               placeholder="e.g. Project Lead"
-                              className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium placeholder:text-gray-300"
+                              className="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                             />
                           </div>
                           <div className="space-y-2">
@@ -435,7 +430,7 @@ export default function SignUpTalent() {
                               value={exp.company}
                               onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
                               placeholder="e.g. Tech Global"
-                              className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium placeholder:text-gray-300"
+                              className="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                             />
                           </div>
                         </div>
@@ -446,7 +441,7 @@ export default function SignUpTalent() {
                             value={exp.responsibilities}
                             onChange={(e) => updateExperience(exp.id, 'responsibilities', e.target.value)}
                             placeholder="Describe your achievements..."
-                            className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all font-medium resize-none placeholder:text-gray-300"
+                            className="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium resize-none placeholder:text-gray-300"
                           />
                         </div>
                       </div>
@@ -458,7 +453,7 @@ export default function SignUpTalent() {
                   <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1">
                     <ArrowLeft className="w-5 h-5" /> Back
                   </button>
-                  <Button onClick={() => setStep('success')} variant="primary" className="w-full sm:w-auto px-12 py-4 sm:py-5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] shadow-2xl shadow-rh-teal/20 font-bold order-1 sm:order-2">Complete Registration</Button>
+                  <Button onClick={() => setStep('success')} variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] shadow-2xl shadow-rh-teal/20 font-bold text-[13px] sm:text-base order-1 sm:order-2">Complete Registration</Button>
                 </div>
               </motion.div>
             )}

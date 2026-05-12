@@ -4,9 +4,12 @@ import { MapPin, Building, DollarSign, Clock } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';
+import JobDetailsModal from '../ui/JobDetailsModal';
+import type { Job } from '../../types';
 
 export default function FeaturedJobs() {
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const filteredJobs = activeCategory === 'All Jobs'
     ? jobs
@@ -34,7 +37,10 @@ export default function FeaturedJobs() {
             viewport={{ once: true }}
             className="hidden sm:block"
           >
-            <Button variant="outline">
+            <Button 
+              onClick={() => window.location.hash = '#jobs'}
+              variant="outline"
+            >
               View All Openings
             </Button>
           </motion.div>
@@ -73,49 +79,61 @@ export default function FeaturedJobs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
+              onClick={() => window.location.hash = `#apply-job?id=${job.id}`}
               className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
             >
               {/* Left Side */}
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
                   <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
                     {job.category}
                   </span>
-                  {job.featured && (
-                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> Featured
-                    </span>
-                  )}
+                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
+                  </span>
                 </div>
-                <h3 className="text-lg md:text-xl font-bold text-rh-teal mb-3 md:mb-4 group-hover:text-rh-red transition-colors">
+                <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
                   {job.title}
                 </h3>
 
-                <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-xs md:text-sm text-gray-500 font-medium">
+                <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
                   <div className="flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
                     {job.company}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                    {job.location} <span className="text-gray-300 ml-1 hidden xs:inline">• {job.mode}</span>
+                    {job.location}
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                  <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
                     {job.salary}
                   </div>
                 </div>
               </div>
 
               {/* Right Side */}
-              <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
-                <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400">
+              <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
+                <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
                   <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
                   {job.postedAt}
                 </div>
-                <Button variant="primary" className="opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity px-6 py-2.5 text-sm">
-                  Apply Now
-                </Button>
+
+                <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
+                  <Button
+                    variant="outline"
+                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
+                    onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full shadow-lg shadow-rh-red/20 font-bold whitespace-nowrap"
+                    onClick={(e) => { e.stopPropagation(); window.location.hash = `#apply-job?id=${job.id}`; }}
+                  >
+                    Apply Now
+                  </Button>
+                </div>
               </div>
 
               {/* Hover Line */}
@@ -125,11 +143,20 @@ export default function FeaturedJobs() {
         </div>
 
         <div className="mt-8 sm:hidden">
-          <Button variant="outline" className="w-full py-4">
+          <Button 
+            onClick={() => window.location.hash = '#jobs'}
+            variant="outline" 
+            className="w-full py-4"
+          >
             View All Openings
           </Button>
         </div>
       </div>
+
+      <JobDetailsModal 
+        job={selectedJob} 
+        onClose={() => setSelectedJob(null)} 
+      />
     </section>
   );
 }

@@ -5,39 +5,39 @@ export const navItems: NavItem[] = [
     label: 'Find Jobs',
     href: '#jobs',
     children: [
-      { label: 'Finance & Accounting', href: '#' },
-      { label: 'Technology', href: '#' },
-      { label: 'Legal', href: '#' },
-      { label: 'Marketing & Creative', href: '#' },
-      { label: 'Administrative', href: '#' },
+      { label: 'Finance & Accounting', href: '#jobs?category=Finance%20&%20Accounting' },
+      { label: 'Technology', href: '#jobs?category=Technology' },
+      { label: 'Legal', href: '#jobs?category=Legal' },
+      { label: 'Marketing & Creative', href: '#jobs?category=Marketing%20&%20Creative' },
+      { label: 'Administrative', href: '#jobs?category=Administrative' },
     ],
   },
   {
     label: 'Hire Talent',
-    href: '#services',
+    href: '#hire-talent',
     children: [
-      { label: 'Permanent Staffing', href: '#' },
-      { label: 'Contract Staffing', href: '#' },
-      { label: 'Executive Search', href: '#' },
-      { label: 'Project Solutions', href: '#' },
+      { label: 'Permanent Staffing', href: '#hire-talent' },
+      { label: 'Contract Staffing', href: '#hire-talent' },
+      { label: 'Executive Search', href: '#hire-talent' },
+      { label: 'Project Solutions', href: '#hire-talent' },
     ],
   },
   {
     label: 'Explore Consulting Solutions',
     href: '#consulting',
     children: [
-      { label: 'Business Transformation', href: '#' },
-      { label: 'Technology Solutions', href: '#' },
-      { label: 'Financial Management', href: '#' },
+      { label: 'Business Transformation', href: '#consulting' },
+      { label: 'Technology Solutions', href: '#consulting' },
+      { label: 'Financial Management', href: '#consulting' },
     ],
   },
   {
     label: 'Discover Insights',
     href: '#insights',
     children: [
-      { label: 'Salary Guide', href: '#' },
-      { label: 'Hiring Trends', href: '#' },
-      { label: 'Career Advice', href: '#' },
+      { label: 'Salary Guide', href: '#insights' },
+      { label: 'Hiring Trends', href: '#insights' },
+      { label: 'Career Advice', href: '#insights' },
     ]
   },
 ];
@@ -61,6 +61,20 @@ export const jobs: Job[] = [
     category: 'Finance & Accounting',
     postedAt: '2 days ago',
     featured: true,
+    description: 'We are seeking a highly analytical and detail-oriented Senior Financial Analyst to join our team. The successful candidate will be responsible for financial modeling, budgeting, and providing strategic insights to drive business growth.',
+    requirements: [
+      'Bachelor’s degree in Finance, Accounting, or related field.',
+      '5+ years of experience in financial analysis.',
+      'Advanced proficiency in Excel and financial modeling software.',
+      'Strong communication and presentation skills.'
+    ],
+    benefits: [
+      'Comprehensive health, dental, and vision insurance.',
+      '401(k) matching and retirement planning.',
+      'Paid time off and flexible working hours.',
+      'Professional development opportunities.'
+    ],
+    tags: ['Finance', 'Analysis', 'CPA', 'Strategy']
   },
   {
     id: '2',
@@ -73,6 +87,20 @@ export const jobs: Job[] = [
     category: 'Technology',
     postedAt: '1 day ago',
     featured: true,
+    description: 'Apex Technologies is looking for a Director of Engineering to lead our world-class development team. You will be responsible for setting technical direction, mentoring engineers, and overseeing the delivery of complex software systems.',
+    requirements: [
+      '10+ years of experience in software engineering.',
+      '5+ years of experience in a leadership role.',
+      'Proven track record of delivering scalable software solutions.',
+      'Deep understanding of modern cloud architectures.'
+    ],
+    benefits: [
+      'Competitive salary and equity package.',
+      'Remote-first work culture.',
+      'Health and wellness stipends.',
+      'Annual team retreats.'
+    ],
+    tags: ['Leadership', 'Cloud', 'Engineering', 'Strategy']
   },
   {
     id: '3',
@@ -85,6 +113,20 @@ export const jobs: Job[] = [
     category: 'Legal',
     postedAt: '3 days ago',
     featured: true,
+    description: 'We are looking for a Corporate Counsel to provide legal guidance on a variety of corporate matters, including contracts, compliance, and employment law.',
+    requirements: [
+      'JD degree from an accredited law school.',
+      'Admission to the state bar.',
+      '3-5 years of corporate legal experience.',
+      'Strong negotiation and drafting skills.'
+    ],
+    benefits: [
+      'Excellent base salary and bonus potential.',
+      'Comprehensive benefits package.',
+      'Mentorship from senior legal partners.',
+      'Subsidized legal education.'
+    ],
+    tags: ['Legal', 'Corporate', 'Compliance', 'Counsel']
   },
   {
     id: '4',
@@ -96,30 +138,79 @@ export const jobs: Job[] = [
     mode: 'Hybrid',
     category: 'Marketing & Creative',
     postedAt: '4 days ago',
+    description: 'Brandwave Solutions is seeking a visionary VP of Marketing to lead our global brand strategy and growth initiatives.',
+    requirements: [
+      '8+ years of marketing experience.',
+      'Proven success in scaling global brands.',
+      'Strong analytical and leadership skills.'
+    ],
+    benefits: [
+      'Generous PTO.',
+      'Health insurance.',
+      'Performance-based bonuses.'
+    ],
+    tags: ['Marketing', 'Branding', 'Growth', 'Executive']
   },
   {
     id: '5',
-    title: 'Chief Financial Officer',
-    company: 'Horizon Healthcare',
-    location: 'Boston, MA',
-    salary: '$200,000 – $260,000',
-    type: 'Full-time',
-    mode: 'On-site',
-    category: 'Finance & Accounting',
-    postedAt: '5 days ago',
-    featured: true,
-  },
-  {
-    id: '6',
-    title: 'Cloud Infrastructure Lead',
-    company: 'DataBridge Corp',
-    location: 'Seattle, WA',
-    salary: '$155,000 – $185,000',
+    title: 'Cloud Solutions Architect',
+    company: 'SkyNet Systems',
+    location: 'Denver, CO',
+    salary: '$160,000 – $190,000',
     type: 'Full-time',
     mode: 'Remote',
     category: 'Technology',
-    postedAt: '1 day ago',
+    postedAt: '5 hours ago',
+    description: 'Join Skynet Systems as a Lead Solutions Architect. You will design complex cloud-native architectures and lead our migration strategy.',
+    requirements: ['AWS/Azure Certification', '8+ years experience', 'Terraform proficiency'],
+    benefits: ['Equity', 'Unlimited PTO', 'Tech stipend'],
+    tags: ['Cloud', 'AWS', 'Architecture']
   },
+  {
+    id: '6',
+    title: 'Tax Manager',
+    company: 'Deloitte & Touche',
+    location: 'London, UK',
+    salary: '£75,000 – £95,000',
+    type: 'Full-time',
+    mode: 'Hybrid',
+    category: 'Finance & Accounting',
+    postedAt: '12 hours ago',
+    description: 'Leading our corporate tax advisory for major APAC clients.',
+    requirements: ['ACA/ACCA qualified', 'Tax planning experience'],
+    benefits: ['Global mobility', 'Private health'],
+    tags: ['Tax', 'Accounting', 'Finance']
+  },
+  {
+    id: '7',
+    title: 'Product Designer',
+    company: 'Creative Studio',
+    location: 'Berlin, DE',
+    salary: '€60,000 – €80,000',
+    type: 'Contract',
+    mode: 'Remote',
+    category: 'Marketing & Creative',
+    postedAt: '3 days ago',
+    description: 'Help us define the next generation of mobile banking.',
+    requirements: ['Figma expert', 'Design systems experience'],
+    benefits: ['Flexible hours', 'Creative freedom'],
+    tags: ['UI/UX', 'Figma', 'Design']
+  },
+  {
+    id: '8',
+    title: 'Investment Analyst',
+    company: 'Vanguard Capital',
+    location: 'Singapore',
+    salary: '$110,000 – $140,000',
+    type: 'Full-time',
+    mode: 'On-site',
+    category: 'Finance & Accounting',
+    postedAt: '1 week ago',
+    description: 'Focus on emerging market equities in the SEA region.',
+    requirements: ['CFA Level 2+', 'Quant modeling skills'],
+    benefits: ['Bonus pool', 'Family health'],
+    tags: ['Investments', 'Equity', 'Analyst']
+  }
 ];
 
 export const testimonials: Testimonial[] = [

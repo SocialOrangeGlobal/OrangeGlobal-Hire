@@ -18,7 +18,7 @@ const services = [
     title: 'Finance & Accounting',
     description: 'From CFOs to staff accountants, we connect organizations with financial professionals who drive fiscal performance.',
     image: '/images/services/finance.png',
-    link: '#',
+    link: '#hire-talent',
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const services = [
     title: 'Technology',
     description: 'Source elite engineers, architects, and IT leaders who can scale your technical infrastructure.',
     image: '/images/services/tech.png',
-    link: '#',
+    link: '#hire-talent',
   },
   {
     id: 3,
@@ -34,7 +34,7 @@ const services = [
     title: 'Legal',
     description: 'Place attorneys, paralegals, and compliance officers from in-house counsel to major law firms.',
     image: '/images/services/legal.png',
-    link: '#',
+    link: '#hire-talent',
   },
   {
     id: 4,
@@ -42,7 +42,7 @@ const services = [
     title: 'Marketing & Creative',
     description: 'Build brand-defining teams with strategists, designers, and content professionals who deliver results.',
     image: '/images/services/marketing.png',
-    link: '#',
+    link: '#hire-talent',
   },
   {
     id: 5,
@@ -50,7 +50,7 @@ const services = [
     title: 'Administrative Support',
     description: 'Match your organization with executive assistants, office managers, and operations professionals.',
     image: '/images/services/admin.png',
-    link: '#',
+    link: '#hire-talent',
   },
   {
     id: 6,

@@ -23,7 +23,12 @@ export default function Navbar() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const isAuthPage = ['#signin', '#signup-employer', '#signup-talent', '#signup-choice'].includes(currentHash);
+  const isSubPage = [
+    '#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password',
+    '#jobs', '#hire-talent', '#consulting', '#insights'
+  ].some(path => currentHash.startsWith(path)) || currentHash.startsWith('#apply-job');
+
+  const isAuthPage = ['#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password'].some(path => currentHash.startsWith(path));
 
   const goHome = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -64,30 +69,30 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || isAuthPage
-          ? 'bg-white shadow-sm'
-          : panelOpen || mobileOpen
-            ? 'bg-[#12161A]'
-            : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || isAuthPage || isSubPage || currentHash.startsWith('#apply-job')
+        ? 'bg-white shadow-sm'
+        : panelOpen || mobileOpen
+          ? 'bg-[#12161A]'
+          : 'bg-transparent'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
-          <div className="flex items-center gap-8 xl:gap-12">
+          <div className="flex items-center gap-4 xl:gap-12">
             {/* Logo */}
             <a href="#" onClick={goHome} className="flex items-center group relative shrink-0">
-              <div className={`flex items-center transition-all duration-300 ${scrolled || isAuthPage ? 'gap-3' : 'gap-0'}`}>
+              <div className={`flex items-center transition-all duration-300 ${scrolled || isAuthPage || isSubPage ? 'gap-3' : 'gap-0'}`}>
                 <div className="relative">
                   <img
                     src="/images/brand-logo-dark.png"
                     alt="Logo"
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-36 sm:w-44 lg:w-52 transition-opacity duration-300 ${scrolled || isAuthPage ? 'opacity-100' : 'opacity-0'
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-100' : 'opacity-0'
                       }`}
                   />
                   <img
                     src="/images/brand-logo-light.png"
                     alt="Logo"
-                    className={`w-36 sm:w-44 lg:w-52 transition-opacity duration-300 ${scrolled || isAuthPage ? 'opacity-0' : 'opacity-100'
+                    className={`w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-0' : 'opacity-100'
                       }`}
                   />
                 </div>
@@ -96,7 +101,7 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             {!isAuthPage && (
-              <nav className="hidden lg:flex items-center gap-1">
+              <nav className="hidden xl:flex items-center gap-1">
                 {navItems.map((item) => (
                   <div
                     key={item.label}
@@ -106,9 +111,9 @@ export default function Navbar() {
                   >
                     <a
                       href={item.href}
-                      className={`flex items-center gap-1 px-4 py-2 text-[15px] font-[500] rounded transition-colors ${scrolled
-                          ? 'text-[#081B2D] hover:text-rh-red'
-                          : 'text-white hover:text-rh-red'
+                      className={`flex items-center gap-1 px-3 xl:px-4 py-2 text-[14px] xl:text-[15px] font-[500] rounded transition-colors ${scrolled || isAuthPage || isSubPage
+                        ? 'text-[#081B2D] hover:text-rh-red'
+                        : 'text-white hover:text-rh-red'
                         } ${openDropdown === item.label ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
                     >
                       {item.label}
@@ -131,24 +136,24 @@ export default function Navbar() {
               <a
                 href="#"
                 onClick={goHome}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gray-50 text-gray-500 hover:bg-rh-red/5 hover:text-rh-red transition-all group border border-gray-100"
+                className="flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gray-50 text-gray-500 hover:bg-rh-red/5 hover:text-rh-red transition-all group border border-gray-100"
               >
-                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap">Back to Home</span>
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <span className="hidden sm:block text-[10px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap">Back to Home</span>
               </a>
             ) : (
               <>
-                <div className="hidden lg:flex items-center gap-6">
+                <div className="hidden xl:flex items-center gap-6">
                   <button
-                    className={`transition-colors flex items-center justify-center ${scrolled ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      } ${searchOpen ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
+                    className={`transition-colors flex items-center justify-center ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
+                      } ${searchOpen ? 'text-rh-red' : ''}`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                   <a
                     href="#signin"
-                    className={`text-md font-[500] transition-all ${scrolled ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
+                    className={`text-md font-[500] transition-all ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D] hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } hover:underline hover:underline-offset-4`}
                   >
                     Sign in
@@ -156,16 +161,16 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile Toggle */}
-                <div className="flex items-center gap-2 lg:hidden">
+                <div className="flex items-center gap-2 xl:hidden">
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-[#081B2D] hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={() => setMobileOpen(!mobileOpen)}
                     aria-label="Toggle menu"
@@ -181,14 +186,14 @@ export default function Navbar() {
 
       {/* ─── Full-width Dropdown Panel (Search + Nav items) ─── */}
       <AnimatePresence>
-        {activePanel && !isAuthPage && (
+        {activePanel && (
           <motion.div
             key={activePanel}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.22, ease: 'easeInOut' }}
-            className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 ${scrolled ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
+            className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 transition-colors duration-300 ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
               }`}
             // Keep open while hovering the panel itself (for nav items)
             onMouseEnter={() => {
@@ -204,23 +209,21 @@ export default function Navbar() {
                 <>
                   <div className="relative">
                     <Search
-                      className={`absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 ${scrolled ? 'text-gray-400' : 'text-gray-500'
-                        }`}
+                      className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-gray-400"
                     />
                     <input
                       type="text"
                       placeholder="Search jobs, talent, or insights..."
-                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled
-                          ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
-                          : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
+                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                        ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
+                        : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
                         }`}
                       autoFocus
                     />
                   </div>
                   <div className="mt-8 md:mt-12">
                     <h4
-                      className={`text-xs font-bold tracking-widest uppercase mb-6 ${scrolled ? 'text-gray-500' : 'text-gray-400'
-                        }`}
+                      className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500"
                     >
                       Quick Links
                     </h4>
@@ -229,10 +232,14 @@ export default function Navbar() {
                         (link) => (
                           <a
                             key={link}
-                            href="#"
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
-                                ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                                : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                            href={link === 'Browse jobs' ? '#jobs' : '#'}
+                            onClick={() => {
+                              setOpenDropdown(null);
+                              setSearchOpen(false);
+                            }}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                              ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                              : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
                               }`}
                           >
                             {link}
@@ -251,8 +258,7 @@ export default function Navbar() {
                 return (
                   <>
                     <h4
-                      className={`text-xs font-bold tracking-widest uppercase mb-6 ${scrolled ? 'text-gray-500' : 'text-gray-400'
-                        }`}
+                      className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500"
                     >
                       {item.label}
                     </h4>
@@ -261,9 +267,10 @@ export default function Navbar() {
                         <a
                           key={child.label}
                           href={child.href}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
-                              ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                              : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                          onClick={() => setOpenDropdown(null)}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                            ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                            : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
                             }`}
                         >
                           {child.label}
@@ -280,24 +287,34 @@ export default function Navbar() {
 
       {/* ─── Mobile Menu ─── */}
       <AnimatePresence>
-        {mobileOpen && !isAuthPage && (
+        {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={`fixed inset-0 top-[72px] z-40 lg:hidden overflow-y-auto transition-colors duration-300 ${scrolled ? 'bg-white' : 'bg-[#12161A]'
+            className={`fixed inset-0 top-[72px] z-40 lg:hidden overflow-y-auto transition-colors duration-300 ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
               }`}
           >
             <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
               <div className="space-y-2">
+                <div className={`border-b ${scrolled ? 'border-gray-50' : 'border-white/5'}`}>
+                  <a
+                    href="#"
+                    onClick={() => setMobileOpen(false)}
+                    className={`w-full block py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D]' : 'text-white'} active:text-rh-red`}
+                  >
+                    Home
+                  </a>
+                </div>
                 {navItems.map((item) => (
                   <div
                     key={item.label}
-                    className={`border-b last:border-none ${scrolled ? 'border-gray-50' : 'border-white/5'}`}
+                    className={`border-b last:border-none ${scrolled || isAuthPage || isSubPage ? 'border-gray-50' : 'border-white/5'}`}
                   >
-                    <button
-                      className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled ? 'text-[#081B2D]' : 'text-white'
+                    <a
+                      href={item.href}
+                      className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-[#081B2D]' : 'text-white'
                         } active:text-rh-red`}
                       onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
                     >
@@ -308,7 +325,7 @@ export default function Navbar() {
                             }`}
                         />
                       )}
-                    </button>
+                    </a>
                     <AnimatePresence>
                       {item.children && openDropdown === item.label && (
                         <motion.div
@@ -322,9 +339,10 @@ export default function Navbar() {
                               <a
                                 key={child.label}
                                 href={child.href}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled
-                                    ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                                    : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
+                                onClick={() => setMobileOpen(false)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isAuthPage || isSubPage
+                                  ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                  : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
                                   }`}
                               >
                                 {child.label}
@@ -339,7 +357,11 @@ export default function Navbar() {
               </div>
 
               <div className="mt-auto pt-10 space-y-4">
-                <a href="#signin" className="block w-full text-center py-4 text-lg font-bold rounded-2xl transition-all">
+                <a
+                  href="#signin"
+                  onClick={() => setMobileOpen(false)}
+                  className="block w-full text-center py-4 text-lg font-bold rounded-2xl transition-all"
+                >
                   <Button size="lg" className="w-full py-5 text-lg font-bold rounded-2xl shadow-xl">
                     Sign In
                   </Button>

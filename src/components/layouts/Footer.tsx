@@ -59,13 +59,21 @@ export default function Footer() {
                 {group}
               </h3>
               <ul className="space-y-4">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-[13px] text-gray-400 hover:text-rh-red hover:translate-x-1 transition-all inline-block">
-                      {link}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  let href = "#";
+                  if (link === 'Permanent Staffing' || link === 'Managed Staffing' || link === 'Executive Search') href = "#hire-talent";
+                  if (link === 'Project Solutions') href = "#consulting";
+                  if (link === 'Careers at Orange Global') href = "#jobs";
+                  if (link === 'Hiring Insights' || link === 'Blog' || link === 'Job Market Report' || link === 'Salary Guide') href = "#insights";
+
+                  return (
+                    <li key={link}>
+                      <a href={href} className="text-[13px] text-gray-400 hover:text-rh-red hover:translate-x-1 transition-all inline-block">
+                        {link}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

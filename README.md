@@ -1,69 +1,75 @@
-# Orange Global Hire - Staffing Portal
+# Orange Global - Staffing & Talent Solutions Portal
 
 ![Orange Global Logo](public/images/brand-logo-dark.png)
 
-A premium, enterprise-grade staffing and recruitment portal built with React, TypeScript, and Tailwind CSS. This platform connects exceptional professionals with world-class organizations, featuring a modern, responsive design and high-end interactive components.
+A premium, high-fidelity recruitment and consulting platform designed for the modern global economy. This portal provides a seamless bridge between ambitious organizations and elite professionals through AI-enhanced screening and enterprise-grade talent solutions.
 
-## 🚀 Latest Updates
-- **Full Responsive Overhaul**: Optimized all authentication pages (SignIn, SignUpChoice, SignUpEmployer, SignUpTalent) for 320px+ viewports.
-- **Improved Global Branding**: Refined Navbar and Footer with adaptive logo sizing, circular branding icons, and a cohesive design system.
-- **Enhanced Mobile UX**: Standardized touch targets, fluid grids, and responsive padding across the entire multi-step registration flow.
-- **Layout Consistency**: Implemented unified page structures (`min-h-screen pt-20`) to eliminate horizontal scrolling and layout shifts.
+## 🚀 Key Features
 
-## 🛠️ Tech Stack
+### 💼 Recruitment & Job Board
+*   **Dynamic Job Discovery**: Real-time filtering by keywords and location.
+*   **Job Details Modal**: High-fidelity, responsive modal with full social sharing capabilities (LinkedIn, Twitter/X, Facebook).
+*   **Apply Flow**: Streamlined application process with multi-step talent registration.
 
-- **Framework**: [React 18](https://reactjs.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Carousels**: [Swiper](https://swiperjs.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
+### 🏢 Enterprise Solutions
+*   **Hire Talent Portal**: Specialized staffing solutions (Permanent, Executive Search, Contract).
+*   **Consulting Services**: Strategic frameworks for business transformation and technology solutions.
+*   **Insights Engine**: Market analysis, salary guides, and leadership resources.
+
+### 🔐 Advanced Authentication
+*   **Multi-Role Access**: Dedicated flows for both Talent and Employers.
+*   **Secure Recovery**: Fully functional "Forgot Password" flow with email verification states.
+*   **Responsive UI**: Optimized for all viewports—from mobile smartphones to ultra-wide desktop monitors.
 
 ## 🏗️ Project Structure
 
 ```text
 src/
-├── components/         # Reusable UI components
-│   ├── layouts/        # Global layouts (Navbar, Footer)
-│   ├── sections/       # Feature-specific page sections
-│   │   ├── Hero.tsx
-│   │   ├── Services.tsx
-│   │   └── Testimonials.tsx
-│   └── ui/             # Atomic UI elements (Button, Badge)
-├── pages/              # Full page views
-│   ├── SignIn.tsx      # Multi-tenant login
-│   ├── SignUpChoice.tsx# Auth entry point
-│   ├── SignUpEmployer.tsx
-│   └── SignUpTalent.tsx# Complex multi-step onboarding
-├── data/               # Static configuration and constants
-├── hooks/              # Shared custom React hooks
-├── types/              # Global TypeScript definitions
-└── utils/              # Animation variants and helper functions
+├── components/
+│   ├── layouts/       # Navbar, Footer
+│   ├── sections/      # Hero, Stats, Services, CTA, etc.
+│   └── ui/            # Reusable components (Button, Modal, Badge)
+├── pages/             # Page components (Jobs, HireTalent, SignIn, etc.)
+├── hooks/             # Custom React hooks (useScrolled)
+├── data/              # Static content and navigation mapping
+├── utils/             # Helper functions and animation variants
+├── types/             # TypeScript interfaces and types
+└── App.tsx            # Root component with HashRouter logic
 ```
 
-## 📦 Installation
+## 🛠️ Technology Stack
 
-1. **Clone the repository**:
+*   **Framework**: [React](https://reactjs.org/) with [Vite](https://vitejs.dev/)
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+*   **Animations**: [Framer Motion](https://www.framer.com/motion/)
+*   **Icons**: [Lucide React](https://lucide.dev/)
+*   **Language**: [TypeScript](https://www.typescriptlang.org/)
+
+## 🏁 Getting Started
+
+### Prerequisites
+*   Node.js (v18+)
+*   npm or yarn
+
+### Installation
+1. Clone the repository:
    ```bash
-   git clone https://github.com/SocialOrangeGlobal/OrangeGlobal-Hire.git
-
-   cd OrangeGlobal-Hire
+   git clone https://github.com/your-org/orange-global-hire.git
+   cd orange-global-hire
    ```
 
-2. **Install dependencies**:
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. **Start the development server**:
+   
+3. Run the development server:
    ```bash
    npm run dev
    ```
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📱 Responsiveness
+The portal uses a **mobile-first** design approach. Navigation transitions to a clean mobile drawer at the `xl` (1280px) breakpoint to ensure perfect usability on tablets and smaller laptops.
 
 ---
 

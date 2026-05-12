@@ -12,13 +12,8 @@ export default function SignIn() {
       {/* Left Side: Professional Branding with Background Image */}
       <div className="w-full lg:w-1/2 min-h-[350px] md:min-h-[450px] lg:min-h-screen relative flex items-center justify-center p-6 md:p-12 lg:p-24 border-b lg:border-b-0 lg:border-r border-gray-100 shrink-0 overflow-hidden">
         {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
-            alt="Corporate Background"
-            className="w-full h-full object-cover scale-105"
-          />
-          <div className="absolute inset-0 bg-[#12161A]/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-0 bg-rh-dark">
+          <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
 
         <div className="relative z-10 max-w-md text-center lg:text-left">
@@ -109,7 +104,7 @@ export default function SignIn() {
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-rh-red focus:ring-rh-red" />
                   <span className="text-xs sm:text-sm text-gray-500 group-hover:text-gray-700">Remember me</span>
                 </label>
-                <a href="#" className="text-xs sm:text-sm font-bold text-rh-teal hover:text-rh-red transition-colors">Forgot Password?</a>
+                <a href="#forgot-password" className="text-xs sm:text-sm font-bold text-rh-teal hover:text-rh-red transition-colors">Forgot Password?</a>
               </div>
 
               <Button type="submit" className="w-full py-4 text-base font-bold bg-[#081B2D] hover:bg-rh-teal text-white rounded-2xl transition-all shadow-lg shadow-blue-900/10 mt-2">

@@ -12,13 +12,8 @@ export default function SignUpChoice() {
       {/* Left Side: Professional Branding with Background Image (Matches SignIn) */}
       <div className="w-full lg:w-1/2 min-h-[350px] md:min-h-[450px] lg:min-h-screen relative flex items-center justify-center p-6 md:p-12 lg:p-24 border-b lg:border-b-0 lg:border-r border-gray-100 shrink-0 overflow-hidden">
         {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
-            alt="Corporate Background"
-            className="w-full h-full object-cover scale-105"
-          />
-          <div className="absolute inset-0 bg-[#12161A]/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-0 bg-rh-dark">
+          <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184311/pexels-photo-3184311.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
 
         <div className="relative z-10 max-w-md text-center lg:text-left">

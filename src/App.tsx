@@ -13,6 +13,12 @@ import SignIn from './pages/SignIn';
 import SignUpEmployer from './pages/SignUpEmployer';
 import SignUpTalent from './pages/SignUpTalent';
 import SignUpChoice from './pages/SignUpChoice';
+import Jobs from './pages/Jobs';
+import HireTalent from './pages/HireTalent';
+import Consulting from './pages/Consulting';
+import Insights from './pages/Insights';
+import ApplyJob from './pages/ApplyJob';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -28,18 +34,18 @@ function App() {
   }, []);
 
   const renderContent = () => {
-    if (currentHash === '#signin') {
-      return <SignIn />;
-    }
-    if (currentHash === '#signup-employer') {
-      return <SignUpEmployer />;
-    }
-    if (currentHash === '#signup-talent') {
-      return <SignUpTalent />;
-    }
-    if (currentHash === '#signup-choice') {
-      return <SignUpChoice />;
-    }
+    if (currentHash === '#signin') return <SignIn />;
+    if (currentHash === '#signup-employer') return <SignUpEmployer />;
+    if (currentHash === '#signup-talent') return <SignUpTalent />;
+    if (currentHash === '#signup-choice') return <SignUpChoice />;
+
+    // Nav Items
+    if (currentHash.startsWith('#jobs')) return <Jobs />;
+    if (currentHash.startsWith('#hire-talent')) return <HireTalent />;
+    if (currentHash.startsWith('#consulting')) return <Consulting />;
+    if (currentHash.startsWith('#insights')) return <Insights />;
+    if (currentHash.startsWith('#apply-job')) return <ApplyJob />;
+    if (currentHash === '#forgot-password') return <ForgotPassword />;
 
     return (
       <>

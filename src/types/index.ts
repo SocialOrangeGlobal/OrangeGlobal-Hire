@@ -2,6 +2,7 @@ export interface Job {
   id: string;
   title: string;
   company: string;
+  companyLogo?: string;
   location: string;
   salary: string;
   type: 'Full-time' | 'Part-time' | 'Contract' | 'Temporary';
@@ -9,6 +10,10 @@ export interface Job {
   category: string;
   postedAt: string;
   featured?: boolean;
+  description?: string;
+  requirements?: string[];
+  benefits?: string[];
+  tags?: string[];
 }
 
 export interface Service {

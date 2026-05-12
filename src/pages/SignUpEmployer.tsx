@@ -1,24 +1,28 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ChevronDown, CheckCircle2, ShieldCheck, Zap, Globe2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShieldCheck, Zap, Globe2 } from 'lucide-react';
 import Button from '../components/ui/Button';
+import Dropdown from '../components/ui/Dropdown';
 
 export default function SignUpEmployer() {
+  const [positionType, setPositionType] = useState('');
+  
   const goBack = (e: React.MouseEvent) => {
     e.preventDefault();
     window.location.hash = '#signup-choice';
   };
 
   return (
-    <div className="bg-white min-h-screen pt-20 lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
+    <div className="bg-white min-h-screen pt-[72px] lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
       {/* Left Side: SignUp Form */}
-      <main className="flex-1 p-4 sm:p-12 lg:p-12 bg-[#f8f9fa] flex items-center justify-center lg:overflow-y-auto custom-scrollbar">
+      <main className="flex-1 p-4 sm:p-12 lg:p-12 bg-[#f8f9fa] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-4xl bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8 lg:p-12 border border-gray-100 py-8 lg:py-12"
+          className="w-full max-w-4xl bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8 lg:p-12 border border-gray-100 py-8 lg:py-12 mx-auto lg:my-12"
         >
           <div className="mb-8 lg:mb-10">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#081B2D] mb-2 tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-bold text-[#081B2D] mb-2 tracking-tight">
               Build Your Dream <span className="text-rh-red">Team</span>
             </h1>
             <p className="text-gray-500 text-sm sm:text-base font-medium">
@@ -42,7 +46,7 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. John"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -50,7 +54,7 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. Doe"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -58,7 +62,7 @@ export default function SignUpEmployer() {
                   <input
                     type="tel"
                     placeholder="+1 (555) 000-0000"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -66,7 +70,7 @@ export default function SignUpEmployer() {
                   <input
                     type="email"
                     placeholder="john@company.com"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -74,7 +78,7 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. Acme Corp"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -82,7 +86,7 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. Hiring Manager"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
               </div>
@@ -103,7 +107,7 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. Senior Backend Developer"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -111,20 +115,22 @@ export default function SignUpEmployer() {
                   <input
                     type="text"
                     placeholder="e.g. 10001"
-                    className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium placeholder:text-gray-300"
+                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
                 </div>
                 <div className="sm:col-span-2 space-y-2">
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
-                  <div className="relative">
-                    <select className="w-full px-5 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 font-medium appearance-none cursor-pointer">
-                      <option>Select position type</option>
-                      <option>Full-time</option>
-                      <option>Contract</option>
-                      <option>Remote</option>
-                    </select>
-                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-rh-red pointer-events-none" />
-                  </div>
+                  <Dropdown
+                    options={[
+                      { value: 'full-time', label: 'Full-time' },
+                      { value: 'contract', label: 'Contract' },
+                      { value: 'remote', label: 'Remote' }
+                    ]}
+                    value={positionType}
+                    onChange={setPositionType}
+                    placeholder="Select position type"
+                    className="w-full"
+                  />
                 </div>
               </div>
             </section>
@@ -133,7 +139,7 @@ export default function SignUpEmployer() {
               <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors text-sm sm:text-base">
                 <ArrowLeft className="w-5 h-5" /> Back to Choice
               </button>
-              <Button variant="primary" className="w-full sm:w-auto px-12 py-4 text-base sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px]">
+              <Button variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px]">
                 Continue
               </Button>
             </div>
@@ -144,13 +150,8 @@ export default function SignUpEmployer() {
       {/* Right Side: Professional Branding (Swapped for mobile consistency) */}
       <aside className="w-full lg:w-[40%] relative flex flex-col justify-center p-6 md:p-12 lg:p-24 overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-100 min-h-[350px] md:min-h-[450px] lg:min-h-screen shrink-0">
         {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1522071823991-b99c223a7092?auto=format&fit=crop&q=80"
-            alt="Team Meeting"
-            className="w-full h-full object-cover scale-105"
-          />
-          <div className="absolute inset-0 bg-[#12161A]/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-0 bg-rh-dark">
+          <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
 
         <motion.div
