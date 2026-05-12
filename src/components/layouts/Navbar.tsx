@@ -314,20 +314,26 @@ export default function Navbar() {
                     key={item.label}
                     className={`border-b last:border-none ${scrolled || isAuthPage || isSubPage ? 'border-gray-50' : 'border-white/5'}`}
                   >
-                    <a
-                      href={item.href}
-                      className={`w-full text-left flex items-center justify-between py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'
-                        } active:text-rh-red`}
-                      onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                    >
-                      {item.label}
+                    <div className="flex items-center justify-between py-4">
+                      <a
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
+                      >
+                        {item.label}
+                      </a>
+                      
                       {item.children && (
-                        <ChevronDown
-                          className={`w-5 h-5 transition-transform duration-300 ${openDropdown === item.label ? 'rotate-180' : ''
-                            }`}
-                        />
+                        <button
+                          onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                          className={`p-2 -mr-2 rounded-lg transition-colors ${scrolled || isAuthPage || isSubPage ? 'hover:bg-gray-100' : 'hover:bg-white/5'}`}
+                        >
+                          <ChevronDown
+                            className={`w-6 h-6 transition-transform duration-300 ${openDropdown === item.label ? 'rotate-180 text-rh-red' : scrolled || isAuthPage || isSubPage ? 'text-gray-400' : 'text-white/40'}`}
+                          />
+                        </button>
                       )}
-                    </a>
+                    </div>
                     <AnimatePresence>
                       {item.children && openDropdown === item.label && (
                         <motion.div
