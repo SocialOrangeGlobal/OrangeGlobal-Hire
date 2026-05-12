@@ -34,7 +34,7 @@ export default function Stats() {
                 #1
               </div>
               <p className="text-gray-600 text-base md:text-[17px] leading-relaxed max-w-sm">
-                on industry lists of America's Best Professional Recruiting Firms for 7 consecutive years
+                on industry lists of Australians Best Professional Recruiting Firms for 7 consecutive years
               </p>
             </motion.div>
           </div>
