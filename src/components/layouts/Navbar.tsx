@@ -78,15 +78,15 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
-          <div className="flex items-center gap-4 xl:gap-12">
+          <div className="flex items-center gap-6 xl:gap-10 h-full">
             {/* Logo */}
-            <a href="#" onClick={goHome} className="flex items-center group relative shrink-0">
+            <a href="#" onClick={goHome} className="flex items-center group relative shrink-0 h-full">
               <div className={`flex items-center transition-all duration-300 ${scrolled || isAuthPage || isSubPage ? 'gap-3' : 'gap-0'}`}>
-                <div className="relative">
+                <div className="relative flex items-center h-[32px] sm:h-[40px] lg:h-[48px]">
                   <img
                     src="/images/brand-logo-dark.png"
                     alt="Logo"
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-100' : 'opacity-0'
+                    className={`absolute left-0 w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-100' : 'opacity-0'
                       }`}
                   />
                   <img
@@ -101,20 +101,20 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             {!isAuthPage && (
-              <nav className="hidden xl:flex items-center gap-1">
+              <nav className="hidden xl:flex items-center gap-1 h-full">
                 {navItems.map((item) => (
                   <div
                     key={item.label}
-                    className="relative"
+                    className="relative flex items-center h-full"
                     onMouseEnter={() => handleNavEnter(item.label, !!item.children)}
                     onMouseLeave={handleNavLeave}
                   >
                     <a
                       href={item.href}
-                      className={`flex items-center gap-1 px-3 xl:px-4 py-2 text-[14px] xl:text-[15px] font-[500] rounded transition-colors ${scrolled || isAuthPage || isSubPage
-                        ? 'text-rh-teal hover:text-rh-red'
-                        : 'text-white hover:text-rh-red'
-                        } ${openDropdown === item.label ? (scrolled ? 'text-rh-red' : 'text-rh-red') : ''}`}
+                      className={`flex items-center gap-1.5 px-3 xl:px-4 py-2 text-[14px] xl:text-[15px] font-[500] rounded-lg transition-all ${scrolled || isAuthPage || isSubPage
+                        ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
+                        : 'text-white hover:text-rh-red hover:bg-white/10'
+                        } ${openDropdown === item.label ? 'text-rh-red' : ''}`}
                     >
                       {item.label}
                       {item.children && (
@@ -131,30 +131,32 @@ export default function Navbar() {
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-4 md:gap-6">
+          <div className="flex items-center gap-4 xl:gap-8 h-full">
             {isAuthPage ? (
-              <a
-                href="#"
-                onClick={goHome}
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gray-50 text-gray-500 hover:bg-rh-red/5 hover:text-rh-red transition-all group border border-gray-100"
-              >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                <span className="hidden sm:block text-[10px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap">Back to Home</span>
-              </a>
+              <div className="flex items-center h-full">
+                <a
+                  href="#"
+                  onClick={goHome}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-rh-red/5 hover:text-rh-red transition-all group border border-gray-100"
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                  <span className="hidden sm:block text-[10px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap">Back to Home</span>
+                </a>
+              </div>
             ) : (
-              <>
-                <div className="hidden xl:flex items-center gap-6">
+              <div className="flex items-center gap-6 xl:gap-8 h-full">
+                <div className="hidden xl:flex items-center gap-6 h-full">
                   <button
-                    className={`transition-colors flex items-center justify-center ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      } ${searchOpen ? 'text-rh-red' : ''}`}
+                    className={`transition-colors flex items-center justify-center p-2 rounded-full hover:bg-black/5 ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                      } ${searchOpen ? 'text-rh-red bg-black/5' : ''}`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                   <a
                     href="#signin"
-                    className={`text-md font-[500] transition-all ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      } hover:underline hover:underline-offset-4`}
+                    className={`text-[15px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                      } hover:underline hover:underline-offset-8`}
                   >
                     Sign in
                   </a>
@@ -178,7 +180,7 @@ export default function Navbar() {
                     {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -293,7 +295,7 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={`fixed inset-0 top-[72px] z-40 lg:hidden overflow-y-auto transition-colors duration-300 ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
+            className={`fixed inset-0 top-[72px] z-40 xl:hidden overflow-y-auto transition-colors duration-300 ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
               }`}
           >
             <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
