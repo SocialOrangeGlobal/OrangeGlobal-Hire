@@ -4,13 +4,13 @@ import Button from '../ui/Button';
 
 export default function Hero() {
   return (
-    <section className="relative bg-rh-dark flex items-center min-h-screen pt-20 overflow-hidden w-full">
+    <section className="relative bg-rh-dark flex items-center min-h-[100dvh] pt-20 overflow-hidden w-full">
       <div className="absolute inset-0 w-full h-full bg-[#12161A]">
         {/* Full width image */}
         <img
           src="/images/hero-image.jpg"
           alt="Professional smiling"
-          className="absolute inset-0 w-full h-full object-cover object-[75%_center] md:object-[80%_center] lg:object-center"
+          className="absolute inset-0 w-full h-full object-cover object-[75%_center] md:object-[80%_center] lg:object-center transform-gpu"
         />
         {/* Left side blur black overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#12161A]/80 via-[#12161A]/60 to-[#12161A]/90 lg:hidden"></div>
