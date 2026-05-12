@@ -6,6 +6,11 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 
 ## 🚀 Key Features
 
+### 🤖 AI-Powered Support
+*   **Orange AI Assistant**: A custom-built, floating AI chatbot that provides instant support.
+*   **Smart Contextual Routing**: Guides users to the correct portal sections (Jobs, Hiring, Consulting) based on natural language queries.
+*   **Branded Experience**: Fully integrated into the `rh-red` design system with professional animations and real-time typing simulations.
+
 ### 💼 Recruitment & Job Board
 *   **Dynamic Job Discovery**: Real-time filtering by keywords and location.
 *   **Job Details Modal**: High-fidelity, responsive modal with full social sharing capabilities (LinkedIn, Twitter/X, Facebook).

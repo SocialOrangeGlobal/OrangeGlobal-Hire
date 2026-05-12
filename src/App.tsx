@@ -9,6 +9,7 @@ import Testimonials from './components/sections/Testimonials';
 import Industries from './components/sections/Industries';
 import Cta from './components/sections/Cta';
 import Footer from './components/layouts/Footer';
+import Chatbot from './components/ui/Chatbot';
 import SignIn from './pages/SignIn';
 import SignUpEmployer from './pages/SignUpEmployer';
 import SignUpTalent from './pages/SignUpTalent';
@@ -62,12 +63,13 @@ function App() {
   };
 
   return (
-    <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col">
+    <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col relative">
       <Navbar />
       <main className="flex-1">
         {renderContent()}
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 }
