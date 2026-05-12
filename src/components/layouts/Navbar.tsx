@@ -101,7 +101,7 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             {!isAuthPage && (
-              <nav className="hidden xl:flex items-center gap-1 h-full">
+              <nav className="hidden xl:flex items-center gap-1 xl:gap-2 h-full">
                 {navItems.map((item) => (
                   <div
                     key={item.label}
@@ -111,7 +111,7 @@ export default function Navbar() {
                   >
                     <a
                       href={item.href}
-                      className={`flex items-center gap-1.5 px-3 xl:px-4 py-2 text-[14px] xl:text-[15px] font-[500] rounded-lg transition-all ${scrolled || isAuthPage || isSubPage
+                      className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${scrolled || isAuthPage || isSubPage
                         ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
                         : 'text-white hover:text-rh-red hover:bg-white/10'
                         } ${openDropdown === item.label ? 'text-rh-red' : ''}`}
@@ -119,7 +119,7 @@ export default function Navbar() {
                       {item.label}
                       {item.children && (
                         <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === item.label ? 'rotate-180' : ''
+                          className={`w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 ${openDropdown === item.label ? 'rotate-180' : ''
                             }`}
                         />
                       )}
@@ -155,7 +155,7 @@ export default function Navbar() {
                   </button>
                   <a
                     href="#signin"
-                    className={`text-[15px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                    className={`text-[14px] xl:text-[15px] 2xl:text-[16px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } hover:underline hover:underline-offset-8`}
                   >
                     Sign in
@@ -304,7 +304,7 @@ export default function Navbar() {
                   <a
                     href="#"
                     onClick={() => setMobileOpen(false)}
-                    className={`w-full block py-4 text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
+                    className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
                   >
                     Home
                   </a>
@@ -314,11 +314,11 @@ export default function Navbar() {
                     key={item.label}
                     className={`border-b last:border-none ${scrolled || isAuthPage || isSubPage ? 'border-gray-50' : 'border-white/5'}`}
                   >
-                    <div className="flex items-center justify-between py-4">
+                    <div className="flex items-center justify-between py-3 sm:py-4">
                       <a
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
-                        className={`text-lg font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
+                        className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
                       >
                         {item.label}
                       </a>
@@ -329,7 +329,7 @@ export default function Navbar() {
                           className={`p-2 -mr-2 rounded-lg transition-colors ${scrolled || isAuthPage || isSubPage ? 'hover:bg-gray-100' : 'hover:bg-white/5'}`}
                         >
                           <ChevronDown
-                            className={`w-6 h-6 transition-transform duration-300 ${openDropdown === item.label ? 'rotate-180 text-rh-red' : scrolled || isAuthPage || isSubPage ? 'text-gray-400' : 'text-white/40'}`}
+                            className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${openDropdown === item.label ? 'rotate-180 text-rh-red' : scrolled || isAuthPage || isSubPage ? 'text-gray-400' : 'text-white/40'}`}
                           />
                         </button>
                       )}
@@ -364,13 +364,13 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <div className="mt-auto pt-10 space-y-4">
+              <div className="mt-auto pt-8 sm:pt-10 space-y-4">
                 <a
                   href="#signin"
                   onClick={() => setMobileOpen(false)}
-                  className="block w-full text-center py-4 text-lg font-bold rounded-2xl transition-all"
+                  className="block w-full text-center py-3 sm:py-4 transition-all"
                 >
-                  <Button size="lg" className="w-full py-5 text-lg font-bold rounded-2xl shadow-xl">
+                  <Button size="lg" className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl shadow-xl">
                     Sign In
                   </Button>
                 </a>
