@@ -46,18 +46,17 @@ const Dropdown: React.FC<DropdownProps> = ({
           {label}
         </label>
       )}
-      
+
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-4 px-5 py-3.5 bg-white border rounded-2xl transition-all duration-300 group ${
-          isOpen ? 'border-rh-red ring-4 ring-rh-red/5' : 'border-gray-100 hover:border-gray-200'
-        }`}
+        className={`w-full flex items-center justify-between gap-4 px-4 sm:px-5 py-2.5 sm:py-3.5 bg-white border rounded-xl sm:rounded-2xl transition-all duration-300 group ${isOpen ? 'border-rh-red ring-4 ring-rh-red/5' : 'border-gray-100 hover:border-gray-200'
+          }`}
       >
-        <span className={`text-sm font-bold ${selectedOption ? 'text-rh-teal' : 'text-gray-400'}`}>
+        <span className={`text-xs sm:text-sm font-bold ${selectedOption ? 'text-rh-teal' : 'text-gray-400'}`}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-rh-red' : 'group-hover:text-rh-teal'}`} />
+        <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-rh-red' : 'group-hover:text-rh-teal'}`} />
       </button>
 
       <AnimatePresence>
@@ -67,9 +66,18 @@ const Dropdown: React.FC<DropdownProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute z-50 left-0 right-0 mt-3 bg-white border border-gray-100 rounded-[24px] shadow-2xl overflow-hidden p-2"
+            className="absolute z-50 left-0 right-0 mt-2 sm:mt-3 bg-white border border-gray-100 rounded-xl sm:rounded-[24px] shadow-2xl overflow-hidden p-1.5 sm:p-2"
           >
-            <div className="max-h-60 overflow-y-auto no-scrollbar">
+            <div className="max-h-[120px] sm:max-h-[160px] overflow-y-auto dropdown-scroll-container">
+              <style>{`
+                .dropdown-scroll-container::-webkit-scrollbar {
+                  display: none;
+                }
+                .dropdown-scroll-container {
+                  -ms-overflow-style: none;
+                  scrollbar-width: none;
+                }
+              `}</style>
               {options.map((option) => (
                 <button
                   key={option.value}
@@ -78,11 +86,10 @@ const Dropdown: React.FC<DropdownProps> = ({
                     onChange(option.value);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
-                    value === option.value 
-                    ? 'bg-rh-red/5 text-rh-red' 
+                  className={`w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-medium transition-all group ${value === option.value
+                    ? 'bg-rh-red/5 text-rh-red'
                     : 'text-gray-600 hover:bg-rh-light hover:text-rh-teal'
-                  }`}
+                    }`}
                 >
                   {option.label}
                   {value === option.value && (

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Briefcase, Filter, ChevronRight, X, Clock, Building2, Globe, ArrowRight, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/ui/JobDetailsModal';
@@ -18,9 +18,12 @@ export default function JobsPage() {
   const [sortBy, setSortBy] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isTalentLoggedIn, setIsTalentLoggedIn] = useState(false);
 
   // Check for category in URL hash/params
   useEffect(() => {
+    // In a real app, this would check a token/context. 
+    // For demo, we check if they just came from signup or have a flag.
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const category = params.get('category');
     if (category) {
@@ -90,6 +93,16 @@ export default function JobsPage() {
               Your career, <br />
               <span className="text-rh-red font-[300]">reimagined from here</span>
             </h1>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
+              <Button
+                onClick={() => window.location.hash = '#talent-dashboard'}
+                variant="primary"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white !text-rh-teal hover:bg-rh-light font-bold flex items-center gap-2"
+              >
+                View Dashboard <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
 
             <div className="relative bg-[#1a1f24]/40 backdrop-blur-3xl p-2 rounded-[24px] md:rounded-[32px] border border-white/10 flex flex-col md:flex-row items-center gap-1 md:gap-2 shadow-2xl z-20 overflow-hidden">
               <div className="flex-1 flex items-center px-4 md:px-6 gap-3 w-full border-b md:border-b-0 md:border-r border-white/5 py-1 md:py-0">
@@ -319,9 +332,9 @@ export default function JobsPage() {
       </section>
 
       {/* Full Details Overlay */}
-      <JobDetailsModal 
-        job={selectedJob} 
-        onClose={() => setSelectedJob(null)} 
+      <JobDetailsModal
+        job={selectedJob}
+        onClose={() => setSelectedJob(null)}
       />
 
       <style dangerouslySetInnerHTML={{

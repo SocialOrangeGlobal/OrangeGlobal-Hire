@@ -40,6 +40,10 @@ export const navItems: NavItem[] = [
       { label: 'Career Advice', href: '#insights' },
     ]
   },
+  {
+    label: 'Contact Us',
+    href: '#contact',
+  },
 ];
 
 export const stats: Stat[] = [

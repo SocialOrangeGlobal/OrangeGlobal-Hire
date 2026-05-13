@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { fadeUp, staggerContainer, slideInRight } from '../../utils/animations';
+import { fadeUp, staggerContainer } from '../../utils/animations';
 import Button from '../ui/Button';
 
 export default function Hero() {
@@ -43,13 +43,13 @@ export default function Hero() {
 
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Button 
+              <Button
                 onClick={() => window.location.hash = '#jobs'}
                 size="lg" className="bg-rh-red hover:bg-red-700 text-white rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px]"
               >
                 Find a job
               </Button>
-              <Button 
+              <Button
                 onClick={() => window.location.hash = '#hire-talent'}
                 size="lg" className="!bg-white hover:!bg-gray-100 !text-gray-900 rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px] border-none"
               >

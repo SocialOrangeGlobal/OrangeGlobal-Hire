@@ -54,8 +54,20 @@ export default function ConsultingPage() {
                 We go beyond staffing. Our consulting practice provides the strategic insight and technical execution needed to thrive in complex global markets.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <Button variant="primary" className="w-full sm:w-auto px-10 py-4.5 rounded-2xl bg-white !text-rh-teal hover:bg-rh-light shadow-2xl font-bold">Talk to an Expert</Button>
-                <Button variant="outline" className="w-full sm:w-auto px-10 py-4.5 rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold">Our Framework</Button>
+                <Button
+                  onClick={() => window.location.hash = '#contact'}
+                  variant="primary"
+                  className="w-full sm:w-auto px-10 py-4.5 rounded-2xl bg-white !text-rh-teal hover:bg-rh-light shadow-2xl font-bold"
+                >
+                  Talk to an Expert
+                </Button>
+                {/* <Button 
+                  onClick={() => window.location.hash = '#contact'}
+                  variant="outline" 
+                  className="w-full sm:w-auto px-10 py-4.5 rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold"
+                >
+                  Our Approach
+                </Button> */}
               </div>
             </motion.div>
           </div>
@@ -119,9 +131,15 @@ export default function ConsultingPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-12 md:mt-16 text-center lg:text-left">
-                <Button variant="primary" className="w-full sm:w-auto px-12 py-5 rounded-2xl shadow-xl shadow-rh-red/10 font-bold">Our Approach</Button>
+                <Button
+                  onClick={() => window.location.hash = '#contact'}
+                  variant="primary"
+                  className="w-full sm:w-auto px-12 py-5 rounded-2xl shadow-xl shadow-rh-red/10 font-bold"
+                >
+                  Our Approach
+                </Button>
               </div>
             </div>
 

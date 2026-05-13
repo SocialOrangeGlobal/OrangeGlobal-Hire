@@ -4,7 +4,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        'rh-red': '#eb0101ff',
+        // 'rh-red': '#eb0101ff',
+        'rh-red': '#ff5900c2',
         'rh-teal': '#004b4d',
         'rh-dark': '#0d1117',
         'rh-light': '#f4f4f4',

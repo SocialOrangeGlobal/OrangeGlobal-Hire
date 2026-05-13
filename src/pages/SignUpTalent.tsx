@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Upload, CheckCircle, Plus, Trash2, User, GraduationCap, Briefcase, Star, CheckCircle2, X } from 'lucide-react';
+import { ArrowLeft, Upload, CheckCircle, Plus, Trash2, User, GraduationCap, Briefcase, Star, CheckCircle2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 type Step = 'resume' | 'personal' | 'education' | 'skills' | 'experience' | 'success';
@@ -470,7 +470,7 @@ export default function SignUpTalent() {
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-light text-[#081B2D] mb-4 sm:mb-6 tracking-tight leading-tight">Registration Complete!</h2>
                 <p className="text-gray-500 mb-8 sm:mb-14 text-base sm:text-lg font-medium max-w-md mx-auto leading-relaxed">Your professional talent profile has been verified. You can now access global opportunities tailored to your expertise.</p>
-                <Button onClick={() => window.location.hash = ''} variant="primary" className="w-full sm:w-auto px-12 sm:px-16 py-4 sm:py-6 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] sm:rounded-[28px] shadow-2xl shadow-rh-teal/20 font-bold text-lg sm:text-xl">Go to Dashboard</Button>
+                <Button onClick={() => window.location.hash = '#talent-dashboard'} variant="primary" className="w-full sm:w-auto px-12 sm:px-16 py-4 sm:py-6 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] sm:rounded-[28px] shadow-2xl shadow-rh-teal/20 font-bold text-lg sm:text-xl">Go to Dashboard</Button>
               </motion.div>
             )}
           </AnimatePresence>

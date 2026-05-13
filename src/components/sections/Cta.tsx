@@ -29,17 +29,17 @@ export default function Cta() {
             Partner with Orange Global to access the top 5% of industry professionals. Build teams that drive measurable business impact.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              size="lg" 
-              variant="primary" 
+            <Button
+              size="lg"
+              variant="primary"
               onClick={() => window.location.hash = '#hire-talent'}
               className="px-10 py-5 text-lg font-bold shadow-[0_0_20px_rgba(215,0,54,0.4)] hover:shadow-[0_0_30px_rgba(215,0,54,0.6)]"
             >
               Hire Top Talent <ArrowRight className="w-5 h-5 ml-1" />
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               onClick={() => window.location.hash = '#jobs'}
               className="border-white/40 text-white hover:bg-gray-200 hover:text-gray-900 px-10 py-5 text-lg font-bold"
             >

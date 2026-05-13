@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles, Minus } from 'lucide-react';
-import Button from './Button';
 
 interface Message {
   id: string;
@@ -137,8 +136,8 @@ export default function Chatbot() {
                     </div>
                   )}
                   <div className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-[16px] sm:rounded-[20px] text-[13px] sm:text-sm leading-relaxed shadow-sm ${msg.sender === 'user'
-                      ? 'bg-rh-red text-white rounded-br-none'
-                      : 'bg-white text-rh-teal border border-gray-100 rounded-bl-none'
+                    ? 'bg-rh-red text-white rounded-br-none'
+                    : 'bg-white text-rh-teal border border-gray-100 rounded-bl-none'
                     }`}>
                     {msg.text}
                   </div>

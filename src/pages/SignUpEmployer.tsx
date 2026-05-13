@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, ShieldCheck, Zap, Globe2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Zap, Globe2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 
 export default function SignUpEmployer() {
   const [positionType, setPositionType] = useState('');
-  
+
   const goBack = (e: React.MouseEvent) => {
     e.preventDefault();
     window.location.hash = '#signup-choice';
@@ -30,7 +30,18 @@ export default function SignUpEmployer() {
             </p>
           </div>
 
-          <form className="space-y-8 lg:space-y-10" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="space-y-8 lg:space-y-10"
+            onSubmit={(e) => {
+              e.preventDefault();
+              // Simulating a successful signup and redirecting to dashboard
+              const btn = e.currentTarget.querySelector('button[type="submit"]');
+              if (btn) btn.innerHTML = 'Signing up...';
+              setTimeout(() => {
+                window.location.hash = '#employer-dashboard';
+              }, 1500);
+            }}
+          >
             {/* Section 1: Contact Information */}
             <section className="space-y-6">
               <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
@@ -45,6 +56,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. John"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -53,6 +65,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. Doe"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -61,6 +74,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
                   <input
                     type="tel"
+                    required
                     placeholder="+1 (555) 000-0000"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -69,6 +83,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Email</label>
                   <input
                     type="email"
+                    required
                     placeholder="john@company.com"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -77,6 +92,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. Acme Corp"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -85,6 +101,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. Hiring Manager"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -106,6 +123,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. Senior Backend Developer"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -114,6 +132,7 @@ export default function SignUpEmployer() {
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
                   <input
                     type="text"
+                    required
                     placeholder="e.g. 10001"
                     className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
                   />
@@ -136,11 +155,11 @@ export default function SignUpEmployer() {
             </section>
 
             <div className="pt-8 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <button onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors text-sm sm:text-base">
+              <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors text-sm sm:text-base">
                 <ArrowLeft className="w-5 h-5" /> Back to Choice
               </button>
-              <Button variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px]">
-                Continue
+              <Button type="submit" variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px]">
+                Complete Registration
               </Button>
             </div>
           </form>

@@ -25,7 +25,8 @@ export default function Navbar() {
 
   const isSubPage = [
     '#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password',
-    '#jobs', '#hire-talent', '#consulting', '#insights'
+    '#jobs', '#hire-talent', '#consulting', '#insights', '#post-vacancy', '#contact',
+    '#employer-dashboard', '#talent-dashboard'
   ].some(path => currentHash.startsWith(path)) || currentHash.startsWith('#apply-job');
 
   const isAuthPage = ['#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password'].some(path => currentHash.startsWith(path));
@@ -322,7 +323,7 @@ export default function Navbar() {
                       >
                         {item.label}
                       </a>
-                      
+
                       {item.children && (
                         <button
                           onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}

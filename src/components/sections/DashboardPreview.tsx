@@ -33,7 +33,7 @@ export default function DashboardPreview() {
             <motion.p variants={fadeUp} className="text-base md:text-lg text-gray-400 mb-8 md:mb-10 leading-relaxed mx-auto lg:mx-0 max-w-xl">
               Our enterprise client portal gives you real-time analytics, candidate tracking, and seamless communication. Manage your entire recruitment lifecycle from a single, intuitive interface.
             </motion.p>
-            
+
             <motion.div variants={fadeUp} className="space-y-4 mb-10 text-left max-w-md mx-auto lg:mx-0">
               {[
                 'Real-time candidate tracking',
@@ -126,9 +126,9 @@ export default function DashboardPreview() {
                           <span className="truncate">{candidate.stage}</span>
                         </div>
                         <div className="h-1 md:h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-rh-teal rounded-full" 
-                            style={{ width: `${candidate.progress}%` }} 
+                          <div
+                            className="h-full bg-rh-teal rounded-full"
+                            style={{ width: `${candidate.progress}%` }}
                           />
                         </div>
                       </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Building, DollarSign, Clock } from 'lucide-react';
+import { MapPin, Building, Clock } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';

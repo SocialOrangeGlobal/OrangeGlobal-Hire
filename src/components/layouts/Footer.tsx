@@ -46,7 +46,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Visit Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">Chandigarh, India</span>
+                  <span className="group-hover:text-white transition-colors font-medium">Sector 41, Chandigarh 160036, India</span>
                 </div>
               </div>
             </div>
