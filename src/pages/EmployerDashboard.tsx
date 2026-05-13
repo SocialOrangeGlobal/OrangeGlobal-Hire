@@ -367,7 +367,6 @@ export default function EmployerDashboard() {
 
       {/* --- MODALS --- */}
 
-      {/* 1. EDIT JOB MODAL */}
       {/* 1. EDIT VACANCY MODAL */}
       <AnimatePresence>
         {editingJob && (
@@ -380,14 +379,14 @@ export default function EmployerDashboard() {
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="relative bg-white w-full max-w-4xl rounded-t-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col mt-auto md:m-auto h-[90vh] md:h-auto max-h-[90vh]"
             >
-              <div className="px-6 md:px-12 py-6 md:py-10 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+              <div className="px-6 md:px-12 py-6 md:py-8 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
                 <div className="flex items-center gap-4 md:gap-6">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-rh-light rounded-xl md:rounded-2xl flex items-center justify-center text-rh-red shrink-0">
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-rh-light rounded-xl md:rounded-2xl flex items-center justify-center text-rh-red shrink-0">
                     <Edit3 className="w-6 h-6 md:w-8 md:h-8" />
                   </div>
                   <div>
-                    <h2 className="text-xl md:text-3xl font-bold text-rh-teal">Edit Vacancy</h2>
-                    <p className="text-[10px] md:text-sm text-gray-400 font-medium uppercase tracking-widest mt-1">Full hiring logic management</p>
+                    <h2 className="text-xl md:text-2xl font-bold text-rh-teal">Edit Job Vacancy</h2>
+                    <p className="text-[10px] md:text-xs text-gray-400 font-medium uppercase tracking-widest mt-1">Full hiring logic management</p>
                   </div>
                 </div>
                 <button onClick={() => setEditingJob(null)} className="w-10 h-10 md:w-12 md:h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
@@ -581,8 +580,8 @@ export default function EmployerDashboard() {
                       <p className="text-[10px] md:text-xs font-bold text-rh-teal/60 uppercase tracking-widest">Recommended Candidate</p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <Button onClick={() => setSchedulingInterview(viewingApplicant)} variant="primary" className="w-full h-14 md:h-20 rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-lg font-bold shadow-2xl shadow-rh-red/20 flex items-center justify-center gap-2 md:gap-3"><Calendar className="w-5 h-5 md:w-6 md:h-6" /> Schedule Interview</Button>
-                      <a href={`mailto:${viewingApplicant.email}`} className="w-full h-14 md:h-20 bg-rh-teal text-white rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-lg font-bold flex items-center justify-center gap-2 md:gap-3 hover:bg-rh-red transition-all shadow-xl shadow-rh-teal/10"><Mail className="w-5 h-5 md:w-6 md:h-6" /> Send Message</a>
+                      <Button onClick={() => setSchedulingInterview(viewingApplicant)} variant="primary" className="w-full h-14 md:h-20 rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-md font-bold shadow-2xl shadow-rh-red/20 flex items-center justify-center gap-2 md:gap-3"><Calendar className="w-5 h-5 md:w-6 md:h-6" /> Schedule Interview</Button>
+                      <a href={`mailto:${viewingApplicant.email}`} className="w-full h-14 md:h-20 bg-rh-teal text-white rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-md font-bold flex items-center justify-center gap-2 md:gap-3 hover:bg-rh-red transition-all shadow-xl shadow-rh-teal/10"><Mail className="w-5 h-5 md:w-6 md:h-6" /> Send Message</a>
                     </div>
                   </div>
                 </div>
@@ -605,13 +604,13 @@ export default function EmployerDashboard() {
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="relative bg-white w-full max-w-2xl rounded-t-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col mt-auto md:m-auto h-[80vh] md:h-auto max-h-[85vh]"
             >
-              <div className="px-6 md:px-12 py-6 md:py-12 border-b border-gray-100 flex flex-col items-center shrink-0 bg-white relative">
+              <div className="px-6 md:px-12 py-6 md:py-8 border-b border-gray-100 flex flex-col items-center shrink-0 bg-white relative">
                 <button onClick={() => setSchedulingInterview(null)} className="absolute top-4 right-4 md:top-8 md:right-8 w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all"><X className="w-5 h-5" /></button>
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-rh-red/5 rounded-xl md:rounded-[32px] flex items-center justify-center text-rh-red mb-4 md:mb-8">
-                  <Calendar className="w-6 h-6 md:w-10 md:h-10" />
+                <div className="w-12 h-12 md:w-15 md:h-15 bg-rh-red/5 rounded-xl md:rounded-[32px] flex items-center justify-center text-rh-red mb-4">
+                  <Calendar className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl md:text-4xl font-bold text-rh-teal mb-1 md:mb-3">Set Interview</h2>
-                <p className="text-[10px] md:text-base text-gray-400 font-medium">Inviting {schedulingInterview.name} to panel</p>
+                <h2 className="text-xl md:text-3xl font-bold text-rh-teal mb-1 md:mb-3">Set Interview</h2>
+                <p className="text-[10px] md:text-sm text-gray-400 font-medium">Inviting {schedulingInterview.name} to panel</p>
               </div>
 
               <div className="p-6 md:p-12 overflow-y-auto custom-scrollbar flex-1">
@@ -655,27 +654,27 @@ export default function EmployerDashboard() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative bg-white w-full max-w-lg rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden p-8 md:p-12 text-center"
             >
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-rh-red/5 rounded-[32px] flex items-center justify-center text-rh-red mx-auto mb-8">
-                <Trash2 className="w-10 h-10 md:w-12 md:h-12" />
+              <div className="w-20 h-20 bg-rh-red/5 rounded-[32px] flex items-center justify-center text-rh-red mx-auto mb-8">
+                <Trash2 className="w-10 h-10" />
               </div>
 
-              <h2 className="text-2xl md:text-4xl font-bold text-rh-teal mb-4 md:mb-6 leading-tight">Remove Vacancy?</h2>
-              <p className="text-gray-500 text-sm md:text-lg font-medium mb-10 md:mb-12 px-4">
+              <h2 className="text-2xl md:text-2xl font-bold text-rh-teal mb-4 md:mb-6 leading-tight">Remove Vacancy?</h2>
+              <p className="text-gray-500 text-sm md:text-md font-medium mb-10 md:mb-12 px-4">
                 Are you sure you want to delete <span className="text-rh-teal font-bold">"{deletingJob.title}"</span>? This action is permanent and will remove all applicant associations.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={() => setDeletingJob(null)}
-                  className="flex-1 py-4 md:py-6 bg-rh-light text-rh-teal rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-lg font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 md:gap-3"
+                  className="flex-1 py-4 md:py-6 bg-rh-light text-rh-teal rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-md font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 md:gap-3"
                 >
-                  <ShieldCheck className="w-4 h-4 md:w-6 md:h-6" /> Keep Vacancy
+                  <ShieldCheck className="w-4 h-4" /> Keep Vacancy
                 </button>
                 <button
                   onClick={confirmDeleteJob}
-                  className="flex-1 py-4 md:py-6 bg-rh-red text-white rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-lg font-bold shadow-xl shadow-rh-red/20 hover:bg-rh-red/90 transition-all flex items-center justify-center gap-2 md:gap-3"
+                  className="flex-1 py-4 md:py-6 bg-rh-red text-white rounded-2xl md:rounded-[32px] text-xs sm:text-sm md:text-md font-bold shadow-xl shadow-rh-red/20 hover:bg-rh-red/90 transition-all flex items-center justify-center gap-2 md:gap-3"
                 >
-                  <Trash2 className="w-4 h-4 md:w-6 md:h-6" /> Delete Permanently
+                  <Trash2 className="w-4 h-4" /> Delete Permanently
                 </button>
               </div>
             </motion.div>
