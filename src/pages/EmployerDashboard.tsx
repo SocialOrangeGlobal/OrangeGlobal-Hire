@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, Users, CheckCircle2,
   ChevronRight, Plus, Search,
@@ -19,6 +20,7 @@ import DeleteConfirmationModal from '../components/modals/employer-dashboard/Del
 import { employerDashboardJobs, employerDashboardApplicants } from '../data';
 
 export default function EmployerDashboard() {
+  const navigate = useNavigate();
   // --- STATE ---
   const [jobs, setJobs] = useState(employerDashboardJobs);
   const [applicants, setApplicants] = useState(employerDashboardApplicants);
@@ -76,7 +78,7 @@ export default function EmployerDashboard() {
   };
 
   const handlePostJob = () => {
-    window.location.hash = '#post-vacancy?from=employer-dashboard';
+    navigate('/post-vacancy?from=employer-dashboard');
   };
 
   // --- RENDER HELPERS ---
@@ -154,7 +156,7 @@ export default function EmployerDashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
               <button
-                onClick={() => window.location.hash = ''}
+                onClick={() => navigate('/')}
                 className="flex items-center gap-2 text-gray-400 hover:text-rh-red transition-colors mb-4 group text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]"
               >
                 <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" /> Back to Home

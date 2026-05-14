@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layouts/Navbar';
 import Hero from './components/sections/Hero';
 import Stats from './components/sections/Stats';
@@ -25,56 +26,47 @@ import Contact from './pages/Contact';
 import EmployerDashboard from './pages/EmployerDashboard';
 import TalentDashboard from './pages/TalentDashboard';
 
+const LandingPage = () => (
+  <>
+    <Hero />
+    <Stats />
+    <Services />
+    <WhyChooseUs />
+    <FeaturedJobs />
+    <Testimonials />
+    <Industries />
+    <Cta />
+  </>
+);
+
 function App() {
-  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentHash(window.location.hash);
-      window.scrollTo(0, 0);
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const renderContent = () => {
-    if (currentHash === '#signin') return <SignIn />;
-    if (currentHash === '#signup-employer') return <SignUpEmployer />;
-    if (currentHash === '#signup-talent') return <SignUpTalent />;
-    if (currentHash.startsWith('#employer-dashboard')) return <EmployerDashboard />;
-    if (currentHash.startsWith('#talent-dashboard')) return <TalentDashboard />;
-    if (currentHash === '#signup-choice') return <SignUpChoice />;
-
-    // Nav Items
-    if (currentHash.startsWith('#jobs')) return <Jobs />;
-    if (currentHash.startsWith('#hire-talent')) return <HireTalent />;
-    if (currentHash.startsWith('#consulting')) return <Consulting />;
-    if (currentHash.startsWith('#insights')) return <Insights />;
-    if (currentHash.startsWith('#apply-job')) return <ApplyJob />;
-    if (currentHash.startsWith('#post-vacancy')) return <PostVacancy />;
-    if (currentHash === '#forgot-password') return <ForgotPassword />;
-    if (currentHash === '#contact') return <Contact />;
-
-    return (
-      <>
-        <Hero />
-        <Stats />
-        <Services />
-        <WhyChooseUs />
-        <FeaturedJobs />
-        <Testimonials />
-        <Industries />
-        <Cta />
-      </>
-    );
-  };
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col relative">
       <Navbar />
       <main className="flex-1">
-        {renderContent()}
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup-employer" element={<SignUpEmployer />} />
+          <Route path="/signup-talent" element={<SignUpTalent />} />
+          <Route path="/signup-choice" element={<SignUpChoice />} />
+          <Route path="/employer-dashboard/*" element={<EmployerDashboard />} />
+          <Route path="/talent-dashboard/*" element={<TalentDashboard />} />
+          <Route path="/jobs/*" element={<Jobs />} />
+          <Route path="/hire-talent/*" element={<HireTalent />} />
+          <Route path="/consulting/*" element={<Consulting />} />
+          <Route path="/insights/*" element={<Insights />} />
+          <Route path="/apply-job/*" element={<ApplyJob />} />
+          <Route path="/post-vacancy/*" element={<PostVacancy />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
       </main>
       <Footer />
       <Chatbot />

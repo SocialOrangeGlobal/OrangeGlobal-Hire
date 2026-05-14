@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Users, UserCheck, Search, ShieldCheck,
   ArrowRight, Globe2, Zap
@@ -11,6 +12,7 @@ import { SolutionDetail } from '../types';
 import { hireTalentSolutionCards } from '../data';
 
 export default function HireTalentPage() {
+  const navigate = useNavigate();
   const [selectedSolution, setSelectedSolution] = useState<SolutionDetail | null>(null);
 
   return (
@@ -36,7 +38,7 @@ export default function HireTalentPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Button
                   variant="primary"
-                  onClick={() => window.location.hash = '#employer-dashboard'}
+                  onClick={() => navigate('/employer-dashboard')}
                   className="w-full sm:w-auto px-10 py-4.5 rounded-2xl shadow-xl shadow-rh-red/20 text-sm font-bold"
                 >
                   Go to Dashboard
@@ -155,7 +157,7 @@ export default function HireTalentPage() {
               <div className="mt-10 sm:mt-12 md:mt-16 text-center lg:text-left">
                 <Button
                   variant="primary"
-                  onClick={() => window.location.hash = '#employer-dashboard'}
+                  onClick={() => navigate('/employer-dashboard')}
                   className="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl shadow-xl shadow-rh-red/10 font-bold text-xs sm:text-sm md:text-base"
                 >
                   Go to Dashboard

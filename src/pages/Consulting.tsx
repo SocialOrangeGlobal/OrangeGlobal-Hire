@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { fadeUp } from '../utils/animations';
 import { featuredInsights, solutions } from '../data/index';
 
 export default function ConsultingPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
@@ -26,7 +28,7 @@ export default function ConsultingPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Button
-                  onClick={() => window.location.hash = '#contact'}
+                  onClick={() => navigate('/contact')}
                   variant="primary"
                   className="w-full sm:w-auto px-10 py-4.5 rounded-2xl bg-white !text-rh-teal hover:bg-rh-light shadow-2xl font-bold"
                 >
@@ -95,7 +97,7 @@ export default function ConsultingPage() {
 
               <div className="mt-12 md:mt-16 text-center lg:text-left">
                 <Button
-                  onClick={() => window.location.hash = '#contact'}
+                  onClick={() => navigate('/contact')}
                   variant="primary"
                   className="w-full sm:w-auto px-12 py-5 rounded-2xl shadow-xl shadow-rh-red/10 font-bold"
                 >

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Building2, MapPin, FileText, CheckCircle2,
   ChevronRight, Sparkles, Send, Plus, Trash2
@@ -12,6 +13,7 @@ import { postVacancyJobCategories, postVacancyWorkMode } from '../data';
 type Step = 'basics' | 'details' | 'perks' | 'success';
 
 export default function PostVacancyPage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('basics');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -68,7 +70,7 @@ export default function PostVacancyPage() {
     setStep('success');
   };
 
-  const goHome = () => window.location.hash = '#hire-talent';
+  const goHome = () => navigate('/hire-talent');
 
   if (step === 'success') {
     return (
@@ -85,8 +87,8 @@ export default function PostVacancyPage() {
             Your vacancy for <strong>{formData.jobTitle}</strong> at <strong>{formData.companyName}</strong> has been successfully submitted. Our consultants will review it and get back to you within 24 hours.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-            <Button variant="primary" onClick={() => window.location.hash = '#employer-dashboard'} className="w-full sm:w-auto px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base">Go to Dashboard</Button>
-            <Button variant="outline" onClick={() => window.location.hash = '#jobs'} className="w-full sm:w-auto px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl border-gray-100 text-sm sm:text-base">View Active Jobs</Button>
+            <Button variant="primary" onClick={() => navigate('/employer-dashboard')} className="w-full sm:w-auto px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base">Go to Dashboard</Button>
+            <Button variant="outline" onClick={() => navigate('/jobs')} className="w-full sm:w-auto px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl border-gray-100 text-sm sm:text-base">View Active Jobs</Button>
           </div>
         </motion.div>
       </div>
@@ -99,7 +101,7 @@ export default function PostVacancyPage() {
         <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <button
-              onClick={() => window.location.hash = '#employer-dashboard'}
+              onClick={() => navigate('/employer-dashboard')}
               className="flex items-center gap-2 text-gray-400 hover:text-rh-red transition-colors mb-4 sm:mb-6 group text-[10px] sm:text-sm font-bold uppercase tracking-widest"
             >
               <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />

@@ -37,31 +37,33 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 src/
 ├── components/
 │   ├── layouts/       # Navbar, Footer
-│   ├── modals/        # Centralized modal components (Dashboard, Job Details, Profile)
-│   ├── sections/      # Hero, Stats, Services, CTA, DashboardPreview
-│   └── ui/            # Reusable components (Button, Badge, Dropdown, Chatbot)
-├── pages/             
-│   ├── TalentDashboard    # Talent Command Hub with application tracking
-│   ├── EmployerDashboard  # Recruitment management for companies
-│   ├── Jobs/ApplyJob      # Job board and multi-step application flow
-│   ├── HireTalent         # Enterprise staffing solution services
-│   ├── Consulting         # Strategic business transformation frameworks
-│   ├── Insights           # Market analysis and leadership resources
-│   └── Auth/SignUp        # Choice-based authentication flows (Talent vs Employer)
+│   ├── modals/        # Reorganized modal system (Dashboards, Job Details, Solutions)
+│   ├── sections/      # Hero, Stats, Services, CTA, FeaturedJobs
+│   └── ui/            # Atomic UI components (Button, Badge, Dropdown, Chatbot)
+├── pages/             # Page components mapped to React Router routes
+│   ├── TalentDashboard    # Talent Command Hub
+│   ├── EmployerDashboard  # Corporate Command Center
+│   ├── Jobs/ApplyJob      # Recruitment board and application flow
+│   ├── HireTalent         # Staffing solutions landing
+│   ├── Consulting         # Strategy & implementation services
+│   ├── Insights           # Knowledge hub and reports
+│   └── Auth/SignUp        # Choice-based entry flows
 ├── hooks/             # Custom React hooks (useScrolled)
-├── data/              # Centralized mock data, content mapping, and nav structures
-├── utils/             # Helper functions and Framer Motion animation variants
-├── types/             # Centralized TypeScript interfaces for all components and pages
-└── App.tsx            # HashRouter logic and root application structure
+├── data/              # Centralized data store (src/data/index.ts)
+├── types/             # Centralized TypeScript definitions (src/types/index.ts)
+├── utils/             # Animations, formatters, and helpers
+├── main.tsx           # Application entry point with BrowserRouter
+└── App.tsx            # Declarative routing and layout orchestration
 ```
 
 ## 🛠️ Technology Stack
 
 *   **Framework**: [React](https://reactjs.org/) 18+ with [Vite](https://vitejs.dev/)
+*   **Routing**: [React Router DOM](https://reactrouter.com/) (Standard path-based navigation)
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/) (Mobile-First approach)
 *   **Animations**: [Framer Motion](https://www.framer.com/motion/) (Spring physics & glassmorphism)
 *   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Language**: [TypeScript](https://www.typescriptlang.org/)
+*   **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict type safety)
 
 ## 🏁 Getting Started
 

@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
 import { Users, Briefcase } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 export default function SignUpChoice() {
+  const navigate = useNavigate();
   const selectChoice = (choice: 'talent' | 'employer') => {
-    window.location.hash = `#signup-${choice}`;
+    navigate(`/signup-${choice}`);
   };
 
   return (
@@ -106,9 +108,9 @@ export default function SignUpChoice() {
           <div className="mt-8 sm:mt-12 text-center">
             <p className="text-gray-500 text-sm">
               Already have an account?{' '}
-              <a href="#signin" className="text-rh-red font-bold hover:underline underline-offset-4 ml-1">
+              <Link to="/signin" className="text-rh-red font-bold hover:underline underline-offset-4 ml-1">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

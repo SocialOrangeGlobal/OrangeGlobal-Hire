@@ -26,46 +26,46 @@ export const subjectOptions: DropdownOption[] = [
 export const navItems: NavItem[] = [
   {
     label: 'Find Jobs',
-    href: '#jobs',
+    href: '/jobs',
     children: [
-      { label: 'Finance & Accounting', href: '#jobs?category=Finance%20&%20Accounting' },
-      { label: 'Technology', href: '#jobs?category=Technology' },
-      { label: 'Legal', href: '#jobs?category=Legal' },
-      { label: 'Marketing & Creative', href: '#jobs?category=Marketing%20&%20Creative' },
-      { label: 'Administrative', href: '#jobs?category=Administrative' },
+      { label: 'Finance & Accounting', href: '/jobs?category=Finance%20&%20Accounting' },
+      { label: 'Technology', href: '/jobs?category=Technology' },
+      { label: 'Legal', href: '/jobs?category=Legal' },
+      { label: 'Marketing & Creative', href: '/jobs?category=Marketing%20&%20Creative' },
+      { label: 'Administrative', href: '/jobs?category=Administrative' },
     ],
   },
   {
     label: 'Hire Talent',
-    href: '#hire-talent',
+    href: '/hire-talent',
     children: [
-      { label: 'Permanent Staffing', href: '#hire-talent' },
-      { label: 'Contract Staffing', href: '#hire-talent' },
-      { label: 'Executive Search', href: '#hire-talent' },
-      { label: 'Project Solutions', href: '#hire-talent' },
+      { label: 'Permanent Staffing', href: '/hire-talent' },
+      { label: 'Contract Staffing', href: '/hire-talent' },
+      { label: 'Executive Search', href: '/hire-talent' },
+      { label: 'Project Solutions', href: '/hire-talent' },
     ],
   },
   {
     label: 'Explore Consulting Solutions',
-    href: '#consulting',
+    href: '/consulting',
     children: [
-      { label: 'Business Transformation', href: '#consulting' },
-      { label: 'Technology Solutions', href: '#consulting' },
-      { label: 'Financial Management', href: '#consulting' },
+      { label: 'Business Transformation', href: '/consulting' },
+      { label: 'Technology Solutions', href: '/consulting' },
+      { label: 'Financial Management', href: '/consulting' },
     ],
   },
   {
     label: 'Discover Insights',
-    href: '#insights',
+    href: '/insights',
     children: [
-      { label: 'Salary Guide', href: '#insights' },
-      { label: 'Hiring Trends', href: '#insights' },
-      { label: 'Career Advice', href: '#insights' },
+      { label: 'Salary Guide', href: '/insights' },
+      { label: 'Hiring Trends', href: '/insights' },
+      { label: 'Career Advice', href: '/insights' },
     ]
   },
   {
     label: 'Contact Us',
-    href: '#contact',
+    href: '/contact',
   },
 ];
 
@@ -438,7 +438,7 @@ export const services: Service[] = [
     title: 'Finance & Accounting',
     description: 'From CFOs to staff accountants, we connect organizations with financial professionals who drive fiscal performance.',
     image: '/images/services/finance.png',
-    link: '#hire-talent',
+    link: '/hire-talent',
   },
   {
     id: 2,
@@ -446,7 +446,7 @@ export const services: Service[] = [
     title: 'Technology',
     description: 'Source elite engineers, architects, and IT leaders who can scale your technical infrastructure.',
     image: '/images/services/tech.png',
-    link: '#hire-talent',
+    link: '/hire-talent',
   },
   {
     id: 3,
@@ -454,7 +454,7 @@ export const services: Service[] = [
     title: 'Legal',
     description: 'Place attorneys, paralegals, and compliance officers from in-house counsel to major law firms.',
     image: '/images/services/legal.png',
-    link: '#hire-talent',
+    link: '/hire-talent',
   },
   {
     id: 4,
@@ -462,7 +462,7 @@ export const services: Service[] = [
     title: 'Marketing & Creative',
     description: 'Build brand-defining teams with strategists, designers, and content professionals who deliver results.',
     image: '/images/services/marketing.png',
-    link: '#hire-talent',
+    link: '/hire-talent',
   },
   {
     id: 5,
@@ -470,7 +470,7 @@ export const services: Service[] = [
     title: 'Administrative Support',
     description: 'Match your organization with executive assistants, office managers, and operations professionals.',
     image: '/images/services/admin.png',
-    link: '#hire-talent',
+    link: '/hire-talent',
   },
   {
     id: 6,
@@ -478,7 +478,7 @@ export const services: Service[] = [
     title: 'Executive Search',
     description: 'Our retained executive search practice identifies and secures transformational C-suite and VP-level leaders.',
     image: '/images/services/executive.png',
-    link: '#',
+    link: '/hire-talent',
   },
 ];
 

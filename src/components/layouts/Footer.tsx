@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Linkedin, Twitter, Facebook, Mail, Phone, MapPin } from 'lucide-react';
 import { footerLinks } from '../../data';
 
@@ -11,7 +12,7 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <img src="/images/logo-icon.png" alt="Logo" className="w-20 sm:w-25 lg:w-30" />
               <p className="text-gray-400 text-sm leading-relaxed text-center sm:text-left max-w-sm">
-                Orange Global is a <a href="https://orangeglobal.in/" className="text-rh-red hover:underline">leading staffing & talent solutions</a>
+                Orange Global is a <a href="https://orangeglobal.in/" target="_blank" rel="noopener noreferrer" className="text-rh-red hover:underline">leading staffing & talent solutions</a>
               </p>
             </div>
 
@@ -54,17 +55,17 @@ export default function Footer() {
               </h3>
               <ul className="space-y-4">
                 {links.map((link) => {
-                  let href = "#";
-                  if (link === 'Permanent Staffing' || link === 'Managed Staffing' || link === 'Executive Search') href = "#hire-talent";
-                  if (link === 'Project Solutions') href = "#consulting";
-                  if (link === 'Careers at Orange Global') href = "#jobs";
-                  if (link === 'Hiring Insights' || link === 'Blog' || link === 'Job Market Report' || link === 'Salary Guide') href = "#insights";
+                  let href = "/";
+                  if (link === 'Permanent Staffing' || link === 'Managed Staffing' || link === 'Executive Search') href = "/hire-talent";
+                  if (link === 'Project Solutions') href = "/consulting";
+                  if (link === 'Careers at Orange Global') href = "/jobs";
+                  if (link === 'Hiring Insights' || link === 'Blog' || link === 'Job Market Report' || link === 'Salary Guide') href = "/insights";
 
                   return (
                     <li key={link}>
-                      <a href={href} className="text-[13px] text-gray-400 hover:text-rh-red hover:translate-x-1 transition-all inline-block">
+                      <Link to={href} className="text-[13px] text-gray-400 hover:text-rh-red hover:translate-x-1 transition-all inline-block">
                         {link}
-                      </a>
+                      </Link>
                     </li>
                   );
                 })}

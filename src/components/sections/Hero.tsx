@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { fadeUp, staggerContainer } from '../../utils/animations';
 import Button from '../ui/Button';
 
 export default function Hero() {
+  const navigate = useNavigate();
   return (
     <section className="relative bg-rh-dark flex items-center min-h-[100dvh] pt-20 overflow-hidden w-full">
       <div className="absolute inset-0 w-full h-full bg-[#12161A]">
@@ -44,13 +46,13 @@ export default function Hero() {
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Button
-                onClick={() => window.location.hash = '#jobs'}
+                onClick={() => navigate('/jobs')}
                 size="lg" className="bg-rh-red hover:bg-red-700 text-white rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px]"
               >
                 Find a job
               </Button>
               <Button
-                onClick={() => window.location.hash = '#hire-talent'}
+                onClick={() => navigate('/hire-talent')}
                 size="lg" className="!bg-white hover:!bg-gray-100 !text-gray-900 rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px] border-none"
               >
                 Find talent

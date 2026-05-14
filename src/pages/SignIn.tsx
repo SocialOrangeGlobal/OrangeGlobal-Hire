@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 
@@ -104,7 +105,7 @@ export default function SignIn() {
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-rh-red focus:ring-rh-red" />
                   <span className="text-xs sm:text-sm text-gray-500 group-hover:text-gray-700">Remember me</span>
                 </label>
-                <a href="#forgot-password" className="text-xs sm:text-sm font-bold text-rh-teal hover:text-rh-red transition-colors">Forgot Password?</a>
+                <Link to="/forgot-password" className="text-xs sm:text-sm font-bold text-rh-teal hover:text-rh-red transition-colors">Forgot Password?</Link>
               </div>
 
               <Button type="submit" className="w-full py-4 text-base font-bold bg-[#081B2D] hover:bg-rh-teal text-white rounded-2xl transition-all shadow-lg shadow-blue-900/10 mt-2">
@@ -115,9 +116,9 @@ export default function SignIn() {
             <div className="pt-8 text-center">
               <p className="text-gray-500 text-sm">
                 Don't have an account?{' '}
-                <a href="#signup-choice" className="text-rh-red font-bold hover:underline underline-offset-4 ml-1">
+                <Link to="/signup-choice" className="text-rh-red font-bold hover:underline underline-offset-4 ml-1">
                   Sign Up
-                </a>
+                </Link>
               </p>
             </div>
           </motion.div>

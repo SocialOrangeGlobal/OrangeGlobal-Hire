@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
 import { ChevronDown, Menu, X, Search, ArrowLeft } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { navItems } from '../../data';
 import Button from '../ui/Button';
 
@@ -10,31 +11,22 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const location = useLocation();
+  const pathname = location.pathname;
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentHash(window.location.hash);
-      setMobileOpen(false);
-      setSearchOpen(false);
-      setOpenDropdown(null);
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+    setMobileOpen(false);
+    setSearchOpen(false);
+    setOpenDropdown(null);
+  }, [pathname]);
 
   const isSubPage = [
-    '#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password',
-    '#jobs', '#hire-talent', '#consulting', '#insights', '#post-vacancy', '#contact',
-    '#employer-dashboard', '#talent-dashboard'
-  ].some(path => currentHash.startsWith(path)) || currentHash.startsWith('#apply-job');
+    '/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password',
+    '/jobs', '/hire-talent', '/consulting', '/insights', '/post-vacancy', '/contact',
+    '/employer-dashboard', '/talent-dashboard', '/apply-job'
+  ].some(path => pathname.startsWith(path));
 
-  const isAuthPage = ['#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password'].some(path => currentHash.startsWith(path));
-
-  const goHome = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.hash = '';
-  };
+  const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password'].some(path => pathname.startsWith(path));
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -69,7 +61,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage || currentHash.startsWith('#apply-job')
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage
         ? 'bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
         : panelOpen || mobileOpen
           ? 'bg-[#12161A]'
@@ -80,7 +72,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-[72px]">
           <div className="flex items-center gap-6 xl:gap-10 h-full">
             {/* Logo */}
-            <a href="#" onClick={goHome} className="flex items-center group relative shrink-0 h-full">
+            <Link to="/" className="flex items-center group relative shrink-0 h-full">
               <div className={`flex items-center transition-all duration-300 ${scrolled || isAuthPage || isSubPage ? 'gap-3' : 'gap-0'}`}>
                 <div className="relative flex items-center h-[32px] sm:h-[40px] lg:h-[48px]">
                   <img
@@ -97,7 +89,7 @@ export default function Navbar() {
                   />
                 </div>
               </div>
-            </a>
+            </Link>
 
             {/* Desktop Nav */}
             {!isAuthPage && (
@@ -109,8 +101,8 @@ export default function Navbar() {
                     onMouseEnter={() => handleNavEnter(item.label, !!item.children)}
                     onMouseLeave={handleNavLeave}
                   >
-                    <a
-                      href={item.href}
+                    <Link
+                      to={item.href}
                       className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${scrolled || isAuthPage || isSubPage
                         ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
                         : 'text-white hover:text-rh-red hover:bg-white/10'
@@ -123,7 +115,7 @@ export default function Navbar() {
                             }`}
                         />
                       )}
-                    </a>
+                    </Link>
                   </div>
                 ))}
               </nav>
@@ -134,45 +126,44 @@ export default function Navbar() {
           <div className="flex items-center gap-4 xl:gap-8 h-full">
             {isAuthPage ? (
               <div className="flex items-center h-full">
-                <a
-                  href="#"
-                  onClick={goHome}
+                <Link
+                  to="/"
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-rh-red/5 hover:text-rh-red transition-all group border border-gray-100"
                 >
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                   <span className="hidden sm:block text-[10px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap">Back to Home</span>
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center gap-6 xl:gap-8 h-full">
                 <div className="hidden xl:flex items-center gap-6 h-full">
                   <button
-                    className={`transition-colors flex items-center justify-center p-2 rounded-full hover:bg-black/5 ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                    className={`transition-colors flex items-center justify-center p-2 rounded-full hover:bg-black/5 ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } ${searchOpen ? 'text-rh-red bg-black/5' : ''}`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
-                  <a
-                    href="#signin"
+                  <Link
+                    to="/signin"
                     className={`text-[14px] xl:text-[15px] 2xl:text-[16px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
                       } hover:underline hover:underline-offset-8`}
                   >
                     Sign in
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Mobile Toggle */}
                 <div className="flex items-center gap-2 xl:hidden">
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={handleSearchToggle}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                   <button
-                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
                     onClick={() => setMobileOpen(!mobileOpen)}
                     aria-label="Toggle menu"
@@ -195,7 +186,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.22, ease: 'easeInOut' }}
-            className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 transition-colors duration-300 ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
+            className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 transition-colors duration-300 ${scrolled || isSubPage || isAuthPage ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
               }`}
             onMouseEnter={() => {
               if (activePanel !== '__search__') setOpenDropdown(activePanel);
@@ -215,7 +206,7 @@ export default function Navbar() {
                     <input
                       type="text"
                       placeholder="Search jobs, talent, or insights..."
-                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage
                         ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
                         : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
                         }`}
@@ -231,20 +222,20 @@ export default function Navbar() {
                     <div className="flex flex-wrap gap-3 md:gap-4">
                       {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
                         (link) => (
-                          <a
+                          <Link
                             key={link}
-                            href={link === 'Browse jobs' ? '#jobs' : '#'}
+                            to={link === 'Browse jobs' ? '/jobs' : '/'}
                             onClick={() => {
                               setOpenDropdown(null);
                               setSearchOpen(false);
                             }}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
                               ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
                               : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
                               }`}
                           >
                             {link}
-                          </a>
+                          </Link>
                         )
                       )}
                     </div>
@@ -265,17 +256,17 @@ export default function Navbar() {
                     </h4>
                     <div className="flex flex-wrap gap-3 md:gap-4">
                       {item.children.map((child) => (
-                        <a
+                        <Link
                           key={child.label}
-                          href={child.href}
+                          to={child.href}
                           onClick={() => setOpenDropdown(null)}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job')
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
                             ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
                             : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
                             }`}
                         >
                           {child.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   </>
@@ -300,13 +291,13 @@ export default function Navbar() {
             <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
               <div className="space-y-2">
                 <div className={`border-b ${scrolled ? 'border-gray-50' : 'border-white/5'}`}>
-                  <a
-                    href="#"
+                  <Link
+                    to="/"
                     onClick={() => setMobileOpen(false)}
                     className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
                   >
                     Home
-                  </a>
+                  </Link>
                 </div>
                 {navItems.map((item) => (
                   <div
@@ -314,13 +305,13 @@ export default function Navbar() {
                     className={`border-b last:border-none ${scrolled || isAuthPage || isSubPage ? 'border-gray-50' : 'border-white/5'}`}
                   >
                     <div className="flex items-center justify-between py-3 sm:py-4">
-                      <a
-                        href={item.href}
+                      <Link
+                        to={item.href}
                         onClick={() => setMobileOpen(false)}
                         className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
                       >
                         {item.label}
-                      </a>
+                      </Link>
 
                       {item.children && (
                         <button
@@ -343,9 +334,9 @@ export default function Navbar() {
                         >
                           <div className="flex flex-wrap gap-3 pb-2">
                             {item.children.map((child) => (
-                              <a
+                              <Link
                                 key={child.label}
-                                href={child.href}
+                                to={child.href}
                                 onClick={() => setMobileOpen(false)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isAuthPage || isSubPage
                                   ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
@@ -353,7 +344,7 @@ export default function Navbar() {
                                   }`}
                               >
                                 {child.label}
-                              </a>
+                              </Link>
                             ))}
                           </div>
                         </motion.div>
@@ -364,15 +355,15 @@ export default function Navbar() {
               </div>
 
               <div className="mt-auto pt-8 sm:pt-10 space-y-4">
-                <a
-                  href="#signin"
+                <Link
+                  to="/signin"
                   onClick={() => setMobileOpen(false)}
                   className="block w-full text-center py-3 sm:py-4 transition-all"
                 >
                   <Button size="lg" className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl shadow-xl">
                     Sign In
                   </Button>
-                </a>
+                </Link>
                 <div className="flex justify-center gap-6 pt-6">
                   {['Linkedin', 'Twitter', 'Facebook'].map((social) => (
                     <a key={social} href="#" className="text-gray-400 hover:text-rh-teal transition-colors">

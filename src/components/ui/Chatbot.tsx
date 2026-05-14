@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles, Minus } from 'lucide-react';
 import { Message } from '../../types';
@@ -16,13 +17,8 @@ export default function Chatbot() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [currentHash, setCurrentHash] = useState(window.location.hash);
-
-  useEffect(() => {
-    const handleHashChange = () => setCurrentHash(window.location.hash);
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,7 +31,7 @@ export default function Chatbot() {
   }, [messages, isOpen]);
 
   // Don't show on Auth pages
-  const isAuthPage = ['#signin', '#signup-employer', '#signup-talent', '#signup-choice', '#forgot-password'].some(path => currentHash.startsWith(path));
+  const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password'].some(path => currentPath.startsWith(path));
   if (isAuthPage) return null;
 
   const handleSend = async () => {

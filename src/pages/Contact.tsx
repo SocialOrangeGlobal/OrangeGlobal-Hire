@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight
 } from 'lucide-react';
@@ -9,6 +10,7 @@ import { fadeUp, scaleIn } from '../utils/animations';
 import { contactBoxes, contactDetails, subjectOptions } from '../data/index';
 
 export default function ContactPage() {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [subject, setSubject] = useState('General Inquiry');
@@ -36,7 +38,7 @@ export default function ContactPage() {
           <p className="text-gray-500 text-lg leading-relaxed mb-12">
             Thank you for reaching out. Our team has received your inquiry and will get back to you within 24 business hours.
           </p>
-          <Button variant="primary" onClick={() => window.location.hash = ''} className="px-12 py-4 rounded-2xl">Return to Home</Button>
+          <Button variant="primary" onClick={() => navigate('/')} className="px-12 py-4 rounded-2xl">Return to Home</Button>
         </motion.div>
       </div>
     );

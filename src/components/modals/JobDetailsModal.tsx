@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook } from 'lucide-react';
 import Button from '../ui/Button';
 import type { Job } from '../../types';
@@ -10,15 +11,16 @@ interface JobDetailsModalProps {
 }
 
 export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) {
+  const navigate = useNavigate();
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const navigateToApply = (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
-    window.location.hash = `#apply-job?id=${jobId}`;
+    navigate(`/apply-job?id=${jobId}`);
   };
 
-  const shareUrl = `${window.location.origin}${window.location.pathname}#jobs?id=${job?.id}`;
+  const shareUrl = `${window.location.origin}${window.location.pathname}?id=${job?.id}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);

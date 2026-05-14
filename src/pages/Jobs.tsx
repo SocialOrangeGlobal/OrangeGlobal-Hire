@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
@@ -11,6 +12,8 @@ import type { Job } from '../types';
 const ITEMS_PER_PAGE = 4;
 
 export default function JobsPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -19,14 +22,13 @@ export default function JobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  // Check for category in URL hash/params
+  // Check for category in URL params
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.split('?')[1]);
-    const category = params.get('category');
+    const category = searchParams.get('category');
     if (category) {
       setSelectedCategories([category]);
     }
-  }, []);
+  }, [searchParams]);
 
   // Filter and Sort Jobs
   const allFilteredJobs = useMemo(() => {
@@ -76,7 +78,7 @@ export default function JobsPage() {
 
   const navigateToApply = (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
-    window.location.hash = `#apply-job?id=${jobId}`;
+    navigate(`/apply-job?id=${jobId}`);
   };
 
   return (
@@ -93,7 +95,7 @@ export default function JobsPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
               <Button
-                onClick={() => window.location.hash = '#talent-dashboard'}
+                onClick={() => navigate('/talent-dashboard')}
                 variant="primary"
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white !text-rh-teal hover:bg-rh-light font-bold flex items-center gap-2"
               >

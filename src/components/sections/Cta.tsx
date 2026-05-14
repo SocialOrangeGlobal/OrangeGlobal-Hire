@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { fadeUp } from '../../utils/animations';
 import Button from '../ui/Button';
 
 export default function Cta() {
+  const navigate = useNavigate();
   return (
     <section className="bg-rh-dark py-10 relative overflow-hidden">
       {/* Background decoration */}
@@ -32,7 +34,7 @@ export default function Cta() {
             <Button
               size="lg"
               variant="primary"
-              onClick={() => window.location.hash = '#hire-talent'}
+              onClick={() => navigate('/hire-talent')}
               className="px-10 py-5 text-lg font-bold shadow-[0_0_20px_rgba(215,0,54,0.4)] hover:shadow-[0_0_30px_rgba(215,0,54,0.6)]"
             >
               Hire Top Talent <ArrowRight className="w-5 h-5 ml-1" />
@@ -40,7 +42,7 @@ export default function Cta() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => window.location.hash = '#jobs'}
+              onClick={() => navigate('/jobs')}
               className="border-white/40 text-white hover:bg-gray-200 hover:text-gray-900 px-10 py-5 text-lg font-bold"
             >
               Find a Job

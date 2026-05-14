@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, Upload, CheckCircle2, User, Mail, Phone,
   FileText, Send, Building2, MapPin, Briefcase, Globe, Clock,
@@ -12,6 +13,8 @@ import { experienceLevels, jobs } from '../data';
 import type { Job } from '../types';
 
 export default function ApplyJobPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -27,14 +30,13 @@ export default function ApplyJobPage() {
   });
 
   useEffect(() => {
-    // Get job ID from URL hash params
-    const params = new URLSearchParams(window.location.hash.split('?')[1]);
-    const jobId = params.get('id');
+    // Get job ID from URL query params
+    const jobId = searchParams.get('id');
     if (jobId) {
       const job = jobs.find(j => j.id === jobId);
       if (job) setSelectedJob(job);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +47,7 @@ export default function ApplyJobPage() {
   };
 
   const goBack = () => {
-    window.location.hash = '#jobs';
+    navigate('/jobs');
   };
 
   if (!selectedJob && !isSubmitted) {
@@ -118,7 +120,7 @@ export default function ApplyJobPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <Button variant="primary" onClick={goBack} className="w-full sm:w-auto px-10 py-4 rounded-xl">View More Jobs</Button>
-                      <Button variant="outline" onClick={() => window.location.hash = ''} className="w-full sm:w-auto px-10 py-4 rounded-xl border-gray-200">Return Home</Button>
+                      <Button variant="outline" onClick={() => navigate('/')} className="w-full sm:w-auto px-10 py-4 rounded-xl border-gray-200">Return Home</Button>
                     </div>
                   </motion.div>
                 ) : (

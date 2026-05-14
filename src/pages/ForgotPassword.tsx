@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'email' | 'success'>('email');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +72,7 @@ export default function ForgotPassword() {
                 className="bg-white rounded-[32px] md:rounded-[48px] p-8 md:p-14 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
               >
                 <button
-                  onClick={() => window.location.hash = '#signin'}
+                  onClick={() => navigate('/signin')}
                   className="flex items-center gap-2 text-gray-400 hover:text-rh-teal font-bold text-xs uppercase tracking-widest mb-10 transition-colors group"
                 >
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -116,7 +118,7 @@ export default function ForgotPassword() {
 
                 <div className="mt-12 pt-8 border-t border-gray-50 text-center">
                   <p className="text-gray-400 text-xs md:text-sm">
-                    Suddenly remembered? <a href="#signin" className="text-rh-red font-bold hover:underline ml-1">Sign In</a>
+                    Suddenly remembered? <Link to="/signin" className="text-rh-red font-bold hover:underline ml-1">Sign In</Link>
                   </p>
                 </div>
               </motion.div>
@@ -143,7 +145,7 @@ export default function ForgotPassword() {
                     Didn't receive it? Resend
                   </Button>
                   <Button
-                    onClick={() => window.location.hash = '#signin'}
+                    onClick={() => navigate('/signin')}
                     variant="primary"
                     className="w-full py-4 rounded-2xl text-sm font-bold bg-rh-teal text-white shadow-xl shadow-rh-teal/10"
                   >

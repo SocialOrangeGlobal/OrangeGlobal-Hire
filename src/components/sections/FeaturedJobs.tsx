@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Building, Clock } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
@@ -8,6 +9,7 @@ import JobDetailsModal from '../modals/JobDetailsModal';
 import type { Job } from '../../types';
 
 export default function FeaturedJobs() {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
@@ -38,7 +40,7 @@ export default function FeaturedJobs() {
             className="hidden sm:block"
           >
             <Button
-              onClick={() => window.location.hash = '#jobs'}
+              onClick={() => navigate('/jobs')}
               variant="outline"
             >
               View All Openings
@@ -129,7 +131,7 @@ export default function FeaturedJobs() {
                   <Button
                     variant="primary"
                     className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full shadow-lg shadow-rh-red/20 font-bold whitespace-nowrap"
-                    onClick={(e) => { e.stopPropagation(); window.location.hash = `#apply-job?id=${job.id}`; }}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
                   >
                     Apply Now
                   </Button>
@@ -144,7 +146,7 @@ export default function FeaturedJobs() {
 
         <div className="mt-8 sm:hidden">
           <Button
-            onClick={() => window.location.hash = '#jobs'}
+            onClick={() => navigate('/jobs')}
             variant="outline"
             className="w-full py-4"
           >

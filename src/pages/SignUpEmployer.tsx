@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Zap, Globe2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { signUpPositionType } from '../data';
 
 export default function SignUpEmployer() {
+  const navigate = useNavigate();
   const [positionType, setPositionType] = useState('');
 
   const goBack = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.location.hash = '#signup-choice';
+    navigate('/signup-choice');
   };
 
   return (
@@ -39,7 +41,7 @@ export default function SignUpEmployer() {
               const btn = e.currentTarget.querySelector('button[type="submit"]');
               if (btn) btn.innerHTML = 'Signing up...';
               setTimeout(() => {
-                window.location.hash = '#employer-dashboard';
+                navigate('/employer-dashboard');
               }, 1500);
             }}
           >

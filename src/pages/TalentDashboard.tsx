@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, CheckCircle2,
   MapPin, DollarSign, Bookmark, FileText,
@@ -15,6 +16,7 @@ import ProfileMangementModal from '../components/modals/talent-dashboard/Profile
 import { talentDashboardApplicants, talentDashboardJobs } from '../data';
 
 export default function TalentDashboard() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState(talentDashboardApplicants);
   const [recommendedJobs, setRecommendedJobs] = useState(talentDashboardJobs);
   const [selectedApp, setSelectedApp] = useState<any>(null);
@@ -92,7 +94,7 @@ export default function TalentDashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
               <button
-                onClick={() => window.location.hash = '#jobs'}
+                onClick={() => navigate('/jobs')}
                 className="flex items-center gap-2 text-gray-400 hover:text-rh-red transition-colors mb-4 group text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]"
               >
                 <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" /> Back to Find Jobs
@@ -253,7 +255,7 @@ export default function TalentDashboard() {
                       <Briefcase className="w-16 h-16 text-gray-100 mx-auto mb-6" />
                       <h3 className="text-2xl font-bold text-rh-teal mb-2">No active applications</h3>
                       <p className="text-gray-500 mb-8">Start your journey by exploring active roles.</p>
-                      <Button onClick={() => window.location.hash = '#jobs'} variant="primary" className="px-10 py-4 rounded-2xl">Find Jobs</Button>
+                      <Button onClick={() => navigate('/jobs')} variant="primary" className="px-10 py-4 rounded-2xl">Find Jobs</Button>
                     </div>
                   )}
                 </div>

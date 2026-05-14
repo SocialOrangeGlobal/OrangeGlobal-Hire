@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { X, Target, BarChart3, Workflow, CheckCircle2 } from 'lucide-react'
 import Button from '../ui/Button'
 
@@ -18,6 +19,7 @@ interface SolutionDetailModalProps {
 }
 
 function SolutionDetailModal({ setSelectedSolution, selectedSolution }: SolutionDetailModalProps) {
+    const navigate = useNavigate();
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
             <motion.div
@@ -130,7 +132,7 @@ function SolutionDetailModal({ setSelectedSolution, selectedSolution }: Solution
                             <Button
                                 variant="primary"
                                 onClick={() => {
-                                    window.location.hash = '#employer-dashboard';
+                                    navigate('/employer-dashboard');
                                     setSelectedSolution(null);
                                 }}
                                 className="px-8 sm:px-10 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm"
