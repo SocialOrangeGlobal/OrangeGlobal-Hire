@@ -3,8 +3,8 @@ import { MessageSquare, BarChart2, Code2, Scale, Megaphone, ClipboardList, Star,
 
 // Contact Data
 export const contactDetails: ContactDetail = {
-  email: "info@orangeglobal.in",
-  phone: "+61 451519726",
+  email: "info@orangeglobal.co",
+  phone: "+61 451 519 726",
   address: "Level 7, 276 Flinders Street, Melbourne 3000 VIC, Australia"
 };
 
