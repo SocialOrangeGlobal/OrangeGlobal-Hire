@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Linkedin, Twitter, Facebook, Mail, Phone, MapPin } from 'lucide-react';
-import { footerLinks } from '../../data';
+import { footerLinks, contactDetails } from '../../data';
 
 export default function Footer() {
   return (
@@ -23,7 +23,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Call Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">+61 4515197266</span>
+                  <span className="group-hover:text-white transition-colors font-medium">{contactDetails.phone}</span>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
@@ -32,7 +32,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Email Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">info@orangeglobal.in</span>
+                  <span className="group-hover:text-white transition-colors font-medium">{contactDetails.email}</span>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
@@ -41,7 +41,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Visit Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">Level 7, 276 Flinders Street, Melbourne 3000 VIC, Australia</span>
+                  <span className="group-hover:text-white transition-colors font-medium">{contactDetails.address}</span>
                 </div>
               </div>
             </div>
