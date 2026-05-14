@@ -1,5 +1,28 @@
-import type { Job, Stat, Testimonial, Industry, NavItem, MetricCard } from '../types';
+import type { ContactDetail, ContactBox, Job, Stat, Testimonial, Industry, NavItem, Service, Feature, Solution, DropdownOption, EmployerDashboardApplicant, EmployerDashboardJob, SolutionDetail, BlogInsight, VideoInsight, TalentDashboardApplicant, TalentDashboardJob } from '../types';
+import { MessageSquare, BarChart2, Code2, Scale, Megaphone, ClipboardList, Star, Cpu, Clock, Globe, ShieldCheck, Lightbulb, Database, Rocket, BarChart3, Users, Zap } from 'lucide-react';
 
+// Contact Data
+export const contactDetails: ContactDetail = {
+  email: "info@orangeglobal.in",
+  phone: "+61 451519726",
+  address: "Level 7, 276 Flinders Street, Melbourne 3000 VIC, Australia"
+};
+
+export const contactBoxes: ContactBox[] = [
+  { icon: MessageSquare, title: 'Chat with us', desc: 'Our chatbot is available 24/7 for quick answers to common questions.', action: 'Start Chat' },
+  { icon: Globe, title: 'Global Offices', desc: 'Find contact details for our regional offices around the world.', action: 'View Locations' },
+  { icon: Clock, title: 'Support Hours', desc: 'Our dedicated support team is available Mon-Fri, 9am - 6pm (AEST).', action: 'Learn More' }
+];
+
+export const subjectOptions: DropdownOption[] = [
+  { value: 'General Inquiry', label: 'General Inquiry' },
+  { value: 'Hiring Talent', label: 'Hiring Talent' },
+  { value: 'Finding a Job', label: 'Finding a Job' },
+  { value: 'Partnership', label: 'Partnership' },
+  { value: 'Other', label: 'Other' }
+];
+
+// Nav Data
 export const navItems: NavItem[] = [
   {
     label: 'Find Jobs',
@@ -46,6 +69,15 @@ export const navItems: NavItem[] = [
   },
 ];
 
+// Footer Data
+export const footerLinks: Record<string, string[]> = {
+  Services: ['Permanent Staffing', 'Contract Staffing', 'Executive Search', 'Project Solutions', 'Managed Staffing'],
+  Industries: ['Banking & Finance', 'Technology', 'Healthcare', 'Legal', 'Manufacturing', 'Retail'],
+  Company: ['About Orange Global', 'Our Approach', 'Leadership', 'Press Room', 'Careers at Orange Global', 'Social Responsibility'],
+  Resources: ['Salary Guide', 'Job Market Report', 'Hiring Insights', 'Career Advice', 'Blog', 'Webinars'],
+};
+
+// Stats Data
 export const stats: Stat[] = [
   { value: '75', label: 'Years of Experience', suffix: '+' },
   { value: '1.2', label: 'Placements Completed', suffix: 'M+' },
@@ -53,6 +85,7 @@ export const stats: Stat[] = [
   { value: '97', label: 'Client Satisfaction', suffix: '%' },
 ];
 
+// Jobs Data
 export const jobs: Job[] = [
   {
     id: '1',
@@ -217,6 +250,276 @@ export const jobs: Job[] = [
   }
 ];
 
+// Employer Dashboard Jobs
+export const employerDashboardJobs: EmployerDashboardJob[] = [
+  {
+    id: 1,
+    title: 'Senior Frontend Developer',
+    department: 'Technology',
+    type: 'Full-time',
+    location: 'Remote',
+    salary: '$120k - $150k',
+    applicantsCount: 45,
+    status: 'Active',
+    postedAt: '2 days ago',
+    health: 92,
+    vacancies: 3,
+    description: 'We are looking for a Senior Frontend Developer to join our core product team. You will be responsible for building high-performance, scalable web applications using React and TypeScript.',
+    requirements: ['5+ years React experience', 'Expert TypeScript skills', 'Experience with Framer Motion'],
+    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js']
+  },
+  {
+    id: 2,
+    title: 'Financial Risk Analyst',
+    department: 'Finance',
+    type: 'Remote',
+    location: 'London, UK',
+    salary: '$90k - $120k',
+    applicantsCount: 28,
+    status: 'Active',
+    postedAt: '5 days ago',
+    health: 78,
+    vacancies: 1,
+    description: 'TechCorp is seeking a Financial Risk Analyst to help identify, assess and prioritize functional and financial risks.',
+    requirements: ['CFA or equivalent', 'Python for data analysis', '3+ years in fintech'],
+    skills: ['Risk Modeling', 'Python', 'SQL', 'Excel']
+  },
+  {
+    id: 3,
+    title: 'Product Design Lead',
+    department: 'Design',
+    type: 'Full-time',
+    location: 'Hybrid',
+    salary: '$140k - $180k',
+    applicantsCount: 12,
+    status: 'Reviewing',
+    postedAt: '1 week ago',
+    health: 45,
+    vacancies: 2,
+    description: 'Lead our design team in creating world-class user experiences for our global client base.',
+    requirements: ['Portfolio showing B2B SaaS', 'Leadership experience', 'Figma mastery'],
+    skills: ['UI/UX', 'Figma', 'Prototyping', 'User Research']
+  },
+];
+
+export const jobCategories = [
+  'All Jobs',
+  'Finance & Accounting',
+  'Technology',
+  'Legal',
+  'Marketing & Creative',
+  'Administrative',
+  'Executive Search',
+];
+
+// Sign Up Employer Data
+export const signUpPositionType: DropdownOption[] = [
+  { value: 'full-time', label: 'Full-time' },
+  { value: 'contract', label: 'Contract' },
+  { value: 'remote', label: 'Remote' }
+];
+
+// Post Vacancy Data
+export const postVacancyJobCategories: DropdownOption[] = [
+  { value: 'Technology', label: 'Technology' },
+  { value: 'Finance', label: 'Finance & Accounting' },
+  { value: 'Legal', label: 'Legal' },
+  { value: 'Marketing', label: 'Marketing' },
+  { value: 'Executive', label: 'Executive Search' }
+];
+
+export const postVacancyWorkMode: DropdownOption[] = [
+  { value: 'Remote', label: 'Remote' },
+  { value: 'Hybrid', label: 'Hybrid' },
+  { value: 'On-site', label: 'On-site' }
+];
+
+// Employer Dashboard Applicants
+export const employerDashboardApplicants: EmployerDashboardApplicant[] = [
+  {
+    id: 1,
+    jobId: 1,
+    name: 'Sarah Jenkins',
+    role: 'Senior Frontend Developer',
+    match: '98%',
+    status: 'New',
+    avatar: 'https://i.pravatar.cc/100?img=32',
+    email: 'sarah@example.com',
+    experience: '8 years',
+    location: 'Berlin, Germany',
+    skills: ['React', 'TypeScript', 'Node.js', 'Redux'],
+    education: 'MSc Computer Science',
+    bio: 'Experienced frontend lead with a passion for clean code and high-performance animations.',
+    portfolio: 'sarahcodes.dev',
+    social: { linkedin: '#', github: '#' }
+  },
+  {
+    id: 2,
+    jobId: 1,
+    name: 'Michael Chen',
+    role: 'Senior Frontend Developer',
+    match: '92%',
+    status: 'Shortlisted',
+    avatar: 'https://i.pravatar.cc/100?img=12',
+    email: 'michael@example.com',
+    experience: '6 years',
+    location: 'Singapore',
+    skills: ['React', 'Vue', 'AWS', 'Docker'],
+    education: 'BSc Software Engineering',
+    bio: 'Fullstack-leaning frontend dev with strong cloud infrastructure knowledge.',
+    portfolio: 'mchen.io',
+    social: { linkedin: '#', github: '#' }
+  },
+  {
+    id: 3,
+    jobId: 2,
+    name: 'Emma Wilson',
+    role: 'Financial Risk Analyst',
+    match: '85%',
+    status: 'Interviewing',
+    avatar: 'https://i.pravatar.cc/100?img=44',
+    email: 'emma@example.com',
+    experience: '4 years',
+    location: 'New York, USA',
+    skills: ['Risk Management', 'Python', 'Quant Analysis'],
+    education: 'MBA Finance',
+    bio: 'Quant-focused analyst with experience in high-frequency trading environments.',
+    portfolio: 'emmafin.com',
+    social: { linkedin: '#', github: '#' }
+  },
+];
+
+// Talent Dashboard Jobs and Applicant Data
+export const talentDashboardApplicants: TalentDashboardApplicant[] = [
+  {
+    id: 1,
+    company: 'TechScale Global',
+    logo: 'https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?auto=compress&cs=tinysrgb&w=100',
+    role: 'Senior Frontend Developer',
+    status: 'Interviewing',
+    date: 'Applied 4 days ago',
+    nextStep: 'Technical Round - Tomorrow, 2:00 PM',
+    isBookmarked: true,
+    timeline: [
+      { step: 'Applied', date: 'Oct 12', completed: true },
+      { step: 'Screening', date: 'Oct 15', completed: true },
+      { step: 'Interview', date: 'Oct 18', current: true },
+      { step: 'Final Result', date: 'TBD', pending: true },
+    ]
+  },
+  {
+    id: 2,
+    company: 'FinEdge Corp',
+    logo: 'https://images.pexels.com/photos/3182761/pexels-photo-3182761.jpeg?auto=compress&cs=tinysrgb&w=100',
+    role: 'Full Stack Engineer',
+    status: 'Under Review',
+    date: 'Applied 1 week ago',
+    nextStep: 'Waiting for recruiter feedback',
+    isBookmarked: false,
+    timeline: [
+      { step: 'Applied', date: 'Oct 08', completed: true },
+      { step: 'Screening', date: 'Processing', current: true },
+      { step: 'Interview', date: '-', pending: true },
+      { step: 'Final Result', date: '-', pending: true },
+    ]
+  },
+];
+
+export const talentDashboardJobs: TalentDashboardJob[] = [
+  { id: 1, title: 'Lead Web Architect', company: 'Innovation Hub', location: 'Remote', salary: '$160k - $200k', tags: ['React', 'Node.js'], match: '98%' },
+  { id: 2, title: 'Senior UI Developer', company: 'Creative Digital', location: 'Hybrid', salary: '$130k - $150k', tags: ['Figma', 'React'], match: '92%' },
+];
+
+// Services Data
+export const services: Service[] = [
+  {
+    id: 1,
+    icon: BarChart2,
+    title: 'Finance & Accounting',
+    description: 'From CFOs to staff accountants, we connect organizations with financial professionals who drive fiscal performance.',
+    image: '/images/services/finance.png',
+    link: '#hire-talent',
+  },
+  {
+    id: 2,
+    icon: Code2,
+    title: 'Technology',
+    description: 'Source elite engineers, architects, and IT leaders who can scale your technical infrastructure.',
+    image: '/images/services/tech.png',
+    link: '#hire-talent',
+  },
+  {
+    id: 3,
+    icon: Scale,
+    title: 'Legal',
+    description: 'Place attorneys, paralegals, and compliance officers from in-house counsel to major law firms.',
+    image: '/images/services/legal.png',
+    link: '#hire-talent',
+  },
+  {
+    id: 4,
+    icon: Megaphone,
+    title: 'Marketing & Creative',
+    description: 'Build brand-defining teams with strategists, designers, and content professionals who deliver results.',
+    image: '/images/services/marketing.png',
+    link: '#hire-talent',
+  },
+  {
+    id: 5,
+    icon: ClipboardList,
+    title: 'Administrative Support',
+    description: 'Match your organization with executive assistants, office managers, and operations professionals.',
+    image: '/images/services/admin.png',
+    link: '#hire-talent',
+  },
+  {
+    id: 6,
+    icon: Star,
+    title: 'Executive Search',
+    description: 'Our retained executive search practice identifies and secures transformational C-suite and VP-level leaders.',
+    image: '/images/services/executive.png',
+    link: '#',
+  },
+];
+
+// Features Data
+export const features: Feature[] = [
+  {
+    icon: Cpu,
+    title: 'AI-Powered Matching',
+    description: 'Our proprietary algorithms analyze thousands of data points to find the perfect cultural and technical fit.',
+  },
+  {
+    icon: Clock,
+    title: 'Faster Hiring Cycle',
+    description: 'Reduce time-to-hire by up to 40% with our pre-vetted network of passive candidates.',
+  },
+  {
+    icon: Globe,
+    title: 'Global Network',
+    description: 'Access top talent across 400+ markets worldwide with localized expertise in every region.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Risk-Free Guarantee',
+    description: 'Every placement comes with a satisfaction guarantee. If it is not a fit, we will replace them at no cost.',
+  },
+];
+
+export const featuredInsights: Feature[] = [
+  { title: 'Data-Driven Insights', icon: BarChart3, description: 'We utilize deep market analytics to inform every strategic decision.' },
+  { title: 'Global Delivery Model', icon: Globe, description: 'Deploying specialized teams across timezones for 24/7 project momentum.' }
+];
+
+// Experience Levels Data
+export const experienceLevels: DropdownOption[] = [
+  { value: 'entry', label: 'Entry Level (0-2 years)' },
+  { value: 'mid', label: 'Mid Level (3-5 years)' },
+  { value: 'senior', label: 'Senior Level (6+ years)' },
+  { value: 'lead', label: 'Director / Executive' }
+];
+
+// Testimonials Data
 export const testimonials: Testimonial[] = [
   {
     id: '1',
@@ -247,6 +550,77 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
+// Solutions Data
+export const solutions: Solution[] = [
+  {
+    title: 'Business Transformation',
+    icon: Lightbulb,
+    desc: 'Redesigning operational models to drive efficiency and sustainable growth in a digital-first economy.',
+    color: 'bg-orange-50 text-orange-600'
+  },
+  {
+    title: 'Technology Solutions',
+    icon: Database,
+    desc: 'Cloud migration, cybersecurity audits, and bespoke software architecture tailored to your unique scaling needs.',
+    color: 'bg-blue-50 text-blue-600'
+  },
+  {
+    title: 'Financial Management',
+    icon: BarChart3,
+    desc: 'Strategic financial planning, risk assessment, and interim CFO leadership for mid-to-large cap organizations.',
+    color: 'bg-emerald-50 text-emerald-600'
+  },
+  {
+    title: 'Digital Strategy',
+    icon: Rocket,
+    desc: 'Comprehensive digital roadmaps that align technology investment with core business objectives and market trends.',
+    color: 'bg-purple-50 text-purple-600'
+  }
+];
+
+export const hireTalentSolutionCards: SolutionDetail[] = [
+  {
+    title: 'Permanent Staffing',
+    description: 'Our proprietary screening process ensures you find leaders who align with your culture and business goals.',
+    longDescription: 'Permanent staffing is about more than just filling a seat; it\'s about finding the future of your company. We leverage deep industry insights and cultural mapping to ensure every hire is a long-term success story.',
+    icon: Users,
+    metrics: '97% retention rate',
+    features: ['Culture-Fit Assessment', 'Skill Validation', 'Long-term Guarantee'],
+    process: [
+      { step: '01', text: 'Needs Analysis' },
+      { step: '02', text: 'Talent Sourcing' },
+      { step: '03', text: 'Deep Interviewing' }
+    ]
+  },
+  {
+    title: 'Executive Search',
+    description: 'Identifying and attracting transformational C-suite talent through extensive global networks and research.',
+    longDescription: 'C-suite leadership requires a surgical approach. We act as your brand ambassadors in the executive market, identifying "passive" talent that isn\'t on job boards but is ready for their next big challenge.',
+    icon: ShieldCheck,
+    metrics: 'Avg. 35 days to close',
+    features: ['Confidential Searches', 'Global Network Access', 'Leadership Benchmarking'],
+    process: [
+      { step: '01', text: 'Market Mapping' },
+      { step: '02', text: 'Discreet Outreach' },
+      { step: '03', text: 'Board Presentation' }
+    ]
+  },
+  {
+    title: 'Contract Solutions',
+    description: 'Agile staffing solutions to manage project peaks, leave coverage, or specialized skill requirements.',
+    longDescription: 'In today\'s dynamic market, agility is a competitive advantage. Our contract solutions provide high-caliber talent on-demand, allowing you to scale up or down without the long-term overhead.',
+    icon: Zap,
+    metrics: '48h talent matching',
+    features: ['Rapid Deployment', 'Compliance Management', 'Flexible Terms'],
+    process: [
+      { step: '01', text: 'Skill Specification' },
+      { step: '02', text: 'Database Matching' },
+      { step: '03', text: 'Instant Onboarding' }
+    ]
+  }
+];
+
+// Industries Data
 export const industries: Industry[] = [
   { id: '1', name: 'Banking & Finance', icon: 'building-2', count: 1240, image: '/images/services/finance.png' },
   { id: '2', name: 'Technology', icon: 'cpu', count: 2180, image: '/images/services/tech.png' },
@@ -258,23 +632,218 @@ export const industries: Industry[] = [
   { id: '8', name: 'Energy', icon: 'network', count: 350, image: '/images/industries/energy.png' },
 ];
 
-export const dashboardMetrics: MetricCard[] = [
-  { label: 'Active Placements', value: '248', change: '+12%', trend: 'up' },
-  { label: 'Candidates Screened', value: '1,840', change: '+24%', trend: 'up' },
-  { label: 'Avg. Time to Hire', value: '18 days', change: '-3 days', trend: 'up' },
-  { label: 'Offer Acceptance Rate', value: '91%', change: '+4%', trend: 'up' },
-];
-
+// Trusted Companies Data
 export const trustedCompanies = [
   'Deloitte', 'Goldman Sachs', 'Microsoft', 'Johnson & Johnson', 'Citigroup', 'Boeing',
 ];
 
-export const jobCategories = [
-  'All Jobs',
-  'Finance & Accounting',
-  'Technology',
-  'Legal',
-  'Marketing & Creative',
-  'Administrative',
-  'Executive Search',
+// Insights Data
+export const videoInsights: VideoInsight[] = [
+  {
+    id: '1',
+    title: 'Navigating Regulatory Changes in Global Finance',
+    thumbnail: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    duration: '45:00',
+    category: 'Finance',
+    trendingTitle: 'How AI is redefining the role of the CFO',
+    trendingTag: 'Market Analysis • 5 Min Read'
+  },
+  {
+    id: '2',
+    title: 'The Future of AI in Talent Acquisition',
+    thumbnail: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    videoUrl: 'https://www.w3schools.com/html/movie.mp4',
+    duration: '32:15',
+    category: 'Technology',
+    trendingTitle: 'Recruitment marketing: A guide for 2026',
+    trendingTag: 'Digital Strategy • 8 Min Read'
+  },
+  {
+    id: '3',
+    title: 'Leadership Strategies for Distributed Teams',
+    thumbnail: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    duration: '28:40',
+    category: 'Leadership',
+    trendingTitle: 'Remote work culture: Long-term success factors',
+    trendingTag: 'Culture Guide • 12 Min Read'
+  }
 ];
+
+export const blogsInsights: BlogInsight[] = [
+  // Technology Category
+  {
+    id: 'tech-1',
+    category: 'Technology',
+    title: 'Retaining Elite Engineering Talent in 2026',
+    desc: 'New strategies for reducing turnover in the world\'s most competitive labor market.',
+    content: [
+      'The landscape of engineering recruitment has shifted dramatically. It\'s no longer just about the stack or the salary—it\'s about the impact and the environment.',
+      'In our 2026 survey, we found that 68% of senior engineers prioritize autonomy and "maker time" over standard benefits packages.',
+      'To stay ahead, organizations must implement deep-work blocks, fractional leadership models, and clear career pathing that doesn\'t always lead to management.'
+    ],
+    image: 'https://images.pexels.com/photos/3182781/pexels-photo-3182781.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Sarah Whitmore',
+    date: 'May 12, 2026',
+    readTime: '6 min read',
+    tags: ['Engineering', 'Retention', 'HR Tech']
+  },
+  {
+    id: 'tech-2',
+    category: 'Technology',
+    title: 'The Impact of Generative AI on Developer Velocity',
+    desc: 'Analyzing how AI-pair programming is changing output expectations and team structures.',
+    content: [
+      'Generative AI has moved from a novelty to a necessity in high-performing engineering teams.',
+      'We track how teams are leveraging Copilots to reduce boilerplate and focus on architectural complexity.',
+      'The new bottleneck isn\'t writing code—it\'s reviewing and validating it. This shift requires a new type of senior oversight.'
+    ],
+    image: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'David Chen',
+    date: 'May 15, 2026',
+    readTime: '7 min read',
+    tags: ['AI', 'Development', 'Productivity']
+  },
+  {
+    id: 'tech-3',
+    category: 'Technology',
+    title: 'Scaling Infrastructure for Global SaaS',
+    desc: 'Lessons from the field on managing multi-region deployments at scale.',
+    content: [
+      'Scaling infrastructure globally requires a deep understanding of data sovereignty and latency.',
+      'We explore the evolution of edge computing and its role in delivering consistent experiences across continents.',
+      'Automation at the terraform level is no longer optional—it\'s the backbone of global operations.'
+    ],
+    image: 'https://images.pexels.com/photos/1181359/pexels-photo-1181359.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Alex Rivera',
+    date: 'May 18, 2026',
+    readTime: '9 min read',
+    tags: ['Infrastructure', 'SaaS', 'Cloud']
+  },
+
+  // Finance Category
+  {
+    id: 'fin-1',
+    category: 'Finance',
+    title: '2026 Global Salary Guide: High-Growth Sectors',
+    desc: 'Comprehensive analysis of compensation trends across tech, finance, and legal markets.',
+    content: [
+      'Financial services are seeing a resurgence in demand for specialized quant and risk profiles.',
+      'We analyze how high-interest rate environments have shifted the bonus structures for mid-market investment banks.',
+      'A detailed breakdown of compensation packages in London, New York, and Singapore hubs shows a 12% YOY increase for specialized roles.'
+    ],
+    image: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Michael Dalton',
+    date: 'May 10, 2026',
+    readTime: '8 min read',
+    tags: ['Finance', 'Salary Guide', 'Economy']
+  },
+  {
+    id: 'fin-2',
+    category: 'Finance',
+    title: 'Crypto Regulation and the Future of FinTech',
+    desc: 'How institutional frameworks are bringing stability to the digital asset market.',
+    content: [
+      'Regulation is finally catching up with innovation, providing the guardrails needed for institutional adoption.',
+      'We examine the impact of central bank digital currencies on traditional payment rails.',
+      'FinTechs that prioritize compliance are winning the trust of major institutional partners.'
+    ],
+    image: 'https://images.pexels.com/photos/6770610/pexels-photo-6770610.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Elena Rossi',
+    date: 'May 20, 2026',
+    readTime: '10 min read',
+    tags: ['FinTech', 'Crypto', 'Regulation']
+  },
+  {
+    id: 'fin-3',
+    category: 'Finance',
+    title: 'Sustainable Investing: Beyond the Buzzwords',
+    desc: 'The data-driven approach to ESG that is driving returns for institutional investors.',
+    content: [
+      'ESG is evolving from a marketing label to a core component of risk management.',
+      'We look at the metrics that actually matter for long-term sustainability and performance.',
+      'Institutional investors are demanding higher transparency and standardized reporting on carbon footprints.'
+    ],
+    image: 'https://images.pexels.com/photos/6801874/pexels-photo-6801874.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'James Wilson',
+    date: 'May 22, 2026',
+    readTime: '7 min read',
+    tags: ['ESG', 'Investing', 'Sustainability']
+  },
+
+  // Leadership Category
+  {
+    id: 'lead-1',
+    category: 'Leadership',
+    title: 'The Rise of Fractional Leadership in APAC',
+    desc: 'Why organizations are turning to part-time executive talent to drive strategic initiatives.',
+    content: [
+      'Fractional leadership is becoming the standard for startups scaling in the APAC region.',
+      'Experienced C-suite talent is now offering their expertise to multiple organizations simultaneously, providing high-level strategy without the full-time overhead.',
+      'This model allows for faster decision-making and access to veteran wisdom for growing teams.'
+    ],
+    image: 'https://images.pexels.com/photos/3184301/pexels-photo-3184301.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Chen Wei',
+    date: 'May 08, 2026',
+    readTime: '5 min read',
+    tags: ['Leadership', 'Strategy', 'APAC']
+  },
+  {
+    id: 'lead-2',
+    category: 'Leadership',
+    title: 'Leading Through Uncertainty: A CEO Playbook',
+    desc: 'Strategic frameworks for maintaining morale and momentum in shifting markets.',
+    content: [
+      'Uncertainty is the only constant. Great leaders build resilient systems that thrive on change.',
+      'Communication is the primary tool for a CEO. Transparency build trust, while clarity builds action.',
+      'We outline the "Agile Leadership" framework used by Fortune 500 CEOs to navigate global shifts.'
+    ],
+    image: 'https://images.pexels.com/photos/3182811/pexels-photo-3182811.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Robert Vance',
+    date: 'May 25, 2026',
+    readTime: '12 min read',
+    tags: ['CEO', 'Leadership', 'Management']
+  },
+  {
+    id: 'lead-3',
+    category: 'Leadership',
+    title: 'Building a High-Trust Culture Remotely',
+    desc: 'New methodologies for creating connection and accountability across borders.',
+    content: [
+      'Trust is the currency of remote work. Without it, the entire system collapses into micro-management.',
+      'We share the specific rituals used by remote-first companies to maintain cultural cohesion.',
+      'Accountability should be measured by outcomes, not hours logged on a dashboard.'
+    ],
+    image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    author: 'Laura Mendez',
+    date: 'May 28, 2026',
+    readTime: '8 min read',
+    tags: ['Culture', 'Remote', 'Trust']
+  }
+];
+
+// Badge Variants Data
+export const badgeVariants: Record<'default' | 'red' | 'green' | 'blue' | 'gray' | 'navy', string> = {
+  default: 'bg-gray-100 text-gray-700',
+  red: 'bg-red-50 text-[#D71920]',
+  green: 'bg-emerald-50 text-emerald-700',
+  blue: 'bg-blue-50 text-blue-700',
+  gray: 'bg-slate-100 text-slate-600',
+  navy: 'bg-[#081B2D] text-white',
+};
+
+// Button Variants Data
+export const buttonVariants: Record<string, string> = {
+  primary: 'bg-rh-red hover:bg-red-700 text-white focus-visible:ring-rh-red',
+  secondary: 'bg-rh-teal hover:bg-teal-800 text-white focus-visible:ring-rh-teal',
+  outline: 'border-2 border-rh-teal text-rh-teal hover:bg-rh-teal hover:text-white focus-visible:ring-rh-teal',
+  ghost: 'text-rh-teal hover:bg-gray-100 focus-visible:ring-rh-teal',
+  danger: 'bg-rh-red hover:bg-red-700 text-white',
+};
+
+export const buttonSizes: Record<string, string> = {
+  sm: 'h-9 px-4 text-sm',
+  md: 'h-11 px-6 text-sm',
+  lg: 'h-13 px-8 text-base',
+};

@@ -1,37 +1,8 @@
 import { motion } from 'framer-motion';
-import {
-  Lightbulb, Rocket, Zap, Globe,
-  BarChart3, Database
-} from 'lucide-react';
+import { Zap } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { fadeUp } from '../utils/animations';
-
-const solutions = [
-  {
-    title: 'Business Transformation',
-    icon: Lightbulb,
-    desc: 'Redesigning operational models to drive efficiency and sustainable growth in a digital-first economy.',
-    color: 'bg-orange-50 text-orange-600'
-  },
-  {
-    title: 'Technology Solutions',
-    icon: Database,
-    desc: 'Cloud migration, cybersecurity audits, and bespoke software architecture tailored to your unique scaling needs.',
-    color: 'bg-blue-50 text-blue-600'
-  },
-  {
-    title: 'Financial Management',
-    icon: BarChart3,
-    desc: 'Strategic financial planning, risk assessment, and interim CFO leadership for mid-to-large cap organizations.',
-    color: 'bg-emerald-50 text-emerald-600'
-  },
-  {
-    title: 'Digital Strategy',
-    icon: Rocket,
-    desc: 'Comprehensive digital roadmaps that align technology investment with core business objectives and market trends.',
-    color: 'bg-purple-50 text-purple-600'
-  }
-];
+import { featuredInsights, solutions } from '../data/index';
 
 export default function ConsultingPage() {
   return (
@@ -61,13 +32,6 @@ export default function ConsultingPage() {
                 >
                   Talk to an Expert
                 </Button>
-                {/* <Button 
-                  onClick={() => window.location.hash = '#contact'}
-                  variant="outline" 
-                  className="w-full sm:w-auto px-10 py-4.5 rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold"
-                >
-                  Our Approach
-                </Button> */}
               </div>
             </motion.div>
           </div>
@@ -116,17 +80,14 @@ export default function ConsultingPage() {
               </p>
 
               <div className="mt-12 md:mt-16 space-y-8 md:space-y-12">
-                {[
-                  { title: 'Data-Driven Insights', icon: BarChart3, desc: 'We utilize deep market analytics to inform every strategic decision.' },
-                  { title: 'Global Delivery Model', icon: Globe, desc: 'Deploying specialized teams across timezones for 24/7 project momentum.' }
-                ].map(feature => (
+                {featuredInsights.map(feature => (
                   <div key={feature.title} className="flex gap-6 group">
                     <div className="w-12 h-12 md:w-14 md:h-14 bg-rh-light rounded-2xl flex items-center justify-center text-rh-teal shrink-0 group-hover:bg-rh-red group-hover:text-white transition-all">
                       <feature.icon className="w-6 h-6 md:w-7 md:h-7" />
                     </div>
                     <div>
                       <h4 className="text-base md:text-xl font-bold text-rh-teal mb-2">{feature.title}</h4>
-                      <p className="text-gray-500 text-sm md:text-base font-light leading-relaxed">{feature.desc}</p>
+                      <p className="text-gray-500 text-sm md:text-base font-light leading-relaxed">{feature.description}</p>
                     </div>
                   </div>
                 ))}

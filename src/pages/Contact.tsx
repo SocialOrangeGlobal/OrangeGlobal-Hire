@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Mail, Phone, MapPin, Send, MessageSquare,
-  Clock, Globe, CheckCircle2, ArrowRight
+  Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { fadeUp, scaleIn } from '../utils/animations';
+import { contactBoxes, contactDetails, subjectOptions } from '../data/index';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,9 +78,9 @@ export default function ContactPage() {
 
               <div className="space-y-8 sm:space-y-10">
                 {[
-                  { icon: Mail, label: 'Email Us', value: 'info@orangeglobal.in', color: 'text-rh-red' },
-                  { icon: Phone, label: 'Call Us', value: '+91-1204232996', color: 'text-rh-teal' },
-                  { icon: MapPin, label: 'India Office', value: 'Sector 41, Chandigarh 160036, India.', color: 'text-rh-red' }
+                  { icon: Mail, label: 'Email Us', value: contactDetails.email, color: 'text-rh-red' },
+                  { icon: Phone, label: 'Call Us', value: contactDetails.phone, color: 'text-rh-teal' },
+                  { icon: MapPin, label: 'Visit Us', value: contactDetails.address, color: 'text-rh-red' }
                 ].map((item) => (
                   <div key={item.label} className="flex gap-6 group">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rh-teal shrink-0 group-hover:bg-rh-red group-hover:text-white transition-all duration-500 border border-gray-50">
@@ -146,13 +146,7 @@ export default function ContactPage() {
                     <div className="space-y-2">
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Subject</label>
                       <Dropdown
-                        options={[
-                          { value: 'General Inquiry', label: 'General Inquiry' },
-                          { value: 'Hiring Talent', label: 'Hiring Talent' },
-                          { value: 'Finding a Job', label: 'Finding a Job' },
-                          { value: 'Partnership', label: 'Partnership' },
-                          { value: 'Other', label: 'Other' }
-                        ]}
+                        options={subjectOptions}
                         value={subject}
                         onChange={setSubject}
                         className="w-full"
@@ -199,11 +193,7 @@ export default function ContactPage() {
       <section className="py-20 md:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { icon: MessageSquare, title: 'Chat with us', desc: 'Our chatbot is available 24/7 for quick answers to common questions.', action: 'Start Chat' },
-              { icon: Globe, title: 'Global Offices', desc: 'Find contact details for our regional offices around the world.', action: 'View Locations' },
-              { icon: Clock, title: 'Support Hours', desc: 'Our dedicated support team is available Mon-Fri, 9am - 6pm (AEST).', action: 'Learn More' }
-            ].map((box) => (
+            {contactBoxes.map((box) => (
               <div key={box.title} className="p-10 rounded-[32px] bg-rh-light border border-gray-100 hover:bg-rh-teal hover:text-white transition-all group">
                 <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rh-red mb-8 group-hover:bg-rh-red group-hover:text-white transition-all">
                   <box.icon className="w-7 h-7" />

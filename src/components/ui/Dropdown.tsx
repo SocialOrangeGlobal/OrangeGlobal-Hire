@@ -1,20 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
-
-interface DropdownOption {
-  value: string;
-  label: string;
-}
-
-interface DropdownProps {
-  options: DropdownOption[];
-  value: string;
-  onChange: (value: string) => void;
-  label?: string;
-  placeholder?: string;
-  className?: string;
-}
+import { DropdownProps } from '../../types';
 
 const Dropdown: React.FC<DropdownProps> = ({
   options,

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
-import JobDetailsModal from '../components/ui/JobDetailsModal';
+import JobDetailsModal from '../components/modals/JobDetailsModal';
 import { jobs } from '../data';
 import { fadeUp } from '../utils/animations';
 import type { Job } from '../types';
@@ -18,12 +18,9 @@ export default function JobsPage() {
   const [sortBy, setSortBy] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isTalentLoggedIn, setIsTalentLoggedIn] = useState(false);
 
   // Check for category in URL hash/params
   useEffect(() => {
-    // In a real app, this would check a token/context. 
-    // For demo, we check if they just came from signup or have a flag.
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const category = params.get('category');
     if (category) {

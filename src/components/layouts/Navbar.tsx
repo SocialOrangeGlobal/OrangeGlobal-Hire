@@ -36,7 +36,6 @@ export default function Navbar() {
     window.location.hash = '';
   };
 
-  // Close all panels when clicking outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -198,7 +197,6 @@ export default function Navbar() {
             transition={{ duration: 0.22, ease: 'easeInOut' }}
             className={`absolute top-full left-0 right-0 overflow-hidden shadow-2xl border-t z-40 transition-colors duration-300 ${scrolled || isSubPage || isAuthPage || currentHash.startsWith('#apply-job') ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
               }`}
-            // Keep open while hovering the panel itself (for nav items)
             onMouseEnter={() => {
               if (activePanel !== '__search__') setOpenDropdown(activePanel);
             }}

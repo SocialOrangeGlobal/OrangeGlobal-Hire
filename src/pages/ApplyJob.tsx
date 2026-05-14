@@ -8,7 +8,7 @@ import {
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { fadeUp, scaleIn } from '../utils/animations';
-import { jobs } from '../data';
+import { experienceLevels, jobs } from '../data';
 import type { Job } from '../types';
 
 export default function ApplyJobPage() {
@@ -213,12 +213,7 @@ export default function ApplyJobPage() {
                           <div className="space-y-3">
                             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Experience Level</label>
                             <Dropdown
-                              options={[
-                                { value: 'entry', label: 'Entry Level (0-2 years)' },
-                                { value: 'mid', label: 'Mid Level (3-5 years)' },
-                                { value: 'senior', label: 'Senior Level (6+ years)' },
-                                { value: 'lead', label: 'Director / Executive' }
-                              ]}
+                              options={experienceLevels}
                               value={formData.experience}
                               onChange={(val) => setFormData({ ...formData, experience: val })}
                               placeholder="Select level..."

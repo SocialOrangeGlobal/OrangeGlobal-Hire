@@ -1,11 +1,5 @@
 import { Linkedin, Twitter, Facebook, Mail, Phone, MapPin } from 'lucide-react';
-
-const footerLinks = {
-  Services: ['Permanent Staffing', 'Contract Staffing', 'Executive Search', 'Project Solutions', 'Managed Staffing'],
-  Industries: ['Banking & Finance', 'Technology', 'Healthcare', 'Legal', 'Manufacturing', 'Retail'],
-  Company: ['About Orange Global', 'Our Approach', 'Leadership', 'Press Room', 'Careers at Orange Global', 'Social Responsibility'],
-  Resources: ['Salary Guide', 'Job Market Report', 'Hiring Insights', 'Career Advice', 'Blog', 'Webinars'],
-};
+import { footerLinks } from '../../data';
 
 export default function Footer() {
   return (
@@ -28,7 +22,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Call Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">+91-1204232996</span>
+                  <span className="group-hover:text-white transition-colors font-medium">+61 4515197266</span>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
@@ -46,7 +40,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold uppercase tracking-wider text-white/40">Visit Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">Sector 41, Chandigarh 160036, India</span>
+                  <span className="group-hover:text-white transition-colors font-medium">Level 7, 276 Flinders Street, Melbourne 3000 VIC, Australia</span>
                 </div>
               </div>
             </div>

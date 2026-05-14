@@ -1,66 +1,14 @@
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import {
-  BarChart2, Code2, Scale, Megaphone, ClipboardList, Star, ArrowRight, ChevronLeft, ChevronRight
-} from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fadeUp } from '../../utils/animations';
+import { services } from '../../data/index';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-
-const services = [
-  {
-    id: 1,
-    icon: BarChart2,
-    title: 'Finance & Accounting',
-    description: 'From CFOs to staff accountants, we connect organizations with financial professionals who drive fiscal performance.',
-    image: '/images/services/finance.png',
-    link: '#hire-talent',
-  },
-  {
-    id: 2,
-    icon: Code2,
-    title: 'Technology',
-    description: 'Source elite engineers, architects, and IT leaders who can scale your technical infrastructure.',
-    image: '/images/services/tech.png',
-    link: '#hire-talent',
-  },
-  {
-    id: 3,
-    icon: Scale,
-    title: 'Legal',
-    description: 'Place attorneys, paralegals, and compliance officers from in-house counsel to major law firms.',
-    image: '/images/services/legal.png',
-    link: '#hire-talent',
-  },
-  {
-    id: 4,
-    icon: Megaphone,
-    title: 'Marketing & Creative',
-    description: 'Build brand-defining teams with strategists, designers, and content professionals who deliver results.',
-    image: '/images/services/marketing.png',
-    link: '#hire-talent',
-  },
-  {
-    id: 5,
-    icon: ClipboardList,
-    title: 'Administrative Support',
-    description: 'Match your organization with executive assistants, office managers, and operations professionals.',
-    image: '/images/services/admin.png',
-    link: '#hire-talent',
-  },
-  {
-    id: 6,
-    icon: Star,
-    title: 'Executive Search',
-    description: 'Our retained executive search practice identifies and secures transformational C-suite and VP-level leaders.',
-    image: '/images/services/executive.png',
-    link: '#',
-  },
-];
 
 export default function Services() {
   return (

@@ -1,7 +1,5 @@
-interface SectionLabelProps {
-  children: React.ReactNode;
-  className?: string;
-}
+
+import { SectionLabelProps } from "../../types";
 
 export default function SectionLabel({ children, className = '' }: SectionLabelProps) {
   return (

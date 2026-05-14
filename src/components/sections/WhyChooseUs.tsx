@@ -1,29 +1,7 @@
 import { motion } from 'framer-motion';
-import { Cpu, Clock, Globe, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { staggerContainer, fadeUp, slideInRight } from '../../utils/animations';
-
-const features = [
-  {
-    icon: Cpu,
-    title: 'AI-Powered Matching',
-    description: 'Our proprietary algorithms analyze thousands of data points to find the perfect cultural and technical fit.',
-  },
-  {
-    icon: Clock,
-    title: 'Faster Hiring Cycle',
-    description: 'Reduce time-to-hire by up to 40% with our pre-vetted network of passive candidates.',
-  },
-  {
-    icon: Globe,
-    title: 'Global Network',
-    description: 'Access top talent across 400+ markets worldwide with localized expertise in every region.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Risk-Free Guarantee',
-    description: 'Every placement comes with a satisfaction guarantee. If it is not a fit, we will replace them at no cost.',
-  },
-];
+import { features } from '../../data/index';
 
 export default function WhyChooseUs() {
   return (

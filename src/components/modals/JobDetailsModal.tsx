@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook } from 'lucide-react';
-import Button from './Button';
+import Button from '../ui/Button';
 import type { Job } from '../../types';
 
 interface JobDetailsModalProps {

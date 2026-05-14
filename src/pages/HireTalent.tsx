@@ -2,63 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, UserCheck, Search, ShieldCheck,
-  ArrowRight, Globe2, Zap, X, CheckCircle2,
-  Target, BarChart3, Workflow
+  ArrowRight, Globe2, Zap
 } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { fadeUp, scaleIn } from '../utils/animations';
-
-interface SolutionDetail {
-  title: string;
-  description: string;
-  longDescription: string;
-  icon: any;
-  metrics: string;
-  features: string[];
-  process: { step: string; text: string }[];
-}
-
-const solutionCards: SolutionDetail[] = [
-  {
-    title: 'Permanent Staffing',
-    description: 'Our proprietary screening process ensures you find leaders who align with your culture and business goals.',
-    longDescription: 'Permanent staffing is about more than just filling a seat; it\'s about finding the future of your company. We leverage deep industry insights and cultural mapping to ensure every hire is a long-term success story.',
-    icon: Users,
-    metrics: '97% retention rate',
-    features: ['Culture-Fit Assessment', 'Skill Validation', 'Long-term Guarantee'],
-    process: [
-      { step: '01', text: 'Needs Analysis' },
-      { step: '02', text: 'Talent Sourcing' },
-      { step: '03', text: 'Deep Interviewing' }
-    ]
-  },
-  {
-    title: 'Executive Search',
-    description: 'Identifying and attracting transformational C-suite talent through extensive global networks and research.',
-    longDescription: 'C-suite leadership requires a surgical approach. We act as your brand ambassadors in the executive market, identifying "passive" talent that isn\'t on job boards but is ready for their next big challenge.',
-    icon: ShieldCheck,
-    metrics: 'Avg. 35 days to close',
-    features: ['Confidential Searches', 'Global Network Access', 'Leadership Benchmarking'],
-    process: [
-      { step: '01', text: 'Market Mapping' },
-      { step: '02', text: 'Discreet Outreach' },
-      { step: '03', text: 'Board Presentation' }
-    ]
-  },
-  {
-    title: 'Contract Solutions',
-    description: 'Agile staffing solutions to manage project peaks, leave coverage, or specialized skill requirements.',
-    longDescription: 'In today\'s dynamic market, agility is a competitive advantage. Our contract solutions provide high-caliber talent on-demand, allowing you to scale up or down without the long-term overhead.',
-    icon: Zap,
-    metrics: '48h talent matching',
-    features: ['Rapid Deployment', 'Compliance Management', 'Flexible Terms'],
-    process: [
-      { step: '01', text: 'Skill Specification' },
-      { step: '02', text: 'Database Matching' },
-      { step: '03', text: 'Instant Onboarding' }
-    ]
-  }
-];
+import { fadeUp } from '../utils/animations';
+import SolutionDetailModal from '../components/modals/SolutionDetailModal';
+import { SolutionDetail } from '../types';
+import { hireTalentSolutionCards } from '../data';
 
 export default function HireTalentPage() {
   const [selectedSolution, setSelectedSolution] = useState<SolutionDetail | null>(null);
@@ -141,7 +91,7 @@ export default function HireTalentPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
-            {solutionCards.map((card, i) => (
+            {hireTalentSolutionCards.map((card, i) => (
               <motion.div
                 key={card.title}
                 initial="hidden"
@@ -172,136 +122,7 @@ export default function HireTalentPage() {
       {/* Solution Detail Modal */}
       <AnimatePresence>
         {selectedSolution && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedSolution(null)}
-              className="absolute inset-0 bg-white/10 backdrop-blur-xl"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col"
-            >
-              {/* Modal Header */}
-              <div className="relative p-6 sm:p-8 md:p-12 border-b border-gray-50 shrink-0">
-                <button
-                  onClick={() => setSelectedSolution(null)}
-                  className="absolute top-6 right-6 p-2 rounded-full hover:bg-rh-light transition-colors group"
-                >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-rh-red" />
-                </button>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-rh-light rounded-2xl flex items-center justify-center text-rh-red">
-                    <selectedSolution.icon className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rh-teal">{selectedSolution.title}</h2>
-                    <p className="text-rh-red font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-1">{selectedSolution.metrics}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6 sm:p-8 md:p-12 overflow-y-auto custom-scrollbar flex-1">
-                <style>{`
-                  .custom-scrollbar::-webkit-scrollbar {
-                    width: 8px;
-                  }
-                  .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                  }
-                  .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #E5E7EB;
-                    border-radius: 20px;
-                  }
-                  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #D1D5DB;
-                  }
-                `}</style>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-                  {/* Left Column: Description & Features */}
-                  <div className="lg:col-span-7 space-y-8 sm:space-y-10">
-                    <div className="space-y-4">
-                      <h4 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        <Target className="w-4 h-4 text-rh-red" /> Overview
-                      </h4>
-                      <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
-                        {selectedSolution.longDescription}
-                      </p>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-rh-red" /> Key Features
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        {selectedSolution.features.map((feature) => (
-                          <div key={feature} className="flex items-center gap-3 p-3 sm:p-4 bg-rh-light/50 rounded-xl sm:rounded-2xl border border-rh-teal/5">
-                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-rh-red shrink-0" />
-                            <span className="text-xs sm:text-sm font-bold text-rh-teal">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Process */}
-                  <div className="lg:col-span-5">
-                    <div className="bg-rh-light rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 border border-gray-100">
-                      <h4 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6 sm:mb-8">
-                        <Workflow className="w-4 h-4 text-rh-red" /> Our Process
-                      </h4>
-                      <div className="space-y-6 sm:space-y-8 relative">
-                        <div className="absolute left-4 sm:left-5 top-8 bottom-8 w-[2px] bg-rh-teal/10" />
-                        {selectedSolution.process.map((p, idx) => (
-                          <div key={idx} className="relative flex gap-4 sm:gap-6 items-center">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md flex items-center justify-center text-rh-red font-bold text-xs sm:text-sm z-10 shrink-0">
-                              {p.step}
-                            </div>
-                            <span className="text-xs sm:text-sm md:text-base font-bold text-rh-teal">{p.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="p-6 sm:p-8 md:p-10 bg-rh-light/30 border-t border-gray-50 shrink-0">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-gray-500 text-[10px] sm:text-xs md:text-sm font-medium text-center sm:text-left">
-                    Ready to scale your team with {selectedSolution.title}?
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <Button
-                      variant="primary"
-                      onClick={() => {
-                        window.location.hash = '#employer-dashboard';
-                        setSelectedSolution(null);
-                      }}
-                      className="px-8 sm:px-10 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm"
-                    >
-                      Go to Dashboard
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedSolution(null)}
-                      className="px-8 sm:px-10 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm bg-white"
-                    >
-                      Close Details
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+          <SolutionDetailModal selectedSolution={selectedSolution} setSelectedSolution={setSelectedSolution} />
         )}
       </AnimatePresence>
 

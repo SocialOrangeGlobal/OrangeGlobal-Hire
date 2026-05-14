@@ -37,8 +37,9 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 src/
 ├── components/
 │   ├── layouts/       # Navbar, Footer
+│   ├── modals/        # Centralized modal components (Dashboard, Job Details, Profile)
 │   ├── sections/      # Hero, Stats, Services, CTA, DashboardPreview
-│   └── ui/            # Reusable components (Button, Modal, Dropdown, Chatbot, JobDetails)
+│   └── ui/            # Reusable components (Button, Badge, Dropdown, Chatbot)
 ├── pages/             
 │   ├── TalentDashboard    # Talent Command Hub with application tracking
 │   ├── EmployerDashboard  # Recruitment management for companies
@@ -48,9 +49,9 @@ src/
 │   ├── Insights           # Market analysis and leadership resources
 │   └── Auth/SignUp        # Choice-based authentication flows (Talent vs Employer)
 ├── hooks/             # Custom React hooks (useScrolled)
-├── data/              # Mock databases, content mapping, and nav structures
+├── data/              # Centralized mock data, content mapping, and nav structures
 ├── utils/             # Helper functions and Framer Motion animation variants
-├── types/             # TypeScript interfaces for Jobs, Applications, and Users
+├── types/             # Centralized TypeScript interfaces for all components and pages
 └── App.tsx            # HashRouter logic and root application structure
 ```
 

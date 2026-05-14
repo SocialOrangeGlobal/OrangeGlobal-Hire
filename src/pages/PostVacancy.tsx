@@ -7,6 +7,7 @@ import {
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { scaleIn } from '../utils/animations';
+import { postVacancyJobCategories, postVacancyWorkMode } from '../data';
 
 type Step = 'basics' | 'details' | 'perks' | 'success';
 
@@ -170,13 +171,7 @@ export default function PostVacancyPage() {
                     <div className="space-y-2">
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Category</label>
                       <Dropdown
-                        options={[
-                          { value: 'Technology', label: 'Technology' },
-                          { value: 'Finance', label: 'Finance & Accounting' },
-                          { value: 'Legal', label: 'Legal' },
-                          { value: 'Marketing', label: 'Marketing' },
-                          { value: 'Executive', label: 'Executive Search' }
-                        ]}
+                        options={postVacancyJobCategories}
                         value={formData.category}
                         onChange={(v) => updateFormData('category', v)}
                         placeholder="Select category"
@@ -221,11 +216,7 @@ export default function PostVacancyPage() {
                     <div className="space-y-2">
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Work Mode</label>
                       <Dropdown
-                        options={[
-                          { value: 'Remote', label: 'Remote' },
-                          { value: 'Hybrid', label: 'Hybrid' },
-                          { value: 'On-site', label: 'On-site' }
-                        ]}
+                        options={postVacancyWorkMode}
                         value={formData.mode}
                         onChange={(v) => updateFormData('mode', v)}
                         placeholder="Work mode"

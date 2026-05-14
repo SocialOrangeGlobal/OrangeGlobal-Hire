@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ShieldCheck, Zap, Globe2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
+import { signUpPositionType } from '../data';
 
 export default function SignUpEmployer() {
   const [positionType, setPositionType] = useState('');
@@ -140,11 +141,7 @@ export default function SignUpEmployer() {
                 <div className="sm:col-span-2 space-y-2">
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
                   <Dropdown
-                    options={[
-                      { value: 'full-time', label: 'Full-time' },
-                      { value: 'contract', label: 'Contract' },
-                      { value: 'remote', label: 'Remote' }
-                    ]}
+                    options={signUpPositionType}
                     value={positionType}
                     onChange={setPositionType}
                     placeholder="Select position type"

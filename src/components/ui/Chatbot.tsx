@@ -1,13 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles, Minus } from 'lucide-react';
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
+import { Message } from '../../types';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);

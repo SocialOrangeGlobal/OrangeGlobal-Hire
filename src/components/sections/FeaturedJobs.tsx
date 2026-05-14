@@ -4,7 +4,7 @@ import { MapPin, Building, Clock } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';
-import JobDetailsModal from '../ui/JobDetailsModal';
+import JobDetailsModal from '../modals/JobDetailsModal';
 import type { Job } from '../../types';
 
 export default function FeaturedJobs() {
@@ -79,7 +79,7 @@ export default function FeaturedJobs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              onClick={() => window.location.hash = `#apply-job?id=${job.id}`}
+              onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
               className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
             >
               {/* Left Side */}
@@ -157,6 +157,15 @@ export default function FeaturedJobs() {
         job={selectedJob}
         onClose={() => setSelectedJob(null)}
       />
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+      `}} />
     </section>
   );
 }
