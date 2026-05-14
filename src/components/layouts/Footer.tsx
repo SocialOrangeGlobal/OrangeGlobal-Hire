@@ -9,39 +9,39 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 pb-12 border-b border-white/10">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <img src="/images/logo-icon.png" alt="Logo" className="w-20 sm:w-25 lg:w-30" />
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <img src="/images/logo-icon.png" alt="Logo" className="w-24 sm:w-20 lg:w-24 shrink-0" />
               <p className="text-gray-400 text-sm leading-relaxed text-center sm:text-left max-w-sm">
-                Orange Global is a <a href="https://orangeglobal.in/" target="_blank" rel="noopener noreferrer" className="text-rh-red hover:underline">leading staffing & talent solutions</a>
+                Orange Global is a <a href="https://orangeglobal.in/" target="_blank" rel="noopener noreferrer" className="text-rh-red hover:underline">leading staffing & talent solutions</a> provider dedicated to connecting top talent with world-class opportunities.
               </p>
             </div>
 
-            <div className="space-y-5 mt-8">
-              <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300">
+            <div className="space-y-6 mt-10">
+              <div className="flex items-start gap-4 text-sm text-gray-400 group cursor-pointer justify-start">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300 shrink-0">
                   <Phone className="w-4 h-4 text-rh-red group-hover:text-white transition-colors" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold uppercase tracking-wider text-white/40">Call Us</span>
+                <div className="flex flex-col pt-0.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-white/40 mb-1">Call Us</span>
                   <span className="group-hover:text-white transition-colors font-medium">{contactDetails.phone}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300">
+              <div className="flex items-start gap-4 text-sm text-gray-400 group cursor-pointer justify-start">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300 shrink-0">
                   <Mail className="w-4 h-4 text-rh-red group-hover:text-white transition-colors" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold uppercase tracking-wider text-white/40">Email Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">{contactDetails.email}</span>
+                <div className="flex flex-col pt-0.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-white/40 mb-1">Email Us</span>
+                  <span className="group-hover:text-white transition-colors font-medium break-all">{contactDetails.email}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-4 text-sm text-gray-400 group cursor-pointer justify-center sm:justify-start">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300">
+              <div className="flex items-start gap-4 text-sm text-gray-400 group cursor-pointer justify-start">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300 shrink-0">
                   <MapPin className="w-4 h-4 text-rh-red group-hover:text-white transition-colors" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold uppercase tracking-wider text-white/40">Visit Us</span>
-                  <span className="group-hover:text-white transition-colors font-medium">{contactDetails.address}</span>
+                <div className="flex flex-col pt-0.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-white/40 mb-1">Visit Us</span>
+                  <span className="group-hover:text-white transition-colors font-medium leading-relaxed">{contactDetails.address}</span>
                 </div>
               </div>
             </div>
