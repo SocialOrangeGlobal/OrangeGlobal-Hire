@@ -1,14 +1,66 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Zap, Globe2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Zap, Globe2, Loader2, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { signUpPositionType } from '../data';
+import { authApi } from '../lib/auth';
+import { useAppDispatch } from '../store';
+import { setLoading, setError as setAuthError } from '../store/slices/authSlice';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const employerSchema = z.object({
+  firstName: z.string().min(2, 'First name is required'),
+  lastName: z.string().min(2, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  businessPhone: z.string().min(5, 'Business phone is required'),
+  companyName: z.string().min(2, 'Company name is required'),
+  jobTitle: z.string().min(2, 'Your job title is required'),
+  jobTitleToHire: z.string().min(2, 'Job title to hire is required'),
+  zipCode: z.string().min(2, 'Zip code is required'),
+  positionType: z.string().min(1, 'Please select a position type'),
+});
+
+type EmployerFormData = z.infer<typeof employerSchema>;
 
 export default function SignUpEmployer() {
   const navigate = useNavigate();
-  const [positionType, setPositionType] = useState('');
+  const dispatch = useAppDispatch();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting }
+  } = useForm<EmployerFormData>({
+    resolver: zodResolver(employerSchema),
+    defaultValues: {
+      positionType: ''
+    }
+  });
+
+  const onSignUpSubmit = async (data: EmployerFormData) => {
+    dispatch(setLoading(true));
+    setError(null);
+    try {
+      await authApi.signUpEmployer(data);
+      // Do NOT set credentials — user must verify email before signing in
+      setIsSuccess(true);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Registration failed';
+      setError(msg);
+      dispatch(setAuthError(msg));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   const goBack = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,7 +69,6 @@ export default function SignUpEmployer() {
 
   return (
     <div className="bg-white min-h-screen pt-[72px] lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
-      {/* Left Side: SignUp Form */}
       <main className="flex-1 p-4 sm:p-12 lg:p-12 bg-[#f8f9fa] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,161 +84,166 @@ export default function SignUpEmployer() {
             </p>
           </div>
 
-          <form
-            className="space-y-8 lg:space-y-10"
-            onSubmit={(e) => {
-              e.preventDefault();
-              // Simulating a successful signup and redirecting to dashboard
-              const btn = e.currentTarget.querySelector('button[type="submit"]');
-              if (btn) btn.innerHTML = 'Signing up...';
-              setTimeout(() => {
-                navigate('/employer-dashboard');
-              }, 1500);
-            }}
-          >
-            {/* Section 1: Contact Information */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
-                <div className="w-8 h-8 rounded-full bg-rh-red/10 flex items-center justify-center text-rh-red">
-                  <span className="text-xs font-bold">01</span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-[#081B2D]">Contact Information</h2>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. John"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Doe"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Email</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="john@company.com"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Acme Corp"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Hiring Manager"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Section 2: Position Details */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
-                <div className="w-8 h-8 rounded-full bg-rh-red/10 flex items-center justify-center text-rh-red">
-                  <span className="text-xs font-bold">02</span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-[#081B2D]">Position Details</h2>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Senior Backend Developer"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 10001"
-                    className="w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300"
-                  />
-                </div>
-                <div className="sm:col-span-2 space-y-2">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
-                  <Dropdown
-                    options={signUpPositionType}
-                    value={positionType}
-                    onChange={setPositionType}
-                    placeholder="Select position type"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <div className="pt-8 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors text-sm sm:text-base">
-                <ArrowLeft className="w-5 h-5" /> Back to Choice
-              </button>
-              <Button type="submit" variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px]">
-                Complete Registration
-              </Button>
+          {error && (
+            <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-sm font-medium mb-8">
+              {error}
             </div>
-          </form>
+          )}
+
+          <AnimatePresence mode="wait">
+            {!isSuccess ? (
+              <motion.form
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-8 lg:space-y-10"
+                onSubmit={handleSubmit(onSignUpSubmit)}
+              >
+                <section className="space-y-6">
+                  <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
+                    <div className="w-8 h-8 rounded-full bg-rh-red/10 flex items-center justify-center text-rh-red">
+                      <span className="text-xs font-bold">01</span>
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-bold text-[#081B2D]">Contact Information</h2>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
+                      <input {...register('firstName')} placeholder="e.g. John" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.firstName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.firstName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.firstName.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
+                      <input {...register('lastName')} placeholder="e.g. Doe" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.lastName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.lastName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.lastName.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
+                      <input type="tel" {...register('businessPhone')} placeholder="+1 (555) 000-0000" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.businessPhone ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.businessPhone && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.businessPhone.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Email</label>
+                      <input type="email" {...register('email')} placeholder="john@company.com" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                      <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} {...register('password')} placeholder="At least 8 characters" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-red transition-colors">
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
+                      <input {...register('companyName')} placeholder="e.g. Acme Corp" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.companyName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.companyName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.companyName.message}</p>}
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
+                      <input {...register('jobTitle')} placeholder="e.g. Hiring Manager" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitle ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.jobTitle && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.jobTitle.message}</p>}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-6">
+                  <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
+                    <div className="w-8 h-8 rounded-full bg-rh-red/10 flex items-center justify-center text-rh-red">
+                      <span className="text-xs font-bold">02</span>
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-bold text-[#081B2D]">Position Details</h2>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
+                      <input {...register('jobTitleToHire')} placeholder="e.g. Senior Backend Developer" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitleToHire ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.jobTitleToHire && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.jobTitleToHire.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
+                      <input {...register('zipCode')} placeholder="e.g. 10001" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.zipCode ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.zipCode && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.zipCode.message}</p>}
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
+                      <Controller
+                        name="positionType"
+                        control={control}
+                        render={({ field }) => (
+                          <Dropdown
+                            options={signUpPositionType}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select position type"
+                            className={`w-full border ${errors.positionType ? 'border-red-500' : 'border-transparent'}`}
+                          />
+                        )}
+                      />
+                      {errors.positionType && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.positionType.message}</p>}
+                    </div>
+                  </div>
+                </section>
+
+                <div className="pt-8 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors text-sm sm:text-base">
+                    <ArrowLeft className="w-5 h-5" /> Back to Choice
+                  </button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    variant="primary"
+                    className="w-full sm:w-auto px-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold bg-[#D71920] hover:bg-[#B41419] text-white rounded-2xl transition-all shadow-xl shadow-red-500/10 min-w-[220px] flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Complete Registration'}
+                  </Button>
+                </div>
+              </motion.form>
+            ) : (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12 px-6"
+              >
+                <div className="w-24 h-24 bg-rh-teal/10 text-rh-teal rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-rh-teal/10 border border-rh-teal/10">
+                  <ShieldCheck className="w-12 h-12" />
+                </div>
+                <h2 className="text-3xl font-bold text-rh-teal mb-4">Check your inbox!</h2>
+                <p className="text-gray-500 mb-4 text-lg font-medium max-w-md mx-auto leading-relaxed">
+                  We've sent a verification link to your registered business email.
+                </p>
+                <p className="text-gray-400 mb-10 text-sm font-medium max-w-md mx-auto">
+                  Please verify your email first, then you'll be able to sign in and start hiring top talent.
+                </p>
+                <Button
+                  onClick={() => navigate('/signin')}
+                  variant="primary"
+                  className="px-12 py-4 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-2xl shadow-rh-teal/20 font-bold text-lg"
+                >
+                  Go to Sign In
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </main>
 
-      {/* Right Side: Professional Branding (Swapped for mobile consistency) */}
       <aside className="w-full lg:w-[40%] relative flex flex-col justify-center p-6 md:p-12 lg:p-24 overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-100 min-h-[350px] md:min-h-[450px] lg:min-h-screen shrink-0">
-        {/* Background Image & Overlay */}
         <div className="absolute inset-0 z-0 bg-rh-dark">
           <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 space-y-8 lg:space-y-12 text-center lg:text-left"
-        >
+        <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="relative z-10 space-y-8 lg:space-y-12 text-center lg:text-left">
           <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-white mb-4 lg:mb-6 leading-tight">
-              Why partner with <br />
-              <span className="text-rh-red font-normal italic">Orange Global?</span>
-            </h2>
-            <p className="text-gray-200 text-sm sm:text-base lg:text-lg font-medium leading-relaxed max-w-sm mx-auto lg:mx-0 opacity-90">
-              We connect you with the top 1% of global talent through our specialized recruitment process and AI-powered matching.
-            </p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-white mb-4 lg:mb-6 leading-tight">Why partner with <br /><span className="text-rh-red font-normal italic">Orange Global?</span></h2>
+            <p className="text-gray-200 text-sm sm:text-base lg:text-lg font-medium leading-relaxed max-w-sm mx-auto lg:mx-0 opacity-90">We connect you with the top 1% of global talent through our specialized recruitment process and AI-powered matching.</p>
           </div>
-
           <div className="space-y-6 lg:space-y-10 text-left">
             {[
               { icon: <ShieldCheck className="w-5 h-5 lg:w-6 lg:h-6" />, title: "Vetted Professionals", desc: "Every candidate undergoes rigorous technical and cultural assessment." },
@@ -195,29 +251,15 @@ export default function SignUpEmployer() {
               { icon: <Zap className="w-5 h-5 lg:w-6 lg:h-6" />, title: "Speed to Hire", desc: "Reduce your recruitment cycle by up to 60% with our AI-matching." }
             ].map((item, i) => (
               <div key={i} className="flex gap-4 lg:gap-6 group">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-rh-red shrink-0 group-hover:bg-rh-red group-hover:text-white transition-all duration-300 backdrop-blur-md">
-                  {item.icon}
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-white text-sm lg:text-base font-bold">{item.title}</h4>
-                  <p className="text-gray-300 text-xs lg:text-sm leading-relaxed font-medium opacity-80">{item.desc}</p>
-                </div>
+                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-rh-red shrink-0 group-hover:bg-rh-red group-hover:text-white transition-all duration-300 backdrop-blur-md">{item.icon}</div>
+                <div className="space-y-1"><h4 className="text-white text-sm lg:text-base font-bold">{item.title}</h4><p className="text-gray-300 text-xs lg:text-sm leading-relaxed font-medium opacity-80">{item.desc}</p></div>
               </div>
             ))}
           </div>
-
           <div className="pt-8 lg:pt-10 border-t border-white/10">
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-[#12161A] bg-gray-100 flex items-center justify-center overflow-hidden shadow-lg">
-                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs lg:text-sm font-bold text-white/80">
-                Joined by <span className="text-rh-red">500+</span> top organizations
-              </p>
+              <div className="flex -space-x-3">{[1, 2, 3, 4].map(i => (<div key={i} className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-[#12161A] bg-gray-100 flex items-center justify-center overflow-hidden shadow-lg"><img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" /></div>))}</div>
+              <p className="text-xs lg:text-sm font-bold text-white/80">Joined by <span className="text-rh-red">500+</span> top organizations</p>
             </div>
           </div>
         </motion.div>

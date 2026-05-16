@@ -2,11 +2,17 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { fadeUp, staggerContainer } from '../../utils/animations';
 import Button from '../ui/Button';
+import { useAppSelector } from '../../store';
 
 export default function Hero() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  const showTalentCTA = !isAuthenticated || user?.role === 'TALENT';
+  const showEmployerCTA = !isAuthenticated || user?.role === 'EMPLOYER';
+
   return (
-    <section className="relative bg-rh-dark flex items-center min-h-[100dvh] pt-20 overflow-hidden w-full">
+    <section className="relative bg-rh-dark flex items-center min-h-[90dvh] pt-16 overflow-hidden w-full">
       <div className="absolute inset-0 w-full h-full bg-[#12161A]">
         {/* Full width image */}
         <img
@@ -31,32 +37,36 @@ export default function Hero() {
           >
             <motion.h1
               variants={fadeUp}
-              className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold text-white leading-[1.1] mb-6 tracking-tight"
+              className="text-fluid-h1 font-extrabold text-white leading-[1.1] mb-6 tracking-tight"
             >
               Build Your Future <br /> <span className='text-rh-red font-[300] tracking-tight'>in Australia</span> with the right Talent.
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
-              className="text-base sm:text-lg lg:text-xl text-gray-300 leading-relaxed mb-8 md:mb-12 max-w-2xl mx-auto lg:mx-0 lg:pr-4"
+              className="text-fluid-p text-gray-300 leading-relaxed mb-8 md:mb-12 max-w-2xl mx-auto lg:mx-0 lg:pr-4"
             >
               Professional Australian PR, visa, and migration solutions tailored for skilled professionals, students, and families.
             </motion.p>
 
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Button
-                onClick={() => navigate('/jobs')}
-                size="lg" className="bg-rh-red hover:bg-red-700 text-white rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px]"
-              >
-                Find a job
-              </Button>
-              <Button
-                onClick={() => navigate('/hire-talent')}
-                size="lg" className="!bg-white hover:!bg-gray-100 !text-gray-900 rounded-full px-10 py-4 text-base font-bold shadow-lg w-full sm:w-auto min-w-[200px] border-none"
-              >
-                Find talent
-              </Button>
+              {showTalentCTA && (
+                <Button
+                  onClick={() => navigate('/jobs')}
+                  size="lg" className="bg-rh-red hover:bg-red-700 text-white rounded-full px-8 py-3.5 text-sm font-bold shadow-lg w-full sm:w-auto min-w-[180px]"
+                >
+                  Find a job
+                </Button>
+              )}
+              {showEmployerCTA && (
+                <Button
+                  onClick={() => navigate('/hire-talent')}
+                  size="lg" className="!bg-white hover:!bg-gray-100 !text-gray-900 rounded-full px-8 py-3.5 text-sm font-bold shadow-lg w-full sm:w-auto min-w-[180px] border-none"
+                >
+                  Find talent
+                </Button>
+              )}
             </motion.div>
           </motion.div>
         </div>

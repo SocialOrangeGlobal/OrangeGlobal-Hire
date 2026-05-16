@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
 import { ChevronDown, Menu, X, Search, ArrowLeft } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { navItems } from '../../data';
 import Button from '../ui/Button';
+import { useAppSelector, useAppDispatch } from '../../store';
+import { logout } from '../../store/slices/authSlice';
+import { LogOut, Settings, UserCircle, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
   const scrolled = useScrolled(60);
@@ -12,6 +15,9 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const pathname = location.pathname;
 
   useEffect(() => {
@@ -21,12 +27,12 @@ export default function Navbar() {
   }, [pathname]);
 
   const isSubPage = [
-    '/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password',
+    '/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email',
     '/jobs', '/hire-talent', '/consulting', '/insights', '/post-vacancy', '/contact',
-    '/employer-dashboard', '/talent-dashboard', '/apply-job'
+    '/employer-dashboard', '/talent-dashboard', '/apply-job', '/manage-profile'
   ].some(path => pathname.startsWith(path));
 
-  const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password'].some(path => pathname.startsWith(path));
+  const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -52,6 +58,13 @@ export default function Navbar() {
     setOpenDropdown(null);
   };
 
+  const filteredNavItems = navItems.filter((item) => {
+    if (!isAuthenticated) return true;
+    if (user?.role === 'EMPLOYER' && item.label === 'Find Jobs') return false;
+    if (user?.role === 'TALENT' && item.label === 'Hire Talent') return false;
+    return true;
+  });
+
   const handleSearchToggle = () => {
     setOpenDropdown(null);
     setSearchOpen((prev) => !prev);
@@ -69,22 +82,22 @@ export default function Navbar() {
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[72px]">
+        <div className="flex items-center justify-between h-[70px]">
           <div className="flex items-center gap-6 xl:gap-10 h-full">
             {/* Logo */}
             <Link to="/" className="flex items-center group relative shrink-0 h-full">
               <div className={`flex items-center transition-all duration-300 ${scrolled || isAuthPage || isSubPage ? 'gap-3' : 'gap-0'}`}>
-                <div className="relative flex items-center h-[32px] sm:h-[40px] lg:h-[48px]">
+                <div className="relative flex items-center h-[30px] sm:h-[36px] lg:h-[44px]">
                   <img
                     src="/images/brand-logo-dark.png"
                     alt="Logo"
-                    className={`absolute left-0 w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-100' : 'opacity-0'
+                    className={`absolute left-0 w-32 sm:w-40 lg:w-44 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-100' : 'opacity-0'
                       }`}
                   />
                   <img
                     src="/images/brand-logo-light.png"
                     alt="Logo"
-                    className={`w-32 sm:w-44 lg:w-48 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-0' : 'opacity-100'
+                    className={`w-32 sm:w-40 lg:w-44 transition-opacity duration-300 ${scrolled || isAuthPage || isSubPage ? 'opacity-0' : 'opacity-100'
                       }`}
                   />
                 </div>
@@ -94,7 +107,7 @@ export default function Navbar() {
             {/* Desktop Nav */}
             {!isAuthPage && (
               <nav className="hidden xl:flex items-center gap-1 xl:gap-2 h-full">
-                {navItems.map((item) => (
+                {filteredNavItems.map((item) => (
                   <div
                     key={item.label}
                     className="relative flex items-center h-full"
@@ -144,17 +157,87 @@ export default function Navbar() {
                   >
                     <Search className="w-5 h-5" />
                   </button>
-                  <Link
-                    to="/signin"
-                    className={`text-[14px] xl:text-[15px] 2xl:text-[16px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      } hover:underline hover:underline-offset-8`}
-                  >
-                    Sign in
-                  </Link>
+                  {isAuthenticated ? (
+                    <div className="relative group/user h-full flex items-center">
+                      <button className={`flex items-center gap-3 p-1.5 pr-3 rounded-xl transition-all ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>
+                        <div className="w-9 h-9 rounded-lg bg-rh-red flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-900/20 overflow-hidden shrink-0">
+                          {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                        </div>
+                        <span className="text-sm font-bold truncate max-w-[120px] 2xl:max-w-[160px]">{user?.fullName || 'User Account'}</span>
+                        <ChevronDown className="w-4 h-4 text-gray-400 group-hover/user:rotate-180 transition-transform shrink-0" />
+                      </button>
+
+                      {/* Dropdown */}
+                      <div className="absolute top-[85%] right-0 w-72 pt-5 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-300 translate-y-3 group-hover/user:translate-y-0 z-[60]">
+                        <div className="bg-white/95 backdrop-blur-xl rounded-[1.75rem] shadow-[0_1.875rem_4.375rem_rgba(0,0,0,0.15)] border border-gray-100 p-3 overflow-hidden">
+                          <div className="px-5 py-5 bg-rh-light/30 rounded-[1.375rem] mb-2 border border-rh-teal/5">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
+                                {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-rh-teal truncate">{user?.fullName || 'User Account'}</p>
+                                <p className="text-[10px] font-bold text-rh-red uppercase tracking-widest">{user?.role}</p>
+                              </div>
+                            </div>
+                            <p className="text-[11px] font-medium text-gray-400 truncate">{user?.email}</p>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Link to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'} className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
+                                <UserCircle className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                              </div>
+                              <span className="text-sm font-bold">Dashboard</span>
+                            </Link>
+                            <Link to="/manage-profile" className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
+                                <Settings className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                              </div>
+                              <span className="text-sm font-bold">Manage Profile</span>
+                            </Link>
+                          </div>
+
+                          <div className="h-px bg-gray-50 my-2 mx-4" />
+
+                          <button
+                            onClick={() => {
+                              dispatch(logout());
+                              navigate('/');
+                            }}
+                            className="w-full flex items-center gap-3 px-5 py-3 rounded-[18px] text-rh-red hover:bg-red-50 transition-all group/item"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                              <LogOut className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold">Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/signin"
+                      className={`text-[15px] xl:text-[16px] 2xl:text-[17px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                        } hover:underline hover:underline-offset-8`}
+                    >
+                      Sign in
+                    </Link>
+                  )}
                 </div>
 
                 {/* Mobile Toggle */}
-                <div className="flex items-center gap-2 xl:hidden">
+                <div className="flex items-center gap-2 xl:hidden h-full">
+                  {isAuthenticated && (
+                    <div className="flex items-center gap-2 mr-1">
+                      <Link to="/manage-profile" className={`flex items-center gap-2.5 p-1 sm:pr-2 rounded-xl border shadow-sm transition-all ${scrolled || isSubPage || isAuthPage ? 'bg-gray-50 border-gray-200 hover:bg-gray-100' : 'bg-white/10 border-white/10 hover:bg-white/20'}`}>
+                        <div className="w-8 h-8 rounded-lg bg-rh-teal flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
+                          {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                        </div>
+                        <span className={`hidden sm:block text-xs font-bold truncate sm:max-w-[140px] ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D]' : 'text-white'}`}>{user?.fullName || 'User Account'}</span>
+                      </Link>
+                    </div>
+                  )}
                   <button
                     className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
@@ -206,7 +289,7 @@ export default function Navbar() {
                     <input
                       type="text"
                       placeholder="Search jobs, talent, or insights..."
-                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-full border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage
+                      className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-[2.5rem] border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage
                         ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
                         : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
                         }`}
@@ -285,10 +368,10 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={`fixed inset-0 top-[72px] z-40 xl:hidden overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
+            className={`fixed inset-0 top-[64px] z-40 xl:hidden overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${scrolled || isAuthPage || isSubPage ? 'bg-white' : 'bg-[#12161A]'
               }`}
           >
-            <div className="flex flex-col min-h-[calc(100vh-72px)] p-6 pb-12">
+            <div className="flex flex-col min-h-[calc(100vh-64px)] px-6 py-2 pb-12">
               <div className="space-y-2">
                 <div className={`border-b ${scrolled ? 'border-gray-50' : 'border-white/5'}`}>
                   <Link
@@ -299,7 +382,7 @@ export default function Navbar() {
                     Home
                   </Link>
                 </div>
-                {navItems.map((item) => (
+                {filteredNavItems.map((item) => (
                   <div
                     key={item.label}
                     className={`border-b last:border-none ${scrolled || isAuthPage || isSubPage ? 'border-gray-50' : 'border-white/5'}`}
@@ -355,15 +438,61 @@ export default function Navbar() {
               </div>
 
               <div className="mt-auto pt-8 sm:pt-10 space-y-4">
-                <Link
-                  to="/signin"
-                  onClick={() => setMobileOpen(false)}
-                  className="block w-full text-center py-3 sm:py-4 transition-all"
-                >
-                  <Button size="lg" className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl shadow-xl">
-                    Sign In
-                  </Button>
-                </Link>
+                {isAuthenticated ? (
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-2xl border flex items-center gap-4 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'bg-rh-light/40 border-rh-teal/10' : 'bg-white/5 border-white/10'}`}>
+                      <div className="w-12 h-12 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
+                        {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-base font-bold truncate ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'}`}>{user?.fullName || 'User Account'}</p>
+                        <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                        <span className="inline-block mt-1 px-2.5 py-0.5 bg-rh-red/10 text-rh-red rounded-lg text-[9px] font-bold uppercase tracking-widest">{user?.role}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Link
+                        to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'}
+                        onClick={() => setMobileOpen(false)}
+                        className="block w-full"
+                      >
+                        <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
+                          <LayoutDashboard className="w-5 h-5" /> Dashboard
+                        </Button>
+                      </Link>
+                      <Link
+                        to="/manage-profile"
+                        onClick={() => setMobileOpen(false)}
+                        className="block w-full"
+                      >
+                        <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-gray-200 text-gray-700 hover:bg-gray-100' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
+                          <Settings className="w-5 h-5" /> Manage Profile
+                        </Button>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          dispatch(logout());
+                          setMobileOpen(false);
+                          navigate('/');
+                        }}
+                        className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm ${scrolled || isAuthPage || isSubPage ? 'bg-red-50 text-rh-red hover:bg-red-100' : 'bg-rh-red/10 border border-rh-red/20 text-rh-red hover:bg-rh-red/20'}`}
+                      >
+                        <LogOut className="w-5 h-5" /> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    to="/signin"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center py-3 sm:py-4 transition-all"
+                  >
+                    <Button size="lg" className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl shadow-xl">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
                 <div className="flex justify-center gap-6 pt-6">
                   {['Linkedin', 'Twitter', 'Facebook'].map((social) => (
                     <a key={social} href="#" className="text-gray-400 hover:text-rh-teal transition-colors">

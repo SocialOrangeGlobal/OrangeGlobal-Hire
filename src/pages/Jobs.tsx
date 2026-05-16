@@ -84,11 +84,11 @@ export default function JobsPage() {
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
-      <section className="bg-rh-dark pt-40 pb-24 relative overflow-hidden">
+      <section className="bg-rh-dark pt-32 pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-4xl">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-10 tracking-tight leading-[1.1]">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-light text-white mb-8 tracking-tight leading-[1.1]">
               Your career, <br />
               <span className="text-rh-red font-[300]">reimagined from here</span>
             </h1>
@@ -103,7 +103,7 @@ export default function JobsPage() {
               </Button>
             </div>
 
-            <div className="relative bg-[#1a1f24]/40 backdrop-blur-3xl p-2 rounded-[24px] md:rounded-[32px] border border-white/10 flex flex-col md:flex-row items-center gap-1 md:gap-2 shadow-2xl z-20 overflow-hidden">
+            <div className="relative bg-[#1a1f24]/40 backdrop-blur-3xl p-1.5 rounded-[20px] md:rounded-[28px] border border-white/10 flex flex-col md:flex-row items-center gap-1 md:gap-1.5 shadow-2xl z-20 overflow-hidden">
               <div className="flex-1 flex items-center px-4 md:px-6 gap-3 w-full border-b md:border-b-0 md:border-r border-white/5 py-1 md:py-0">
                 <Search className="w-5 h-5 text-gray-400 shrink-0" />
                 <input
@@ -131,9 +131,9 @@ export default function JobsPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-24 bg-rh-light min-h-[800px]">
+      <section className="py-16 bg-rh-light min-h-[800px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-16">
+          <div className="flex flex-col lg:flex-row gap-10">
 
             <aside className="w-full lg:w-72 shrink-0">
               <div className="sticky top-32 space-y-12">

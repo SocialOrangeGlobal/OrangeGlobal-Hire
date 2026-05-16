@@ -52,7 +52,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative hidden lg:flex w-full max-w-7xl bg-white rounded-[40px] overflow-hidden shadow-2xl h-full lg:h-[88vh]"
+            className="relative hidden lg:flex w-full max-w-6xl bg-white rounded-[32px] overflow-hidden shadow-2xl h-full lg:h-[88vh]"
           >
             <button
               onClick={onClose}
@@ -62,8 +62,8 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
             </button>
 
             {/* Side Panel */}
-            <div className="w-[380px] bg-rh-light flex flex-col shrink-0 border-r border-gray-100 overflow-y-auto no-scrollbar">
-              <div className="p-10 pb-0">
+            <div className="w-[320px] bg-rh-light flex flex-col shrink-0 border-r border-gray-100 overflow-y-auto no-scrollbar">
+              <div className="p-8 pb-0">
                 <div className="flex items-center gap-5 mb-12">
                   <div className="w-20 h-20 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-rh-red shrink-0">
                     <Building2 className="w-10 h-10" strokeWidth={1.5} />
@@ -97,7 +97,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                 </div>
               </div>
 
-              <div className="mt-auto p-10 space-y-4">
+              <div className="mt-auto p-8 space-y-4">
                 {/* Share Options Panel (Desktop) */}
                 <div className="relative">
                   <Button
@@ -154,9 +154,9 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto bg-white p-20 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto bg-white p-12 custom-scrollbar">
               <div className="mb-16 border-b border-gray-50 pb-16">
-                <h2 className="text-5xl font-light text-rh-teal leading-tight tracking-tight mb-8">
+                <h2 className="text-3xl sm:text-4xl font-light text-rh-teal leading-tight tracking-tight mb-6">
                   {job.title}
                 </h2>
                 <div className="flex flex-wrap gap-3">

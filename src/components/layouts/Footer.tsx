@@ -5,8 +5,8 @@ import { footerLinks, contactDetails } from '../../data';
 export default function Footer() {
   return (
     <footer className="bg-[#0A0D10] text-white border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-20 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 pb-12 border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-10 pb-10 border-b border-white/10">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-2">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
@@ -16,7 +16,7 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="space-y-6 mt-10">
+            <div className="space-y-6 mt-8">
               <div className="flex items-start gap-4 text-sm text-gray-400 group cursor-pointer justify-start">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-rh-red transition-all duration-300 shrink-0">
                   <Phone className="w-4 h-4 text-rh-red group-hover:text-white transition-colors" />
@@ -78,7 +78,7 @@ export default function Footer() {
         <div className="py-12 border-b border-white/10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="max-w-md text-center lg:text-left">
-              <h3 className="font-bold text-2xl text-white mb-3 tracking-tight">Stay ahead of the market</h3>
+              <h3 className="font-bold text-xl text-white mb-2 tracking-tight">Stay ahead of the market</h3>
               <p className="text-gray-400 leading-relaxed">Get exclusive salary data, hiring trends, and career insights delivered to your inbox.</p>
             </div>
             <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 items-center justify-center">

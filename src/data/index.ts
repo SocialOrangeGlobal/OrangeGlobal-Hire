@@ -843,7 +843,7 @@ export const buttonVariants: Record<string, string> = {
 };
 
 export const buttonSizes: Record<string, string> = {
-  sm: 'h-9 px-4 text-sm',
-  md: 'h-11 px-6 text-sm',
-  lg: 'h-13 px-8 text-base',
+  sm: 'h-8 px-3 text-[12px]',
+  md: 'h-10 px-5 text-[14px]',
+  lg: 'h-12 px-7 text-[15px]',
 };

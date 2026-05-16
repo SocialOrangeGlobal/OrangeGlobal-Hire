@@ -5,9 +5,9 @@ import { features } from '../../data/index';
 
 export default function WhyChooseUs() {
   return (
-    <section className="bg-white py-16 md:py-24 overflow-hidden">
+    <section className="bg-white py-12 md:py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
           {/* Content */}
           <motion.div
             variants={staggerContainer}
@@ -16,10 +16,10 @@ export default function WhyChooseUs() {
             viewport={{ once: true, amount: 0.2 }}
           >
             <motion.div variants={fadeUp}>
-              <h2 className="text-3xl xs:text-4xl sm:text-5xl font-light text-rh-teal mt-2 md:mt-4 mb-6 leading-tight">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl font-light text-rh-teal mt-2 md:mt-4 mb-4 leading-tight">
                 Why industry leaders choose <span className="text-rh-red font-[300] tracking-tight">Orange Global</span> to build their teams.
               </h2>
-              <p className="text-base md:text-lg text-gray-600 mb-8 md:mb-10 leading-relaxed max-w-xl">
+              <p className="text-sm md:text-base text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-xl">
                 We combine decades of recruitment expertise with cutting-edge AI matching technology to deliver exceptional talent faster and more reliably than traditional agencies.
               </p>
             </motion.div>
@@ -31,7 +31,7 @@ export default function WhyChooseUs() {
                     <feature.icon className="w-5 h-5 md:w-6 md:h-6 text-rh-red" />
                   </div>
                   <div>
-                    <h3 className="text-lg md:text-xl font-bold text-rh-teal mb-1 md:mb-2">{feature.title}</h3>
+                    <h3 className="text-base md:text-lg font-bold text-rh-teal mb-1 md:mb-2">{feature.title}</h3>
                     <p className="text-xs md:text-sm text-gray-600 leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>

@@ -65,6 +65,26 @@ src/
 *   **Icons**: [Lucide React](https://lucide.dev/)
 *   **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict type safety)
 
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the root directory based on `.env.example`. Ensure the following variables are configured:
+
+```env
+# Local Development API URL
+VITE_API_URL=http://localhost:3001/api/v1
+
+# Production Render API URL (Configure this in Vercel Environment Variables)
+# VITE_API_URL=https://orangeglobal-backend.onrender.com/api/v1
+
+# App Metadata
+VITE_APP_NAME="Orange Global"
+VITE_APP_DESCRIPTION="Premium Staffing and Recruitment Platform"
+
+# Supabase Storage Configuration
+VITE_SUPABASE_URL=https://[project-ref].supabase.co
+VITE_SUPABASE_ANON_KEY=replace_with_the_supabase_anon_key_here
+```
+
 ## 🏁 Getting Started
 
 ### Prerequisites
@@ -74,7 +94,7 @@ src/
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-org/orange-global-hire.git
+   git clone https://github.com/SocialOrangeGlobal/orange-global-hire.git
    cd orange-global-hire
    ```
 
@@ -90,6 +110,27 @@ src/
 
 ## 📱 Responsiveness
 The portal utilizes a **mobile-first** design architecture. Navigation, modals, and complex dashboard elements (like the Notification Hub and Profile Drawer) dynamically reposition themselves—switching from floating elements on desktop to focused, full-screen modules on mobile devices.
+
+## 🌍 Deployment & Branching Strategy
+
+The Orange Global Frontend operates on a dual-branch enterprise CI/CD workflow managed via Vercel:
+
+### 1. Production Environment (`main` Branch)
+*   **Live URL**: [https://www.orangeglobal.co](https://www.orangeglobal.co)
+*   **Purpose**: Stable, customer-facing production release.
+*   **API Connection**: Connected to the live Render production backend (`https://orangeglobal-backend.onrender.com/api/v1`).
+*   **Vercel Domain Setting**: Attached to `www.orangeglobal.co` with Git Branch set to `main`.
+
+### 2. Testing / Staging Environment (`staging` Branch)
+*   **Live URL**: [https://orange-global-hire.vercel.app](https://orange-global-hire.vercel.app)
+*   **Purpose**: Pre-production quality assurance (QA) and mobile responsiveness verification.
+*   **API Connection**: Connected to the live Render production backend (via Vercel `Preview` environment variables).
+*   **Vercel Domain Setting**: Attached to `orange-global-hire.vercel.app` with Git Branch set to `staging`.
+
+### 🔄 Deployment Workflow
+1. All new feature development, UI updates, and resume intelligence enhancements are committed and pushed to the `staging` branch.
+2. Vercel automatically deploys the `staging` branch to `https://orange-global-hire.vercel.app` for rigorous cross-device testing.
+3. Once verified, a Pull Request (PR) is merged from `staging` into `main`, triggering a zero-downtime production release on `https://www.orangeglobal.co`.
 
 ---
 

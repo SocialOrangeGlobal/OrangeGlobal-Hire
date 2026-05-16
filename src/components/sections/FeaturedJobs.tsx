@@ -7,11 +7,15 @@ import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';
 import JobDetailsModal from '../modals/JobDetailsModal';
 import type { Job } from '../../types';
+import { useAppSelector } from '../../store';
 
 export default function FeaturedJobs() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+  if (isAuthenticated && user?.role === 'EMPLOYER') return null;
 
   const filteredJobs = activeCategory === 'All Jobs'
     ? jobs

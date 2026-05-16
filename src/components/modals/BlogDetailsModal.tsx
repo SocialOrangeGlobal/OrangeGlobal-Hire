@@ -25,7 +25,7 @@ function BlobDetailsModal({ selectedBlog, setSelectedBlog }: BlobDetailsModalPro
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] bg-white rounded-none sm:rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col"
+                className="relative w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] bg-white rounded-none sm:rounded-[24px] md:rounded-[32px] shadow-2xl overflow-hidden flex flex-col"
             >
                 {/* Modal Body - Single Scrollable Column */}
                 <div className="overflow-y-auto custom-scrollbar flex-1">
@@ -37,7 +37,7 @@ function BlobDetailsModal({ selectedBlog, setSelectedBlog }: BlobDetailsModalPro
                 `}</style>
 
                     {/* Hero Section */}
-                    <div className="relative h-64 sm:h-80 md:h-[450px]">
+                    <div className="relative h-64 sm:h-72 md:h-[350px]">
                         <img src={selectedBlog.image} alt={selectedBlog.title} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent" />
                         <button
@@ -46,19 +46,19 @@ function BlobDetailsModal({ selectedBlog, setSelectedBlog }: BlobDetailsModalPro
                         >
                             <X className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
-                        <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10">
                             <span className="px-4 py-2 bg-rh-red text-white text-[10px] font-bold uppercase tracking-widest rounded-lg mb-6 inline-block">
                                 {selectedBlog.category}
                             </span>
-                            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-rh-teal leading-tight max-w-4xl">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rh-teal leading-tight max-w-3xl">
                                 {selectedBlog.title}
                             </h2>
                         </div>
                     </div>
 
                     {/* Article Content */}
-                    <div className="p-8 sm:p-12 md:p-16 max-w-4xl mx-auto">
-                        <div className="flex flex-wrap items-center gap-6 sm:gap-12 py-8 border-y border-gray-50 mb-12">
+                    <div className="p-6 sm:p-10 md:p-12 max-w-3xl mx-auto">
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-10 py-6 border-y border-gray-50 mb-8">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-rh-light flex items-center justify-center text-rh-teal">
                                     <User className="w-5 h-5 sm:w-6 sm:h-6" />

@@ -4,6 +4,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fadeUp } from '../../utils/animations';
 import { services } from '../../data/index';
+import { useAppSelector } from '../../store';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -11,17 +12,26 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 export default function Services() {
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const isTalent = isAuthenticated && user?.role === 'TALENT';
+
+  // For Talents, we redirect industry service clicks to jobs with a category filter
+  const filteredServices = services.map(s => ({
+    ...s,
+    link: isTalent ? `/jobs?category=${encodeURIComponent(s.title)}` : s.link
+  }));
+
   return (
-    <section id="services" className="bg-rh-light py-16 md:py-24 overflow-hidden">
+    <section id="services" className="bg-rh-light py-12 md:py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 md:mb-16">
+        <div className="mb-8 md:mb-12">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             className="max-w-2xl"
           >
-            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-[52px] font-light text-rh-teal leading-[1.1] tracking-tight">
+            <motion.h2 variants={fadeUp} className="text-fluid-h2 font-light text-rh-teal leading-[1.1] tracking-tight">
               Specialized staffing across <br />
               <span className="text-rh-red font-[300]">every discipline</span>
             </motion.h2>
@@ -56,7 +66,7 @@ export default function Services() {
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           className="!overflow-visible"
         >
-          {services.map((service) => (
+          {filteredServices.map((service) => (
             <SwiperSlide key={service.id}>
               <motion.div
                 variants={fadeUp}
@@ -75,10 +85,10 @@ export default function Services() {
                 </div>
 
                 <div className="px-1 md:px-2">
-                  <h3 className="text-xl md:text-[24px] font-bold text-rh-teal mb-2 md:mb-3 group-hover:text-rh-red transition-colors">
+                  <h3 className="text-fluid-h3 font-bold text-rh-teal mb-2 md:mb-3 group-hover:text-rh-red transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-sm md:text-[16px] text-gray-500 leading-relaxed mb-4 md:mb-6 line-clamp-2">
+                  <p className="text-fluid-p text-gray-500 leading-relaxed mb-4 md:mb-6 line-clamp-2">
                     {service.description}
                   </p>
                   <a href={service.link} className="inline-flex items-center gap-2 text-xs md:text-[14px] font-bold uppercase tracking-widest text-rh-red group-hover:gap-3 transition-all">
@@ -91,7 +101,7 @@ export default function Services() {
         </Swiper>
 
         {/* Carousel Footer: Progress Bar + Navigation */}
-        <div className="mt-12 md:mt-16 flex flex-col items-center gap-6 md:gap-8">
+        <div className="mt-8 md:mt-12 flex flex-col items-center gap-6 md:gap-8">
           <div className="w-full max-w-xs md:max-w-md h-[2px] bg-gray-100 relative overflow-hidden">
             <div className="services-pagination absolute inset-0 !static !w-full h-full flex gap-0">
             </div>

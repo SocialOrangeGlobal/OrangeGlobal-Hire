@@ -3,12 +3,68 @@
 @tailwind utilities;
 
 @layer base {
-  html, body {
-    @apply overflow-x-hidden w-full;
+  :root {
+    --rh-teal: #081B2D;
+    --rh-red: #D71920;
+    --rh-light: #F4F7FA;
+    --rh-dark: #12161A;
+  }
+
+  html {
+    font-size: clamp(13px, 0.2vw + 12.5px, 16px);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply overflow-x-hidden w-full text-gray-900 bg-white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     position: relative;
+    line-height: 1.5;
   }
 
   #root {
-    @apply overflow-x-hidden w-full;
+    @apply overflow-x-hidden w-full min-h-screen flex flex-col;
+  }
+
+  /* Custom Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D1D5DB;
+    background-clip: content-box;
+  }
+}
+
+@layer utilities {
+  .text-fluid-h1 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .text-fluid-h2 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .text-fluid-h3 {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  .text-fluid-p {
+    font-size: clamp(0.875rem, 1vw, 1rem);
   }
 }

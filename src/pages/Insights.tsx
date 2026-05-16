@@ -58,11 +58,11 @@ export default function InsightsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero & Video Carousel */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-white overflow-hidden">
+      <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           {/* Main Title - Full Width */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mb-12 md:mb-16">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-rh-teal leading-[1.1] tracking-tight text-center lg:text-left">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mb-8 md:mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-rh-teal leading-[1.1] tracking-tight text-center lg:text-left">
               Knowledge that <br />
               <span className="text-rh-red font-[300]">shapes industries</span>
             </h1>
@@ -185,7 +185,7 @@ export default function InsightsPage() {
       </section>
 
       {/* Blog/Resources Grid */}
-      <section className="py-20 md:py-32 bg-rh-light/30">
+      <section className="py-16 md:py-24 bg-rh-light/30">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
             <div>
@@ -259,7 +259,7 @@ export default function InsightsPage() {
       </AnimatePresence>
 
       {/* Newsletter */}
-      <section className="py-20 md:py-32 bg-[#081B2D] relative overflow-hidden md:rounded-[48px] mx-0 md:mx-8 mb-20 shadow-2xl">
+      <section className="py-16 md:py-24 bg-[#081B2D] relative overflow-hidden md:rounded-[48px] mx-0 md:mx-8 mb-20 shadow-2xl">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-rh-red rounded-full blur-[120px]" />
           <div className="absolute bottom-0 left-0 w-1/2 h-full bg-rh-teal rounded-full blur-[120px]" />
