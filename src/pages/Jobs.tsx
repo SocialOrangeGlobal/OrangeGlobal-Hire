@@ -93,7 +93,7 @@ export default function JobsPage() {
               <span className="text-rh-red font-[300]">reimagined from here</span>
             </h1>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
+            {/* <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
               <Button
                 onClick={() => navigate('/talent-dashboard')}
                 variant="primary"
@@ -101,7 +101,7 @@ export default function JobsPage() {
               >
                 View Dashboard <ArrowRight className="w-4 h-4" />
               </Button>
-            </div>
+            </div> */}
 
             <div className="relative bg-[#1a1f24]/40 backdrop-blur-3xl p-1.5 rounded-[20px] md:rounded-[28px] border border-white/10 flex flex-col md:flex-row items-center gap-1 md:gap-1.5 shadow-2xl z-20 overflow-hidden">
               <div className="flex-1 flex items-center px-4 md:px-6 gap-3 w-full border-b md:border-b-0 md:border-r border-white/5 py-1 md:py-0">
@@ -274,8 +274,9 @@ export default function JobsPage() {
                         </Button>
                         <Button
                           variant="primary"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full shadow-lg shadow-rh-red/20 font-bold whitespace-nowrap"
-                          onClick={(e) => navigateToApply(e, job.id)}
+                          disabled={true}
+                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap bg-gray-300 hover:bg-gray-300 border-none text-gray-500 cursor-not-allowed shadow-none"
+                          onClick={(e) => { e.stopPropagation(); }}
                         >
                           Apply Now
                         </Button>

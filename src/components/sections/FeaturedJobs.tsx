@@ -134,8 +134,9 @@ export default function FeaturedJobs() {
                   </Button>
                   <Button
                     variant="primary"
-                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full shadow-lg shadow-rh-red/20 font-bold whitespace-nowrap"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
+                    disabled={true}
+                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap bg-gray-300 hover:bg-gray-300 border-none text-gray-500 cursor-not-allowed shadow-none"
+                    onClick={(e) => { e.stopPropagation(); }}
                   >
                     Apply Now
                   </Button>

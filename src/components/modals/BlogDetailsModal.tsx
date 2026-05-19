@@ -120,11 +120,22 @@ function BlobDetailsModal({ selectedBlog, setSelectedBlog }: BlobDetailsModalPro
                             <div className="flex items-center gap-4">
                                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Share this Insight:</span>
                                 <div className="flex gap-2">
-                                    {[Share2, Bookmark, MessageCircle].map((Icon, i) => (
-                                        <button key={i} className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rh-light flex items-center justify-center text-rh-teal hover:bg-rh-red hover:text-white transition-all">
-                                            <Icon className="w-5 h-5" />
-                                        </button>
-                                    ))}
+                                    {[Share2, Bookmark, MessageCircle].map((Icon, i) => {
+                                        const isShare = Icon === Share2;
+                                        return (
+                                            <button
+                                                key={i}
+                                                disabled={isShare}
+                                                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all ${
+                                                    isShare
+                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                                                        : 'bg-rh-light text-rh-teal hover:bg-rh-red hover:text-white'
+                                                }`}
+                                            >
+                                                <Icon className="w-5 h-5" />
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                             <Button variant="primary" className="w-full sm:w-auto px-10 py-4 rounded-xl shadow-xl shadow-rh-red/20 font-bold">
