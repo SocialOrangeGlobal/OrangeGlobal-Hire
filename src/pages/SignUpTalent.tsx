@@ -1,450 +1,670 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, CheckCircle, Plus, Trash2, User, GraduationCap, Briefcase, Star, CheckCircle2, Loader2, Eye, EyeOff, Camera } from 'lucide-react';
+import {
+  ArrowLeft, Upload, CheckCircle, User, Briefcase,
+  Globe, GraduationCap, CheckCircle2, Languages, ShieldCheck, Plane, FileCheck, Loader2, Eye, EyeOff, AlertCircle
+} from 'lucide-react';
 import Button from '../components/ui/Button';
+import Dropdown from '../components/ui/Dropdown';
 import { authApi } from '../lib/auth';
 import { uploadFile } from '../lib/storage';
 import { useAppDispatch } from '../store';
 import { setLoading, setError as setAuthError } from '../store/slices/authSlice';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-type Step = 'resume' | 'personal' | 'education' | 'skills' | 'experience' | 'success';
-
-const talentSchema = z.object({
-  fullName: z.string().min(2, 'Full name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  phone: z.string().optional(),
-  location: z.string().optional(),
-  resumeUrl: z.string().optional(),
-  avatarUrl: z.string().optional(),
-  educations: z.array(z.object({
-    school: z.string().min(1, 'School is required'),
-    degree: z.string().min(1, 'Degree is required'),
-    year: z.string().min(4, 'Valid year required'),
-  })),
-  skills: z.array(z.string()).min(1, 'Please add at least one skill'),
-  experiences: z.array(z.object({
-    title: z.string().min(1, 'Job title is required'),
-    company: z.string().min(1, 'Company is required'),
-    responsibilities: z.string().min(10, 'Please describe your role'),
-  })),
-});
-
-type TalentFormData = z.infer<typeof talentSchema>;
+import { SignUpTalentDto } from '../types/auth';
 
 export default function SignUpTalent() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [step, setStep] = useState<Step>('resume');
-  const [extracting, setExtracting] = useState(false);
+  const [step, setStep] = useState<number>(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [skillInput, setSkillInput] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    trigger,
-    formState: { errors, isSubmitting }
-  } = useForm<TalentFormData>({
-    resolver: zodResolver(talentSchema),
-    defaultValues: {
-      educations: [{ school: '', degree: '', year: '' }],
-      experiences: [{ title: '', company: '', responsibilities: '' }],
-      skills: ['Strategic Management', 'Market Analysis', 'Leadership']
+  const [formData, setFormData] = useState({
+    fullName: '', dob: '', age: '', gender: '', nationality: '', countryOfResidence: '', city: '', whatsapp: '', email: '', password: '', linkedin: '', phone: '',
+    opportunityType: '', preferredIndustry: '', preferredRole: '', preferredSalary: '', startDate: '',
+    jobTitle: '', employerName: '', employmentCountry: '', totalExp: '', relevantExp: '', summary: '', isEmployed: '', workedOverseas: '', overseasCountries: '',
+    highestQualification: '', fieldOfStudy: '', institutionName: '', graduationYear: '', hasLicences: '', licencesList: '',
+    englishTest: '', overallScore: '', testDate: '',
+    visaStatus: '', legalWorkRights: '', openToRelocation: '', appliedAusVisa: '', visaTypeApplied: '', visaRefusal: '', visaRefusalDetails: '',
+    relocateAloneOrFamily: '', validPassport: '', passportExpiry: '', medicalBackgroundCheck: '', criminalConvictions: '', criminalDetails: '',
+    declarationTrue: false, declarationConsent: false, honeypot: '',
+
+    resumeFile: null as File | null,
+    passportFile: null as File | null,
+    visaFile: null as File | null,
+    eduCertFile: null as File | null,
+    empCertFile: null as File | null,
+    englishTestFile: null as File | null,
+    licenceFile: null as File | null,
+  });
+
+  const updateForm = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
-  });
-
-  const { fields: eduFields, append: appendEdu, remove: removeEdu } = useFieldArray({
-    control,
-    name: 'educations'
-  });
-
-  const { fields: expFields, append: appendExp, remove: removeExp } = useFieldArray({
-    control,
-    name: 'experiences'
-  });
-
-  const skills = watch('skills');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const goBack = () => {
-    if (step === 'resume') navigate('/signup-choice');
-    if (step === 'personal') setStep('resume');
-    if (step === 'education') setStep('personal');
-    if (step === 'skills') setStep('education');
-    if (step === 'experience') setStep('skills');
+    if (submitError) setSubmitError('');
   };
 
-  const handleResumeUploadClick = () => fileInputRef.current?.click();
+  const handleFileChange = (field: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    updateForm(field, file);
+  };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setExtracting(true);
-      setError(null);
-      try {
-        const timestamp = Date.now();
-        const fileName = `${timestamp}-${file.name.replace(/\s+/g, '-')}`;
-        const url = await uploadFile(file, 'resumes', fileName);
-        setValue('resumeUrl', url);
-        setStep('personal');
-      } catch (err: any) {
-        setError('Failed to upload resume. Please try again.');
-      } finally {
-        setExtracting(false);
+  const validateStep = (currentStep: number): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (currentStep === 1) {
+      if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required.';
+      if (!formData.email.trim()) {
+        newErrors.email = 'Email Address is required.';
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) newErrors.email = 'Please enter a valid email address.';
+      }
+      if (!formData.password || formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters long.';
+      if (!formData.dob.trim()) newErrors.dob = 'Date of Birth is required.';
+      if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required.';
+      if (!formData.countryOfResidence.trim()) newErrors.countryOfResidence = 'Country of Residence is required.';
+    }
+    if (currentStep === 2) {
+      if (!formData.opportunityType) newErrors.opportunityType = 'Please select an opportunity type.';
+      if (!formData.preferredIndustry.trim()) newErrors.preferredIndustry = 'Preferred Industry is required.';
+      if (!formData.preferredRole.trim()) newErrors.preferredRole = 'Preferred Role is required.';
+    }
+    if (currentStep === 3) {
+      if (!formData.isEmployed) newErrors.isEmployed = 'Please indicate if you are currently employed.';
+      if (formData.isEmployed === 'Yes') {
+        if (!formData.jobTitle.trim()) newErrors.jobTitle = 'Current Job Title is required.';
+        if (!formData.employerName.trim()) newErrors.employerName = 'Current Employer Name is required.';
+        if (!formData.totalExp.trim()) newErrors.totalExp = 'Total Years of Experience is required.';
       }
     }
+    if (currentStep === 4) {
+      if (!formData.highestQualification) newErrors.highestQualification = 'Please select your highest qualification.';
+      if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of Study is required.';
+      if (!formData.institutionName.trim()) newErrors.institutionName = 'Institution Name is required.';
+    }
+    if (currentStep === 5) {
+      if (!formData.englishTest) newErrors.englishTest = 'Please select your English test status.';
+    }
+    if (currentStep === 6) {
+      if (!formData.visaStatus.trim()) newErrors.visaStatus = 'Current Visa / Residency Status is required.';
+      if (!formData.legalWorkRights.trim()) newErrors.legalWorkRights = 'Legal Work Rights information is required.';
+      if (!formData.openToRelocation) newErrors.openToRelocation = 'Please indicate if you are open to relocation.';
+    }
+    if (currentStep === 7) {
+      if (!formData.validPassport) newErrors.validPassport = 'Please indicate if you hold a valid passport.';
+      if (formData.validPassport === 'Yes' && !formData.passportExpiry.trim()) {
+        newErrors.passportExpiry = 'Passport Expiry Date is required.';
+      }
+    }
+    if (currentStep === 8) {
+      if (!formData.resumeFile) newErrors.resumeFile = 'Please upload your Resume / CV.';
+    }
+    if (currentStep === 9) {
+      if (!formData.declarationTrue) newErrors.declarationTrue = 'You must confirm the accuracy of your information.';
+      if (!formData.declarationConsent) newErrors.declarationConsent = 'You must consent to sharing your profile.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const addSkill = () => {
-    if (skillInput.trim() && !skills.includes(skillInput.trim())) {
-      setValue('skills', [...skills, skillInput.trim()]);
-      setSkillInput('');
+  const nextStep = () => {
+    const isValid = validateStep(step);
+    if (!isValid) {
+      setSubmitError('Please correct the highlighted errors below before proceeding.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setSubmitError('');
+    setStep(prev => prev + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goBack = () => {
+    if (step === 1) {
+      navigate('/signup-choice');
+    } else {
+      setStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const removeSkill = (skill: string) => {
-    setValue('skills', skills.filter(s => s !== skill));
-  };
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (formData.honeypot) return; // Anti-spam
 
-  const onSignUpSubmit = async (data: TalentFormData) => {
+    // Final validation check before submit
+    for (let s = 1; s <= 9; s++) {
+      const isValid = validateStep(s);
+      if (!isValid) {
+        setSubmitError(`Please correct the highlighted errors in Step ${s}.`);
+        setStep(s);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
     dispatch(setLoading(true));
-    setError(null);
+
     try {
-      await authApi.signUpTalent(data);
-      // Do NOT set credentials — user must verify email before signing in
-      setStep('success');
+      const fileUploadPromises: Promise<{ field: string; url: string }>[] = [];
+
+      const uploadFileIfPresent = (file: File | null, fieldName: string) => {
+        if (!file) return;
+        const promise = (async () => {
+          const timestamp = Date.now();
+          const fileName = `${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+          const url = await uploadFile(file, 'talent-documents', fileName);
+          return { field: fieldName, url };
+        })();
+        fileUploadPromises.push(promise);
+      };
+
+      uploadFileIfPresent(formData.resumeFile, 'resumeUrl');
+      uploadFileIfPresent(formData.passportFile, 'passportUrl');
+      uploadFileIfPresent(formData.visaFile, 'visaUrl');
+      uploadFileIfPresent(formData.eduCertFile, 'eduCertUrl');
+      uploadFileIfPresent(formData.empCertFile, 'empCertUrl');
+      uploadFileIfPresent(formData.englishTestFile, 'englishTestUrl');
+      uploadFileIfPresent(formData.licenceFile, 'licenceUrl');
+
+      if (fileUploadPromises.length > 0) {
+        setUploadProgress(`Uploading ${fileUploadPromises.length} documents to secure cloud storage...`);
+      } else {
+        setUploadProgress('Preparing application data...');
+      }
+
+      const uploadResults = await Promise.all(fileUploadPromises);
+
+      const docUrls: { [key: string]: string } = {
+        resumeUrl: '', passportUrl: '', visaUrl: '', eduCertUrl: '', empCertUrl: '', englishTestUrl: '', licenceUrl: ''
+      };
+
+      uploadResults.forEach(item => {
+        docUrls[item.field] = item.url;
+      });
+
+      setUploadProgress('Submitting application...');
+
+      const payload: SignUpTalentDto = {
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        phone: formData.whatsapp || formData.phone,
+        location: `${formData.city ? formData.city + ', ' : ''}${formData.countryOfResidence || formData.nationality || ''}`,
+        educations: formData.highestQualification || formData.institutionName ? [{
+          school: formData.institutionName || 'Not specified',
+          degree: [formData.highestQualification, formData.fieldOfStudy].filter(Boolean).join(' - ') || 'Not specified',
+          year: formData.graduationYear || new Date().getFullYear().toString(),
+        }] : [],
+        skills: [formData.preferredRole, formData.preferredIndustry, formData.opportunityType].filter(Boolean) as string[],
+        experiences: formData.jobTitle || formData.employerName ? [{
+          title: formData.jobTitle || 'Not specified',
+          company: formData.employerName || 'Not specified',
+          responsibilities: formData.summary || 'Not specified',
+        }] : [],
+        resumeUrl: docUrls.resumeUrl || undefined,
+        avatarUrl: docUrls.passportUrl || undefined,
+
+        dob: formData.dob, age: formData.age, gender: formData.gender, nationality: formData.nationality,
+        countryOfResidence: formData.countryOfResidence, whatsapp: formData.whatsapp, linkedin: formData.linkedin,
+        opportunityType: formData.opportunityType, preferredIndustry: formData.preferredIndustry, preferredRole: formData.preferredRole,
+        preferredSalary: formData.preferredSalary, startDate: formData.startDate, jobTitle: formData.jobTitle,
+        employerName: formData.employerName, employmentCountry: formData.employmentCountry, totalExp: formData.totalExp,
+        relevantExp: formData.relevantExp, summary: formData.summary, isEmployed: formData.isEmployed, workedOverseas: formData.workedOverseas,
+        overseasCountries: formData.overseasCountries, highestQualification: formData.highestQualification, fieldOfStudy: formData.fieldOfStudy,
+        institutionName: formData.institutionName, graduationYear: formData.graduationYear, hasLicences: formData.hasLicences,
+        licencesList: formData.licencesList, englishTest: formData.englishTest, overallScore: formData.overallScore, testDate: formData.testDate,
+        visaStatus: formData.visaStatus, legalWorkRights: formData.legalWorkRights, openToRelocation: formData.openToRelocation,
+        appliedAusVisa: formData.appliedAusVisa, visaTypeApplied: formData.visaTypeApplied, visaRefusal: formData.visaRefusal,
+        visaRefusalDetails: formData.visaRefusalDetails, relocateAloneOrFamily: formData.relocateAloneOrFamily, validPassport: formData.validPassport,
+        passportExpiry: formData.passportExpiry, medicalBackgroundCheck: formData.medicalBackgroundCheck, criminalConvictions: formData.criminalConvictions,
+        criminalDetails: formData.criminalDetails, passportUrl: docUrls.passportUrl, visaUrl: docUrls.visaUrl, eduCertUrl: docUrls.eduCertUrl,
+        empCertUrl: docUrls.empCertUrl, englishTestUrl: docUrls.englishTestUrl, licenceUrl: docUrls.licenceUrl,
+        declarationTrue: formData.declarationTrue ? 'Yes' : 'No', declarationConsent: formData.declarationConsent ? 'Yes' : 'No'
+      };
+
+      await authApi.signUpTalent(payload);
+      setIsSuccess(true);
     } catch (err: any) {
       const backendMessage = err.response?.data?.message;
       const msg = Array.isArray(backendMessage)
         ? backendMessage.join(', ')
-        : backendMessage || 'Registration failed';
-      setError(msg);
+        : backendMessage || 'Registration failed. Please try again.';
+      setSubmitError(msg);
       dispatch(setAuthError(msg));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
+      setSubmitting(false);
       dispatch(setLoading(false));
+      setUploadProgress('');
     }
   };
 
   const stepsInfo = [
-    { id: 'resume', title: 'Resume Upload', icon: <Upload className="w-5 h-5" /> },
-    { id: 'personal', title: 'Personal Details', icon: <User className="w-5 h-5" /> },
-    { id: 'education', title: 'Education', icon: <GraduationCap className="w-5 h-5" /> },
-    { id: 'skills', title: 'Skills & Expertise', icon: <Star className="w-5 h-5" /> },
-    { id: 'experience', title: 'Work Experience', icon: <Briefcase className="w-5 h-5" /> },
+    { id: 1, title: 'Personal Info', icon: <User className="w-5 h-5 text-rh-teal" /> },
+    { id: 2, title: 'Employment Preferences', icon: <Briefcase className="w-5 h-5 text-rh-teal" /> },
+    { id: 3, title: 'Current Employment Details', icon: <Globe className="w-5 h-5 text-rh-teal" /> },
+    { id: 4, title: 'Education & Qualifications', icon: <GraduationCap className="w-5 h-5 text-rh-teal" /> },
+    { id: 5, title: 'Language Proficiency', icon: <Languages className="w-5 h-5 text-rh-teal" /> },
+    { id: 6, title: 'Visa & Work Rights', icon: <ShieldCheck className="w-5 h-5 text-rh-teal" /> },
+    { id: 7, title: 'Relocation & Availability', icon: <Plane className="w-5 h-5 text-rh-teal" /> },
+    { id: 8, title: 'Document Uploads', icon: <Upload className="w-5 h-5 text-rh-teal" /> },
+    { id: 9, title: 'Declarations & Submit', icon: <FileCheck className="w-5 h-5 text-rh-teal" /> },
   ];
 
+  const renderInput = ({ label, field, placeholder, type = "text", required = false }: any) => (
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input type={type} value={(formData as any)[field]} onChange={e => updateForm(field, e.target.value)} placeholder={placeholder} className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors[field] ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`} />
+      {errors[field] && (
+        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+        </motion.p>
+      )}
+    </div>
+  );
+
+  const renderSelect = ({ label, field, options, required = false }: any) => {
+    const formattedOptions = options.map((o: string) => ({ label: o, value: o }));
+    return (
+      <div className="space-y-1 sm:space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className={`rounded-xl sm:rounded-2xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+          <Dropdown
+            label=""
+            value={(formData as any)[field]}
+            onChange={(val: string) => updateForm(field, val)}
+            options={formattedOptions}
+            placeholder="Select an option"
+          />
+        </div>
+        {errors[field] && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+          </motion.p>
+        )}
+      </div>
+    );
+  };
+
+  const renderRadioGroup = ({ label, field, options, required = false }: any) => (
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className={`flex flex-wrap gap-2 sm:gap-4 p-1 rounded-2xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+        {options.map((o: string) => (
+          <label key={o} className={`flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border cursor-pointer transition-all ${(formData as any)[field] === o ? 'border-rh-teal bg-rh-teal/5 text-rh-teal' : 'border-gray-200 hover:border-rh-teal/30 text-gray-600'}`}>
+            <input type="radio" name={field} value={o} checked={(formData as any)[field] === o} onChange={e => updateForm(field, e.target.value)} className="hidden" />
+            <span className="text-xs sm:text-sm font-bold">{o}</span>
+          </label>
+        ))}
+      </div>
+      {errors[field] && (
+        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+        </motion.p>
+      )}
+    </div>
+  );
+
+  const renderFileUpload = ({ label, field, accept = ".pdf,.doc,.docx", required = false }: any) => (
+    <div className={`border-2 border-dashed bg-[#F9FBFF] rounded-2xl sm:rounded-[24px] p-5 sm:p-6 text-center hover:border-rh-teal/30 hover:bg-white transition-all ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}>
+      <label className="cursor-pointer block">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white shadow-sm rounded-xl sm:rounded-[16px] flex items-center justify-center mx-auto mb-2 sm:mb-3 text-rh-teal border border-gray-50">
+          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+        </div>
+        <h3 className="text-xs sm:text-sm font-bold text-[#081B2D] mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </h3>
+        <p className="text-gray-400 text-[10px] sm:text-xs mb-2 sm:mb-3">{(formData as any)[field]?.name || 'Click to select file'}</p>
+        <input type="file" className="hidden" accept={accept} onChange={e => handleFileChange(field, e)} />
+      </label>
+      {errors[field] && (
+        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-2 flex items-center justify-center gap-1.5">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+        </motion.p>
+      )}
+    </div>
+  );
+
+  if (isSuccess) {
+    return (
+      <div className="bg-[#F8F9FA] min-h-screen pt-20 flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-3xl sm:rounded-[60px] p-6 sm:p-16 lg:p-24 shadow-[0_30px_60px_rgb(0,0,0,0.05)] border border-gray-50 text-center max-w-2xl w-full">
+          <div className="w-20 h-20 sm:w-32 sm:h-32 bg-rh-teal/10 text-rh-teal rounded-2xl sm:rounded-[44px] flex items-center justify-center mx-auto mb-6 sm:mb-10 shadow-xl shadow-rh-teal/10 border border-rh-teal/10">
+            <CheckCircle className="w-10 h-10 sm:w-16 sm:h-16" />
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-light text-rh-teal mb-3 sm:mb-6 tracking-tight leading-tight">Check your inbox!</h2>
+          <p className="text-gray-500 mb-3 sm:mb-4 text-sm sm:text-lg font-medium max-w-md mx-auto leading-relaxed">We've sent a verification link to your registered email address.</p>
+          <p className="text-gray-400 mb-8 sm:mb-10 text-xs sm:text-sm font-medium max-w-md mx-auto">Please verify your email first, then you'll be able to sign in and access your dashboard.</p>
+          <Button onClick={() => navigate('/signin')} variant="primary" className="w-full sm:w-auto px-10 sm:px-16 py-3.5 sm:py-6 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-[28px] shadow-2xl shadow-rh-teal/20 font-bold text-base sm:text-xl">Go to Sign In</Button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white min-h-screen pt-20 lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
-      {/* Left Side */}
-      <aside className="w-full lg:w-[40%] relative flex flex-col justify-between p-6 md:p-12 lg:p-16 overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-100 min-h-[450px] md:min-h-[550px] lg:min-h-screen shrink-0">
+    <div className="bg-white min-h-screen pt-16 lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
+      {/* Left Side: Professional Branding */}
+      <aside className="w-full lg:w-[40%] relative flex flex-col justify-between p-6 md:p-10 lg:p-16 overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-100 min-h-[220px] md:min-h-[280px] lg:min-h-screen shrink-0 bg-rh-dark">
         <div className="absolute inset-0 z-0 bg-rh-dark">
           <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         </div>
-        <div className="relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 lg:mb-12 mt-2 lg:mt-8 text-center lg:text-left">
-            <h1 className="text-xl lg:text-4xl font-medium text-white mb-3 lg:mb-4 tracking-tight leading-tight">
-              Get Your <span className='text-rh-teal-lighter font-medium italic ml-2'>Dream Job!</span>
+
+        <div className="relative z-10 flex flex-col h-full justify-between">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 lg:mb-12 mt-2 lg:mt-8 text-center lg:text-left">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-white mb-2 lg:mb-4 tracking-tight leading-tight">
+              Get Your <span className='text-rh-teal-lighter font-medium italic lg:ml-2'>Dream Job!</span>
             </h1>
-            <p className="text-gray-200 text-sm lg:text-base font-normal leading-relaxed max-w-xs mx-auto lg:mx-0 opacity-90">
+            <p className="text-gray-200 text-xs sm:text-sm lg:text-base font-normal leading-relaxed max-w-xs mx-auto lg:mx-0 opacity-90">
               Get discovered by top employers across 40+ countries and join the global elite.
             </p>
           </motion.div>
-          <div className="space-y-4 md:space-y-6 lg:space-y-12 relative mb-8 lg:mb-0 max-w-xs mx-auto lg:mx-0">
-            <div className="absolute left-[19px] lg:left-[23px] top-4 bottom-4 w-[1px] bg-white/10" />
-            {stepsInfo.map((s, i) => {
-              const currentIdx = stepsInfo.findIndex(item => item.id === step);
-              const isCompleted = step === 'success' || i < currentIdx;
-              const isActive = step !== 'success' && i === currentIdx;
+
+          {/* Desktop Stepper Progress */}
+          <div className="hidden lg:block space-y-8 relative mb-8 max-w-xs mx-auto lg:mx-0">
+            <div className="absolute left-[23px] top-4 bottom-4 w-[1px] bg-white/10" />
+            {stepsInfo.map(s => {
+              const isCompleted = step > s.id;
+              const isActive = step === s.id;
               return (
-                <div key={s.id} className="flex items-center gap-4 lg:gap-8 group relative z-10">
-                  <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-[14px] lg:rounded-[18px] flex items-center justify-center transition-all duration-500 border-2 shrink-0 ${isActive ? 'bg-rh-teal-lighter border-rh-teal-lighter text-white shadow-xl shadow-rh-teal-lighter/20 scale-105 lg:scale-110' : isCompleted ? 'bg-rh-teal-lighter/20 border-rh-teal-lighter text-rh-teal-lighter shadow-lg shadow-rh-teal-lighter/5' : 'bg-white/5 border-white/10 text-white/40 group-hover:border-rh-teal-lighter/40'}`}>
-                    {isCompleted ? <CheckCircle2 className="w-4 h-4 lg:w-6 lg:h-6" /> : s.icon}
+                <div key={s.id} className="flex items-center gap-8 group relative z-10">
+                  <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center transition-all duration-500 border-2 shrink-0 ${isActive ? 'bg-rh-teal-lighter border-rh-teal-lighter text-white shadow-xl shadow-rh-teal-lighter/20 scale-110' : isCompleted ? 'bg-rh-teal-lighter/20 border-rh-teal-lighter text-rh-teal-lighter shadow-lg shadow-rh-teal-lighter/5' : 'bg-white/5 border-white/10 text-white/40 group-hover:border-rh-teal-lighter/40'}`}>
+                    {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : s.icon}
                   </div>
                   <div className="flex flex-col text-left">
-                    <span className={`text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 transition-colors ${isActive ? 'text-rh-teal-lighter' : isCompleted ? 'text-rh-teal-lighter opacity-80' : 'text-white/30'}`}>{`Step 0${i + 1}`}</span>
-                    <span className={`text-xs lg:text-base font-bold transition-colors ${isActive ? 'text-white' : isCompleted ? 'text-white/70' : 'text-white/40'}`}>{s.title}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 transition-colors ${isActive ? 'text-rh-teal-lighter' : isCompleted ? 'text-rh-teal-lighter opacity-80' : 'text-white/30'}`}>{`Step 0${s.id}`}</span>
+                    <span className={`text-base font-bold transition-colors ${isActive ? 'text-white' : isCompleted ? 'text-white/70' : 'text-white/40'}`}>{s.title}</span>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-        <div className="relative z-10 mt-16 pt-8 border-t border-white/10 hidden lg:flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md shadow-sm flex items-center justify-center border border-white/5">
-            <CheckCircle className="w-5 h-5 text-rh-teal-lighter" />
+
+          <div className="relative z-10 mt-auto pt-6 border-t border-white/10 hidden lg:flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md shadow-sm flex items-center justify-center border border-white/5 shrink-0">
+              <CheckCircle className="w-5 h-5 text-rh-teal-lighter" />
+            </div>
+            <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest leading-tight">Verified Professional <br /> Registration</p>
           </div>
-          <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest leading-tight">Verified Professional <br /> Registration</p>
         </div>
       </aside>
 
-      {/* Right Side */}
-      <main className="flex-1 bg-[#F8F9FA] p-4 md:p-12 lg:p-12 lg:overflow-y-auto custom-scrollbar flex items-center justify-center">
-        <div className="w-full max-w-3xl py-8 md:py-12">
-          {error && <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-[24px] text-sm font-medium mb-8">{error}</div>}
+      {/* Right Side: Form Wizard */}
+      <main className="flex-1 bg-[#F8F9FA] p-4 md:p-8 lg:p-16 lg:overflow-y-auto custom-scrollbar flex items-center justify-center">
+        <div className="w-full max-w-4xl py-4 md:py-8">
+          {/* Mobile/Tablet Stepper Header */}
+          <div className="lg:hidden bg-rh-dark p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-lg mb-6 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-10" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <span className="text-[10px] sm:text-xs font-bold text-rh-teal-lighter uppercase tracking-widest">Step {step} of 9</span>
+                <span className="text-xs sm:text-sm font-bold text-white">{stepsInfo[step - 1]?.title}</span>
+              </div>
+              <div className="w-full bg-white/20 h-1.5 sm:h-2 rounded-full overflow-hidden">
+                <div className="bg-rh-teal-lighter h-full transition-all duration-300" style={{ width: `${(step / 9) * 100}%` }} />
+              </div>
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit(onSignUpSubmit)}>
-            <AnimatePresence mode="wait">
-              {step === 'resume' && (
-                <motion.div key="resume" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="bg-white rounded-[48px] p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100">
-                  <div className="mb-8 lg:mb-12">
-                    <h2 className="text-xl lg:text-3xl font-bold text-rh-teal mb-4">Upload Resume</h2>
-                    <p className="text-gray-500 font-medium">Get a head start by pre-filling your profile with your CV.</p>
-                  </div>
-                  <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
-                  <div className="border-2 border-dashed border-gray-100 bg-[#F9FBFF] rounded-[24px] p-8 sm:p-14 lg:p-20 text-center cursor-pointer hover:border-rh-teal/30 hover:bg-white transition-all group mb-10" onClick={handleResumeUploadClick}>
-                    {extracting ? (
-                      <div className="space-y-6">
-                        <div className="w-16 h-16 border-[5px] border-rh-teal border-t-transparent rounded-full animate-spin mx-auto shadow-sm" />
-                        <p className="text-rh-teal font-bold text-sm uppercase tracking-widest">Analyzing Documents...</p>
+          {submitError && (
+            <div className="bg-red-50 border border-red-100 text-red-600 px-5 py-4 sm:px-6 sm:py-4 rounded-xl sm:rounded-[24px] text-xs sm:text-sm font-medium mb-6 sm:mb-8 animate-shake shadow-sm flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{submitError}</span>
+            </div>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white rounded-2xl sm:rounded-[32px] lg:rounded-[48px] p-5 sm:p-8 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
+            >
+              <div className="mb-6 sm:mb-10 border-b border-gray-50 pb-4 sm:pb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-rh-teal mb-1 sm:mb-2">{stepsInfo[step - 1]?.title}</h2>
+                  <p className="text-gray-500 text-xs sm:text-sm lg:text-base font-medium">Please provide accurate details for your application.</p>
+                </div>
+                <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-rh-teal/10 items-center justify-center text-rh-teal font-bold text-sm shrink-0">
+                  {step}/9
+                </div>
+              </div>
+
+              <div className="space-y-6 sm:space-y-10 mb-8 sm:mb-12">
+                {/* SECTION 1 */}
+                {step === 1 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                    {renderInput({ label: "Full Name (As per Passport)", field: "fullName", placeholder: "e.g. John Doe", required: true })}
+                    {renderInput({ label: "Email Address", field: "email", placeholder: "john@example.com", type: "email", required: true })}
+                    <div className="space-y-1 sm:space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Password <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => updateForm('password', e.target.value)} placeholder="At least 8 characters" className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors.password ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`} />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-teal transition-colors">
+                          {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+                        </button>
                       </div>
-                    ) : (
+                      {errors.password && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password}
+                        </motion.p>
+                      )}
+                    </div>
+                    {renderInput({ label: "Date of Birth", field: "dob", placeholder: "DD/MM/YYYY", required: true })}
+                    {renderInput({ label: "Age", field: "age", placeholder: "e.g. 28" })}
+                    {renderSelect({ label: "Gender", field: "gender", options: ["Male", "Female", "Other", "Prefer not to say"] })}
+                    {renderInput({ label: "Nationality", field: "nationality", placeholder: "e.g. Indian", required: true })}
+                    {renderInput({ label: "Country of Residence", field: "countryOfResidence", placeholder: "e.g. United Arab Emirates", required: true })}
+                    {renderInput({ label: "City", field: "city", placeholder: "e.g. Dubai" })}
+                    {renderInput({ label: "WhatsApp Number (with country code)", field: "whatsapp", placeholder: "+971 50 000 0000" })}
+                    {renderInput({ label: "LinkedIn Profile URL", field: "linkedin", placeholder: "https://linkedin.com/in/username" })}
+                  </div>
+                )}
+
+                {/* SECTION 2 */}
+                {step === 2 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                    <div className="sm:col-span-2">
+                      {renderRadioGroup({ label: "What type of opportunity are you looking for?", field: "opportunityType", options: ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"], required: true })}
+                    </div>
+                    {renderInput({ label: "Preferred Industry / Sector", field: "preferredIndustry", placeholder: "e.g. Healthcare, IT, Finance", required: true })}
+                    {renderInput({ label: "Preferred Role / Job Title", field: "preferredRole", placeholder: "e.g. Senior Software Engineer", required: true })}
+                    {renderInput({ label: "Preferred Salary Range & Currency", field: "preferredSalary", placeholder: "e.g. $80,000 - $100,000 USD/year" })}
+                    {renderInput({ label: "Earliest Start Date / Notice Period", field: "startDate", placeholder: "e.g. 30 Days / Immediate" })}
+                  </div>
+                )}
+
+                {/* SECTION 3 */}
+                {step === 3 && (
+                  <div className="space-y-6 sm:space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderRadioGroup({ label: "Are you currently employed?", field: "isEmployed", options: ["Yes", "No"], required: true })}
+                      {formData.isEmployed === 'Yes' && (
+                        <>
+                          {renderInput({ label: "Current Job Title", field: "jobTitle", placeholder: "e.g. Engineering Manager", required: true })}
+                          {renderInput({ label: "Current Employer Name", field: "employerName", placeholder: "e.g. Tech Global", required: true })}
+                          {renderInput({ label: "Country of Employment", field: "employmentCountry", placeholder: "e.g. Singapore" })}
+                          {renderInput({ label: "Total Years of Experience", field: "totalExp", placeholder: "e.g. 8 Years", required: true })}
+                          {renderInput({ label: "Relevant Years of Experience", field: "relevantExp", placeholder: "e.g. 6 Years" })}
+                        </>
+                      )}
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Professional Summary / Key Achievements</label>
+                      <textarea rows={4} value={formData.summary} onChange={e => updateForm('summary', e.target.value)} placeholder="Briefly highlight your core expertise and major achievements..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderRadioGroup({ label: "Have you worked overseas before?", field: "workedOverseas", options: ["Yes", "No"] })}
+                      {formData.workedOverseas === "Yes" && renderInput({ label: "Which countries?", field: "overseasCountries", placeholder: "e.g. USA, UK, Germany" })}
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION 4 */}
+                {step === 4 && (
+                  <div className="space-y-6 sm:space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderSelect({ label: "Highest Qualification Achieved", field: "highestQualification", options: ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], required: true })}
+                      {renderInput({ label: "Field of Study / Major", field: "fieldOfStudy", placeholder: "e.g. Computer Science", required: true })}
+                      {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: true })}
+                      {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021" })}
+                      {renderRadioGroup({ label: "Do you hold any professional licences or registrations?", field: "hasLicences", options: ["Yes", "No"] })}
+                      {formData.hasLicences === "Yes" && renderInput({ label: "List Licences & Issuing Authorities", field: "licencesList", placeholder: "e.g. CPA (AICPA), PMP (PMI)" })}
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION 5 */}
+                {step === 5 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                    {renderSelect({ label: "Have you taken an English Language Proficiency Test?", field: "englishTest", options: ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], required: true })}
+                    {formData.englishTest && formData.englishTest !== "None / English is Native Language" && (
                       <>
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white shadow-sm rounded-[24px] flex items-center justify-center mx-auto mb-6 sm:mb-8 group-hover:scale-110 transition-transform text-rh-teal border border-gray-50"><Upload className="w-8 h-8 sm:w-10 sm:h-10" /></div>
-                        <h3 className="text-base sm:text-xl font-bold text-[#081B2D] mb-2">Drop your resume here</h3>
-                        <p className="text-gray-400 text-[10px] sm:text-sm mb-8 sm:mb-10">PDF or Word documents (Max 10MB)</p>
-                        <Button type="button" variant="primary" className="px-10 sm:px-14 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-2xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base">Select File</Button>
+                        {renderInput({ label: "Overall Score / Band", field: "overallScore", placeholder: "e.g. 7.5" })}
+                        {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "e.g. Oct 2023" })}
                       </>
                     )}
                   </div>
-                  <div className="flex flex-col gap-8 items-center border-t border-gray-50 pt-8">
-                    <button type="button" onClick={() => setStep('personal')} className="text-[11px] font-bold text-gray-300 uppercase tracking-[0.2em] hover:text-rh-teal transition-colors">Continue without Resume</button>
-                    <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red transition-colors flex items-center gap-2 group text-sm"><ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Choice</button>
-                  </div>
-                </motion.div>
-              )}
+                )}
 
-              {step === 'personal' && (
-                <motion.div key="personal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100">
-                  <div className="mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                    <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Personal Details</h2>
-                    <p className="text-gray-500 text-[13px] sm:text-base font-medium">Please provide your contact information.</p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center gap-8 mb-10 p-6 bg-rh-light/30 rounded-[32px] border border-rh-teal/5">
-                    <div className="relative group">
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[2rem] bg-white overflow-hidden shadow-lg border-4 border-white">
-                        {watch('avatarUrl') ? (
-                          <img src={watch('avatarUrl')} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
-                            <User className="w-10 h-10" />
-                          </div>
-                        )}
+                {/* SECTION 6 */}
+                {step === 6 && (
+                  <div className="space-y-6 sm:space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderInput({ label: "Current Visa / Residency Status", field: "visaStatus", placeholder: "e.g. Employment Pass / Citizen", required: true })}
+                      {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: true })}
+                      {renderRadioGroup({ label: "Are you open to relocation?", field: "openToRelocation", options: ["Yes", "No"], required: true })}
+                      {renderRadioGroup({ label: "Have you applied for an Australian Visa before?", field: "appliedAusVisa", options: ["Yes", "No"] })}
+                      {formData.appliedAusVisa === "Yes" && renderInput({ label: "Which Visa Subclass?", field: "visaTypeApplied", placeholder: "e.g. Subclass 482, 189, 190" })}
+                      {renderRadioGroup({ label: "Have you ever had a visa refusal or cancellation for any country?", field: "visaRefusal", options: ["Yes", "No"] })}
+                    </div>
+                    {formData.visaRefusal === "Yes" && (
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of the visa refusal/cancellation</label>
+                        <textarea rows={3} value={formData.visaRefusalDetails} onChange={e => updateForm('visaRefusalDetails', e.target.value)} placeholder="Explain the reasons and country..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
                       </div>
-                      <label className="absolute -bottom-1 -right-1 p-2.5 bg-rh-red text-white rounded-xl shadow-lg cursor-pointer hover:bg-[#B41419] transition-all hover:scale-110">
-                        <Camera className="w-4 h-4" />
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              try {
-                                const url = await uploadFile(file, 'profile-pictures', `${Date.now()}-${file.name}`);
-                                setValue('avatarUrl', url);
-                              } catch (err) {
-                                setError('Failed to upload avatar');
-                              }
-                            }
-                          }}
-                        />
-                      </label>
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest mb-1">Profile Picture</h4>
-                      <p className="text-xs text-gray-500 font-medium">Add a professional photo to stand out</p>
-                    </div>
+                    )}
                   </div>
+                )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 sm:gap-y-10 mb-8 sm:mb-12">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                      <input {...register('fullName')} placeholder="e.g. John Doe" className={`w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${errors.fullName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.fullName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.fullName.message}</p>}
+                {/* SECTION 7 */}
+                {step === 7 && (
+                  <div className="space-y-6 sm:space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"] })}
+                      {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"], required: true })}
+                      {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "DD/MM/YYYY", required: true })}
+                      {renderRadioGroup({ label: "Are you willing to undergo a medical and background check?", field: "medicalBackgroundCheck", options: ["Yes", "No"] })}
+                      {renderRadioGroup({ label: "Do you have any criminal convictions?", field: "criminalConvictions", options: ["Yes", "No"] })}
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Work Email</label>
-                      <input {...register('email')} placeholder="john@example.com" className={`w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
-                      <div className="relative">
-                        <input type={showPassword ? 'text' : 'password'} {...register('password')} placeholder="At least 8 characters" className={`w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                    {formData.criminalConvictions === "Yes" && (
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of convictions</label>
+                        <textarea rows={3} value={formData.criminalDetails} onChange={e => updateForm('criminalDetails', e.target.value)} placeholder="Provide details..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
                       </div>
-                      {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password.message}</p>}
-                    </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SECTION 8 */}
+                {step === 8 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                    {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
+                    {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile" })}
+                    {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile" })}
+                    {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile" })}
+                    {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile" })}
+                    {renderFileUpload({ label: "English Test Results (if available)", field: "englishTestFile" })}
+                    {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile" })}
+                  </div>
+                )}
+
+                {/* SECTION 9 */}
+                {step === 9 && (
+                  <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
-                      <input type="tel" {...register('phone')} placeholder="+1 (555) 000-0000" className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
-                    </div>
-                    <div className="space-y-2 sm:col-span-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Current Location</label>
-                      <input type="text" {...register('location')} placeholder="City, Country" className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 sm:pt-10 border-t border-gray-50">
-                    <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1"><ArrowLeft className="w-5 h-5" /> Back</button>
-                    <Button type="button" onClick={async () => {
-                      const isValid = await trigger(['fullName', 'email', 'password']);
-                      if (isValid) setStep('education');
-                    }} variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-sm sm:text-base order-1 sm:order-2">Continue</Button>
-                  </div>
-                </motion.div>
-              )}
-
-              {step === 'education' && (
-                <motion.div key="education" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                    <div>
-                      <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Education</h2>
-                      <p className="text-gray-500 text-[13px] sm:text-base font-medium">Tell us about your academic background.</p>
-                    </div>
-                    <button type="button" onClick={() => appendEdu({ school: '', degree: '', year: '' })} className="text-rh-teal font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1 self-start sm:self-center"><Plus className="w-3 h-3" /> Add More</button>
-                  </div>
-                  <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
-                    {eduFields.map((field, idx) => (
-                      <div key={field.id} className="p-6 sm:p-10 bg-[#F9FBFF] rounded-[32px] sm:rounded-[40px] border border-gray-100 relative group">
-                        {eduFields.length > 1 && <button type="button" onClick={() => removeEdu(idx)} className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"><Trash2 className="w-5 h-5" /></button>}
-                        <div className="grid gap-6 sm:gap-8">
-                          <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">University / College</label>
-                            <input {...register(`educations.${idx}.school`)} placeholder="e.g. Harvard University" className={`w-full px-5 sm:px-6 py-3 sm:py-4 bg-white border ${errors.educations?.[idx]?.school ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                            {errors.educations?.[idx]?.school && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.educations[idx]?.school?.message}</p>}
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Degree</label>
-                              <input {...register(`educations.${idx}.degree`)} placeholder="e.g. Master of Science" className={`w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border ${errors.educations?.[idx]?.degree ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                              {errors.educations?.[idx]?.degree && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.educations[idx]?.degree?.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Graduation Year</label>
-                              <input {...register(`educations.${idx}.year`)} placeholder="YYYY" className={`w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border ${errors.educations?.[idx]?.year ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                              {errors.educations?.[idx]?.year && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.educations[idx]?.year?.message}</p>}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 sm:pt-10 border-t border-gray-50">
-                    <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1"><ArrowLeft className="w-5 h-5" /> Back</button>
-                    <Button type="button" onClick={async () => {
-                      const isValid = await trigger('educations');
-                      if (isValid) setStep('skills');
-                    }} variant="primary" className="w-full sm:w-auto px-12 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base order-1 sm:order-2">Continue</Button>
-                  </div>
-                </motion.div>
-              )}
-
-              {step === 'skills' && (
-                <motion.div key="skills" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100">
-                  <div className="mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                    <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Skills & Expertise</h2>
-                    <p className="text-gray-500 text-[13px] sm:text-base font-medium">Highlight your specialized skills.</p>
-                  </div>
-                  <div className="space-y-8 sm:space-y-12 mb-8 sm:mb-12">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <input type="text" value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addSkill();
-                        }
-                      }} placeholder="e.g. Product Strategy, React..." className="flex-1 px-5 py-3 sm:px-6 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300" />
-                      <Button type="button" onClick={addSkill} variant="outline" className="w-full sm:w-auto px-12 py-3 sm:py-4 rounded-2xl border-2 border-gray-100 text-[#081B2D] font-bold hover:bg-rh-teal hover:text-white hover:border-rh-teal transition-all text-[13px] sm:text-sm">Add</Button>
-                    </div>
-                    <div className="flex flex-wrap gap-3 sm:gap-4">
-                      {skills.map(s => (
-                        <span key={s} className="px-4 py-2.5 sm:px-8 sm:py-3.5 bg-white border border-gray-100 rounded-xl sm:rounded-2xl text-[11px] sm:text-sm font-bold text-gray-600 flex items-center gap-3 sm:gap-4 shadow-sm hover:border-rh-teal/30 transition-all group">
-                          {s}
-                          <button type="button" onClick={() => removeSkill(s)}><Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 group-hover:text-rh-red cursor-pointer transition-colors" /></button>
+                      <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationTrue ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
+                        <input type="checkbox" checked={formData.declarationTrue} onChange={e => updateForm('declarationTrue', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
+                          I confirm that the information and documents provided are true and accurate to the best of my knowledge. I understand that submission of this form does not guarantee employment, visa approval, or employer sponsorship. <span className="text-red-500">*</span>
                         </span>
-                      ))}
+                      </label>
+                      {errors.declarationTrue && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationTrue}
+                        </motion.p>
+                      )}
                     </div>
-                    {errors.skills && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.skills.message}</p>}
-                  </div>
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 sm:pt-10 border-t border-gray-50">
-                    <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1"><ArrowLeft className="w-5 h-5" /> Back</button>
-                    <Button type="button" onClick={async () => {
-                      const isValid = await trigger('skills');
-                      if (isValid) setStep('experience');
-                    }} variant="primary" className="w-full sm:w-auto px-12 py-3 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-[13px] sm:text-base order-1 sm:order-2">Continue</Button>
-                  </div>
-                </motion.div>
-              )}
 
-              {step === 'experience' && (
-                <motion.div key="experience" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12 border-b border-gray-50 pb-6">
-                    <div>
-                      <h2 className="text-xl sm:text-3xl font-bold text-rh-teal mb-2">Work Experience</h2>
-                      <p className="text-gray-500 text-[13px] sm:text-base font-medium">Detail your professional journey.</p>
+                    <div className="space-y-2">
+                      <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationConsent ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
+                        <input type="checkbox" checked={formData.declarationConsent} onChange={e => updateForm('declarationConsent', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
+                          I consent to Orange Global sharing my profile and supporting documents with potential employers and recruitment partners for assessment purposes. <span className="text-red-500">*</span>
+                        </span>
+                      </label>
+                      {errors.declarationConsent && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationConsent}
+                        </motion.p>
+                      )}
                     </div>
-                    <button type="button" onClick={() => appendExp({ title: '', company: '', responsibilities: '' })} className="text-rh-teal font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1 self-start sm:self-center"><Plus className="w-3 h-3" /> Add Position</button>
-                  </div>
-                  <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
-                    {expFields.map((field, idx) => (
-                      <div key={field.id} className="p-6 sm:p-10 bg-[#F9FBFF] rounded-[32px] sm:rounded-[40px] border border-gray-100 relative group">
-                        {expFields.length > 1 && <button type="button" onClick={() => removeExp(idx)} className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"><Trash2 className="w-5 h-5" /></button>}
-                        <div className="grid gap-6 sm:gap-8">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title</label>
-                              <input {...register(`experiences.${idx}.title`)} placeholder="e.g. Project Lead" className={`w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border ${errors.experiences?.[idx]?.title ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                              {errors.experiences?.[idx]?.title && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.experiences[idx]?.title?.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company</label>
-                              <input {...register(`experiences.${idx}.company`)} placeholder="e.g. Tech Global" className={`w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border ${errors.experiences?.[idx]?.company ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                              {errors.experiences?.[idx]?.company && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.experiences[idx]?.company?.message}</p>}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Key Responsibilities</label>
-                            <textarea rows={5} {...register(`experiences.${idx}.responsibilities`)} placeholder="Describe your achievements..." className={`w-full px-5 py-3 sm:px-6 sm:py-4 bg-white border ${errors.experiences?.[idx]?.responsibilities ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-[13px] sm:text-sm font-medium resize-none placeholder:text-gray-300`} />
-                            {errors.experiences?.[idx]?.responsibilities && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.experiences[idx]?.responsibilities?.message}</p>}
-                          </div>
-                        </div>
+
+                    {/* Anti-spam honeypot field (hidden from users, filled by bots) */}
+                    <div className="absolute left-[-9999px] top-[-9999px]" aria-hidden="true">
+                      <input type="text" name="honeypot" tabIndex={-1} autoComplete="off" value={formData.honeypot} onChange={e => updateForm('honeypot', e.target.value)} />
+                    </div>
+
+                    {uploadProgress && (
+                      <div className="p-4 bg-rh-teal/5 border border-rh-teal/20 rounded-xl sm:rounded-2xl flex items-center gap-3 text-rh-teal font-medium text-xs sm:text-sm animate-pulse">
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin shrink-0" />
+                        <span>{uploadProgress}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 sm:pt-10 border-t border-gray-50">
-                    <button type="button" onClick={goBack} className="text-gray-400 font-bold hover:text-rh-red flex items-center gap-2 transition-colors order-2 sm:order-1"><ArrowLeft className="w-5 h-5" /> Back</button>
-                    <Button type="submit" disabled={isSubmitting} variant="primary" className="w-full sm:w-auto px-12 py-3.5 sm:py-5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] shadow-2xl shadow-rh-teal/20 font-bold text-[13px] sm:text-base order-1 sm:order-2 flex items-center justify-center gap-2">
-                      {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Complete Registration'}
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
+                )}
+              </div>
 
-              {step === 'success' && (
-                <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[40px] sm:rounded-[60px] p-8 sm:p-16 lg:p-24 shadow-[0_30px_60px_rgb(0,0,0,0.05)] border border-gray-50 text-center">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-rh-teal/10 text-rh-teal rounded-[32px] sm:rounded-[44px] flex items-center justify-center mx-auto mb-6 sm:mb-10 shadow-xl shadow-rh-teal/10 border border-rh-teal/10">
-                    <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16" />
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-light text-rh-teal mb-4 sm:mb-6 tracking-tight leading-tight">Check your inbox!</h2>
-                  <p className="text-gray-500 mb-3 sm:mb-4 text-base sm:text-lg font-medium max-w-md mx-auto leading-relaxed">
-                    We've sent a verification link to your registered email address.
-                  </p>
-                  <p className="text-gray-400 mb-8 sm:mb-14 text-sm font-medium max-w-md mx-auto">
-                    Please verify your email first, then you'll be able to sign in and access your dashboard.
-                  </p>
-                  <Button type="button" onClick={() => navigate('/signin')} variant="primary" className="w-full sm:w-auto px-12 sm:px-16 py-4 sm:py-6 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-[20px] sm:rounded-[28px] shadow-2xl shadow-rh-teal/20 font-bold text-lg sm:text-xl">Go to Sign In</Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </form>
+              {/* Navigation Footer */}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 pt-6 sm:pt-10 border-t border-gray-50">
+                <button type="button" onClick={goBack} disabled={submitting} className="text-gray-400 font-bold hover:text-rh-dark flex items-center justify-center gap-2 transition-colors order-2 sm:order-1 disabled:opacity-50 w-full sm:w-auto py-3 sm:py-0 text-sm sm:text-base">
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> Back
+                </button>
+                {step < 9 ? (
+                  <Button type="button" onClick={nextStep} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-xs sm:text-base order-1 sm:order-2 text-center justify-center">
+                    Continue
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={() => handleSubmit()} disabled={submitting} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/20 font-bold text-xs sm:text-base order-1 sm:order-2 flex items-center justify-center gap-2 min-w-[220px]">
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        <span>Submitting...</span>
+                      </>
+                    ) : 'SUBMIT APPLICATION'}
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>

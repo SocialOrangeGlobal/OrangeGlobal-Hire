@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export type BucketName = 'resumes' | 'profile-pictures';
+export type BucketName = 'resumes' | 'profile-pictures' | 'talent-documents' | string;
 
 export const uploadFile = async (
   file: File,

@@ -23,7 +23,11 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 
 ### 👤 Profile & Portfolio Management
 *   **Profile Score Engine**: Dynamic completion tracking with a visual meter and optimization suggestions.
-*   **Responsive Profile Drawers**: High-fidelity right-side drawer for quick access to professional info and contact details.
+*   **Mobile-First Responsive Layout**: Clean fluid-scaling container margins, paddings, and font sizes across mobile, tablet, and desktop viewports.
+*   **Interactive Document Viewer Modal**: Supporting resume and section 9 uploaded documents (Passport, Visa, Educational Certificates, Employment Certificates, English Test, Professional Licenses) opening inside an overlay modal with smooth close animations.
+*   **Skills Section Parity**: Aligned position and design of Skills section across Overview and Edit views using accordion containers.
+*   **Date Formatter Engine**: Beautiful date text representation (e.g. "12 June 2026") replacing raw dash/slash patterns.
+*   **Toast Alert System**: Modern popup notifications on successful uploads and actions leveraging `react-hot-toast`.
 *   **Section-Based Editing**: Managed technical skills, work experience, and personal bio with a premium UI.
 
 ### 💼 Recruitment & Job Board

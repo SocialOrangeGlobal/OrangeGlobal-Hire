@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { authApi } from '../lib/auth';
 import { useAppDispatch } from '../store';
@@ -91,7 +91,12 @@ export default function SignIn() {
 
           <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="space-y-6">
             {/* Generic error */}
-            {error && <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium animate-shake">{error}</div>}
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium animate-shake flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
 
             {/* Email not verified warning */}
             {unverifiedEmail && (
@@ -108,18 +113,26 @@ export default function SignIn() {
             <form className="space-y-5" onSubmit={handleSubmit(onSignInSubmit)}>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                <input {...register('email')} className={`w-full px-5 py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium`} placeholder="name@example.com" />
-                {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email.message}</p>}
+                <input {...register('email')} className={`w-full px-5 py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium`} placeholder="name@example.com" />
+                {errors.email && (
+                  <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.email.message}
+                  </motion.p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
-                  <input type={showPassword ? 'text' : 'password'} {...register('password')} className={`w-full px-5 py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium`} placeholder="••••••••" />
+                  <input type={showPassword ? 'text' : 'password'} {...register('password')} className={`w-full px-5 py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium`} placeholder="••••••••" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-teal transition-colors">
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password.message}</p>}
+                {errors.password && (
+                  <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password.message}
+                  </motion.p>
+                )}
               </div>
               <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2 cursor-pointer group">

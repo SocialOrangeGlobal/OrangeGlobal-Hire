@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, ArrowLeft, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle2, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 import { authApi } from '../lib/auth';
-import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 
 export default function ForgotPassword() {
@@ -11,17 +10,27 @@ export default function ForgotPassword() {
   const [step, setStep] = useState<'email' | 'success'>('email');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) {
+      setError('Email Address is required.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
 
+    setError('');
     setIsLoading(true);
     try {
       await authApi.forgotPassword(email);
       setStep('success');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send reset link. Please try again.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to send reset link. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -98,11 +107,16 @@ export default function ForgotPassword() {
                         required
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => { setEmail(e.target.value); if (error) setError(''); }}
                         placeholder="name@company.com"
-                        className="w-full pl-14 pr-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base"
+                        className={`w-full pl-14 pr-6 py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base`}
                       />
                     </div>
+                    {error && (
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}
+                      </motion.p>
+                    )}
                   </div>
 
                   <Button

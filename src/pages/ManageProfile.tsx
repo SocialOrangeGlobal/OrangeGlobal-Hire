@@ -4,7 +4,8 @@ import {
   User, Mail, Phone, MapPin, GraduationCap, Briefcase, Star,
   Upload, CheckCircle, Shield, Trash2, Plus,
   Settings, LogOut, Camera, FileText, Target, Zap,
-  Loader2, Save, Info, TrendingUp
+  Loader2, Save, Info, TrendingUp, AlertCircle,
+  Languages, ShieldCheck, Plane, FileCheck
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -12,6 +13,7 @@ import { logout, updateProfileSuccess } from '../store/slices/authSlice';
 import { authApi } from '../lib/auth';
 import { uploadFile } from '../lib/storage';
 import Button from '../components/ui/Button';
+import { toast } from 'react-hot-toast';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,6 +38,57 @@ const talentUpdateSchema = z.object({
     company: z.string().min(1, 'Company is required'),
     responsibilities: z.string().min(10, 'Please describe your role'),
   })),
+  dob: z.string().optional(),
+  age: z.string().optional(),
+  gender: z.string().optional(),
+  nationality: z.string().optional(),
+  countryOfResidence: z.string().optional(),
+  whatsapp: z.string().optional(),
+  linkedin: z.string().optional(),
+  opportunityType: z.string().optional(),
+  preferredIndustry: z.string().optional(),
+  preferredRole: z.string().optional(),
+  preferredSalary: z.string().optional(),
+  startDate: z.string().optional(),
+  jobTitle: z.string().optional(),
+  employerName: z.string().optional(),
+  employmentCountry: z.string().optional(),
+  totalExp: z.string().optional(),
+  relevantExp: z.string().optional(),
+  summary: z.string().optional(),
+  isEmployed: z.string().optional(),
+  workedOverseas: z.string().optional(),
+  overseasCountries: z.string().optional(),
+  highestQualification: z.string().optional(),
+  fieldOfStudy: z.string().optional(),
+  institutionName: z.string().optional(),
+  graduationYear: z.string().optional(),
+  hasLicences: z.string().optional(),
+  licencesList: z.string().optional(),
+  englishTest: z.string().optional(),
+  overallScore: z.string().optional(),
+  testDate: z.string().optional(),
+  visaStatus: z.string().optional(),
+  legalWorkRights: z.string().optional(),
+  openToRelocation: z.string().optional(),
+  appliedAusVisa: z.string().optional(),
+  visaTypeApplied: z.string().optional(),
+  visaRefusal: z.string().optional(),
+  visaRefusalDetails: z.string().optional(),
+  relocateAloneOrFamily: z.string().optional(),
+  validPassport: z.string().optional(),
+  passportExpiry: z.string().optional(),
+  medicalBackgroundCheck: z.string().optional(),
+  criminalConvictions: z.string().optional(),
+  criminalDetails: z.string().optional(),
+  passportUrl: z.string().optional(),
+  visaUrl: z.string().optional(),
+  eduCertUrl: z.string().optional(),
+  empCertUrl: z.string().optional(),
+  englishTestUrl: z.string().optional(),
+  licenceUrl: z.string().optional(),
+  declarationTrue: z.string().optional(),
+  declarationConsent: z.string().optional(),
 });
 
 const employerUpdateSchema = z.object({
@@ -53,6 +106,48 @@ const employerUpdateSchema = z.object({
 type TalentUpdateData = z.infer<typeof talentUpdateSchema>;
 type EmployerUpdateData = z.infer<typeof employerUpdateSchema>;
 
+const formatDateBeautifully = (dateStr: any): string => {
+  if (!dateStr) return 'Not specified';
+
+  if (typeof dateStr !== 'string' && !(dateStr instanceof Date)) return 'Not specified';
+
+  const str = typeof dateStr === 'string' ? dateStr.trim() : '';
+
+  if (str && !/\d/.test(str)) {
+    return str;
+  }
+
+  try {
+    let dateObj: Date;
+
+    const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (dmyMatch) {
+      const day = parseInt(dmyMatch[1], 10);
+      const month = parseInt(dmyMatch[2], 10) - 1;
+      const year = parseInt(dmyMatch[3], 10);
+      dateObj = new Date(year, month, day);
+    } else {
+      dateObj = new Date(dateStr);
+    }
+
+    if (isNaN(dateObj.getTime())) {
+      return typeof dateStr === 'string' ? dateStr : (dateStr instanceof Date ? dateStr.toLocaleDateString() : 'Not specified');
+    }
+
+    const day = dateObj.getDate();
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const month = months[dateObj.getMonth()];
+    const year = dateObj.getFullYear();
+
+    return `${day} ${month} ${year}`;
+  } catch (e) {
+    return typeof dateStr === 'string' ? dateStr : (dateStr instanceof Date ? dateStr.toLocaleDateString() : 'Not specified');
+  }
+};
+
 export default function ManageProfile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -67,6 +162,149 @@ export default function ManageProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isTalent = user?.role === 'TALENT';
+
+  const [openSection, setOpenSection] = useState<string>('personal');
+  const [selectedDoc, setSelectedDoc] = useState<{ url: string; title: string } | null>(null);
+  const [deletingResumeId, setDeletingResumeId] = useState<string | null>(null);
+
+  const handleDocumentUpload = async (field: string, file: File, folder: string) => {
+    try {
+      setSaving(true);
+      const timestamp = Date.now();
+      const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+      const url = await uploadFile(file, folder, fileName);
+      talentForm.setValue(field as any, url, { shouldDirty: true });
+      toast.success('Document uploaded successfully!');
+    } catch (err: any) {
+      toast.error('Failed to upload document: ' + (err.message || err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderEditInput = (label: string, name: string, placeholder?: string, type: string = "text") => {
+    return (
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <input
+          type={type}
+          placeholder={placeholder}
+          {...talentForm.register(name as any)}
+          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium"
+        />
+      </div>
+    );
+  };
+
+  const renderEditSelect = (label: string, name: string, options: string[]) => {
+    return (
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <Controller
+          name={name as any}
+          control={talentForm.control}
+          render={({ field }) => (
+            <Dropdown
+              options={options.map(o => ({ label: o, value: o }))}
+              value={field.value || ''}
+              onChange={field.onChange}
+              className="border-transparent bg-[#F4F7FA] focus:bg-white"
+            />
+          )}
+        />
+      </div>
+    );
+  };
+
+  const renderEditRadio = (label: string, name: string, options: string[]) => {
+    return (
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <Controller
+          name={name as any}
+          control={talentForm.control}
+          render={({ field }) => (
+            <div className="flex flex-wrap gap-3">
+              {options.map(o => (
+                <button
+                  key={o}
+                  type="button"
+                  onClick={() => field.onChange(o)}
+                  className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border text-sm font-bold transition-all ${field.value === o ? 'border-rh-teal bg-rh-teal/5 text-rh-teal' : 'border-gray-200 hover:border-rh-teal/30 text-gray-600 bg-white'}`}
+                >
+                  {o}
+                </button>
+              ))}
+            </div>
+          )}
+        />
+      </div>
+    );
+  };
+
+  const renderEditTextarea = (label: string, name: string, placeholder?: string, rows: number = 3) => {
+    return (
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <textarea
+          rows={rows}
+          placeholder={placeholder}
+          {...talentForm.register(name as any)}
+          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium resize-none"
+        />
+      </div>
+    );
+  };
+
+  const renderEditDocUpload = (label: string, name: string, folder: string, accept: string = ".pdf,.doc,.docx,.jpg,.jpeg,.png") => {
+    const url = talentForm.watch(name as any);
+    const inputId = `doc-upload-${name}`;
+    return (
+      <div className="p-4 sm:p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 w-full xl:w-auto min-w-0">
+          <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-rh-teal border border-gray-50 shrink-0">
+            <FileText className="w-6 h-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h5 className="font-bold text-rh-teal text-sm leading-tight mb-1">{label}</h5>
+            <p className="text-[10px] text-gray-400 font-medium">Click button to upload replacement file</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 w-full xl:w-auto justify-end">
+          <input
+            id={inputId}
+            type="file"
+            className="hidden"
+            accept={accept}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                await handleDocumentUpload(name, file, folder);
+              }
+            }}
+          />
+          <Button
+            type="button"
+            onClick={() => document.getElementById(inputId)?.click()}
+            variant="outline"
+            className="flex-1 xl:flex-none px-4 py-2 border border-gray-200 hover:border-rh-teal hover:bg-rh-teal hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center whitespace-nowrap"
+          >
+            <Upload className="w-3.5 h-3.5 mr-1" /> Upload
+          </Button>
+          {url && (
+            <button
+              type="button"
+              onClick={() => setSelectedDoc({ url, title: label })}
+              className="p-2 text-gray-400 hover:text-rh-teal bg-gray-50 hover:bg-rh-light rounded-xl transition-all shrink-0"
+              title="View File"
+            >
+              <Target className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // --- Forms ---
   const talentForm = useForm<TalentUpdateData>({
@@ -122,6 +360,57 @@ export default function ManageProfile() {
           educations: p.educations || [],
           skills: p.skills || [],
           experiences: p.experiences || [],
+          dob: p.dob || '',
+          age: p.age || '',
+          gender: p.gender || '',
+          nationality: p.nationality || '',
+          countryOfResidence: p.countryOfResidence || '',
+          whatsapp: p.whatsapp || '',
+          linkedin: p.linkedin || '',
+          opportunityType: p.opportunityType || '',
+          preferredIndustry: p.preferredIndustry || '',
+          preferredRole: p.preferredRole || '',
+          preferredSalary: p.preferredSalary || '',
+          startDate: p.startDate || '',
+          jobTitle: p.jobTitle || '',
+          employerName: p.employerName || '',
+          employmentCountry: p.employmentCountry || '',
+          totalExp: p.totalExp || '',
+          relevantExp: p.relevantExp || '',
+          summary: p.summary || '',
+          isEmployed: p.isEmployed || '',
+          workedOverseas: p.workedOverseas || '',
+          overseasCountries: p.overseasCountries || '',
+          highestQualification: p.highestQualification || '',
+          fieldOfStudy: p.fieldOfStudy || '',
+          institutionName: p.institutionName || '',
+          graduationYear: p.graduationYear || '',
+          hasLicences: p.hasLicences || '',
+          licencesList: p.licencesList || '',
+          englishTest: p.englishTest || '',
+          overallScore: p.overallScore || '',
+          testDate: p.testDate || '',
+          visaStatus: p.visaStatus || '',
+          legalWorkRights: p.legalWorkRights || '',
+          openToRelocation: p.openToRelocation || '',
+          appliedAusVisa: p.appliedAusVisa || '',
+          visaTypeApplied: p.visaTypeApplied || '',
+          visaRefusal: p.visaRefusal || '',
+          visaRefusalDetails: p.visaRefusalDetails || '',
+          relocateAloneOrFamily: p.relocateAloneOrFamily || '',
+          validPassport: p.validPassport || '',
+          passportExpiry: p.passportExpiry || '',
+          medicalBackgroundCheck: p.medicalBackgroundCheck || '',
+          criminalConvictions: p.criminalConvictions || '',
+          criminalDetails: p.criminalDetails || '',
+          passportUrl: p.passportUrl || '',
+          visaUrl: p.visaUrl || '',
+          eduCertUrl: p.eduCertUrl || '',
+          empCertUrl: p.empCertUrl || '',
+          englishTestUrl: p.englishTestUrl || '',
+          licenceUrl: p.licenceUrl || '',
+          declarationTrue: p.declarationTrue || '',
+          declarationConsent: p.declarationConsent || '',
         });
         const defaultResume = p.resumes?.find((r: any) => r.isDefault) || p.resumes?.[0];
         if (defaultResume?.atsScore) {
@@ -174,7 +463,7 @@ export default function ManageProfile() {
     const file = event.target.files?.[0];
     if (file) {
       if ((profile?.resumes?.length || 0) >= 5) {
-        alert('Maximum 5 resumes allowed. Please delete an existing resume first.');
+        toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
         return;
       }
 
@@ -193,8 +482,9 @@ export default function ManageProfile() {
           setResumeScore(newResume.atsScore);
         }
         await fetchProfile();
+        toast.success('Resume uploaded successfully!');
       } catch (err: any) {
-        alert(err.response?.data?.message || 'Failed to upload resume');
+        toast.error(err.response?.data?.message || 'Failed to upload resume');
       } finally {
         setResumeExtracting(false);
       }
@@ -205,18 +495,28 @@ export default function ManageProfile() {
     try {
       await authApi.setDefaultResume(resumeId);
       await fetchProfile();
+      toast.success('Default resume set successfully!');
     } catch (err) {
-      alert('Failed to set default resume');
+      toast.error('Failed to set default resume');
     }
   };
 
-  const handleDeleteResume = async (resumeId: string) => {
-    if (!confirm('Are you sure you want to delete this resume?')) return;
+  const handleDeleteResume = (resumeId: string) => {
+    setDeletingResumeId(resumeId);
+  };
+
+  const confirmDeleteResume = async () => {
+    if (!deletingResumeId) return;
     try {
-      await authApi.deleteResume(resumeId);
+      setSaving(true);
+      await authApi.deleteResume(deletingResumeId);
       await fetchProfile();
+      toast.success('Resume deleted successfully!');
     } catch (err) {
-      alert('Failed to delete resume');
+      toast.error('Failed to delete resume');
+    } finally {
+      setSaving(false);
+      setDeletingResumeId(null);
     }
   };
 
@@ -312,7 +612,7 @@ export default function ManageProfile() {
 
             <div className="flex-1 text-center lg:text-left">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-4">
-                <h1 className="text-3xl lg:text-5xl font-bold text-rh-teal tracking-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-rh-teal tracking-tight">
                   {isTalent ? profile?.fullName : `${profile?.firstName} ${profile?.lastName}`}
                 </h1>
                 <div className="flex items-center justify-center lg:justify-start gap-2">
@@ -349,13 +649,13 @@ export default function ManageProfile() {
               </div>
             </div>
 
-            <div className="bg-rh-teal rounded-[2rem] p-8 text-white min-w-[15rem] w-full lg:w-auto shadow-2xl shadow-rh-teal/20">
+            <div className="bg-rh-teal rounded-[2rem] p-6 sm:p-8 text-white min-w-[15rem] w-full lg:w-auto shadow-2xl shadow-rh-teal/20">
               <div className="flex items-center justify-between mb-6">
                 <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">Profile Strength</h4>
                 <Shield className="w-5 h-5 text-rh-red" />
               </div>
               <div className="flex items-end gap-2 mb-4">
-                <span className="text-5xl font-bold tracking-tighter">{completion}%</span>
+                <span className="text-4xl sm:text-5xl font-bold tracking-tighter">{completion}%</span>
                 <span className="text-sm font-bold text-emerald-400 mb-2 flex items-center gap-1">
                   <TrendingUp className="w-4 h-4" /> +5%
                 </span>
@@ -376,23 +676,23 @@ export default function ManageProfile() {
 
           {/* Sidebar Navigation */}
           <aside className="w-full lg:w-80 shrink-0">
-            <div className="bg-white rounded-[32px] p-4 shadow-sm border border-gray-100 space-y-2">
+            <div className="bg-white rounded-[32px] p-3 sm:p-4 shadow-sm border border-gray-100 space-y-2">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'overview' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
+                className={`w-full flex items-center gap-4 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'overview' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
               >
                 <User className="w-5 h-5" /> Profile Overview
               </button>
               <button
                 onClick={() => setActiveTab('edit')}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'edit' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
+                className={`w-full flex items-center gap-4 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'edit' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
               >
                 <Settings className="w-5 h-5" /> Edit Profile
               </button>
               {isTalent && (
                 <button
                   onClick={() => setActiveTab('resume')}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'resume' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
+                  className={`w-full flex items-center gap-4 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === 'resume' ? 'bg-rh-teal text-white shadow-xl shadow-rh-teal/10' : 'text-gray-500 hover:bg-rh-light hover:text-rh-teal'}`}
                 >
                   <FileText className="w-5 h-5" /> Resume & Score
                 </button>
@@ -400,7 +700,7 @@ export default function ManageProfile() {
               <div className="h-px bg-gray-50 my-4" />
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-rh-red font-bold text-sm hover:bg-red-50 transition-all"
+                className="w-full flex items-center gap-4 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-rh-red font-bold text-sm hover:bg-red-50 transition-all"
               >
                 <LogOut className="w-5 h-5" /> Sign Out
               </button>
@@ -427,88 +727,480 @@ export default function ManageProfile() {
                 >
                   {isTalent ? (
                     <>
-                      {/* Talent Overview */}
-                      <section className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
+
+                      {/* Personal & Contact Details */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-xl font-bold text-rh-teal flex items-center gap-3">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <User className="w-6 h-6 text-rh-red" /> Personal & Contact Details
+                          </h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date of Birth</p>
+                            <p className="text-base font-bold text-rh-teal">{formatDateBeautifully(profile?.dob)}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Age</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.age || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Gender</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.gender || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nationality</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.nationality || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Country of Residence</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.countryOfResidence || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Phone Number</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.phone || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">WhatsApp</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.whatsapp || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50 md:col-span-2">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">LinkedIn Profile</p>
+                            {profile?.linkedin ? (
+                              <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-rh-teal hover:underline break-all block">
+                                {profile.linkedin}
+                              </a>
+                            ) : (
+                              <p className="text-base font-bold text-rh-teal">Not specified</p>
+                            )}
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Job Preferences */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <Target className="w-6 h-6 text-rh-red" /> Employment Preferences
+                          </h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Opportunity Type</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.opportunityType || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Preferred Industry</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.preferredIndustry || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Preferred Role</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.preferredRole || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Preferred Salary</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.preferredSalary || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Start Date / Notice Period</p>
+                            <p className="text-base font-bold text-rh-teal">{formatDateBeautifully(profile?.startDate)}</p>
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Current Employment Details */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <Briefcase className="w-6 h-6 text-rh-red" /> Current Employment & History
+                          </h3>
+                        </div>
+                        <div className="space-y-6">
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Currently Employed?</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.isEmployed || 'Not specified'}</p>
+                            </div>
+                            {profile?.isEmployed === 'Yes' && (
+                              <>
+                                <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Job Title</p>
+                                  <p className="text-base font-bold text-rh-teal">{profile?.jobTitle || 'Not specified'}</p>
+                                </div>
+                                <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Employer Name</p>
+                                  <p className="text-base font-bold text-rh-teal">{profile?.employerName || 'Not specified'}</p>
+                                </div>
+                                <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Country of Employment</p>
+                                  <p className="text-base font-bold text-rh-teal">{profile?.employmentCountry || 'Not specified'}</p>
+                                </div>
+                              </>
+                            )}
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Experience</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.totalExp || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Relevant Experience</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.relevantExp || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Worked Overseas?</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.workedOverseas || 'Not specified'}</p>
+                            </div>
+                            {profile?.workedOverseas === 'Yes' && (
+                              <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50 md:col-span-2">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Overseas Countries</p>
+                                <p className="text-base font-bold text-rh-teal">{profile?.overseasCountries || 'Not specified'}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {profile?.summary && (
+                            <div className="p-8 bg-[#F9FBFF] rounded-[32px] border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Professional Summary</p>
+                              <p className="text-gray-500 font-medium text-sm leading-relaxed">{profile.summary}</p>
+                            </div>
+                          )}
+
+                          {profile?.experiences && profile.experiences.length > 0 && (
+                            <div className="pt-6 border-t border-gray-50 space-y-6">
+                              <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest ml-1">Work History Timeline</h4>
+                              {profile.experiences.map((exp: any, idx: number) => (
+                                <div key={idx} className="relative pl-10 border-l-2 border-rh-light ml-4">
+                                  <div className="absolute top-0 left-0 -translate-x-[50%] w-8 h-8 bg-white border-2 border-rh-red rounded-full flex items-center justify-center">
+                                    <div className="w-2.5 h-2.5 bg-rh-red rounded-full" />
+                                  </div>
+                                  <div className="bg-rh-light/30 p-8 rounded-[32px] border border-gray-50">
+                                    <h4 className="font-bold text-rh-teal text-xl mb-1">{exp.title}</h4>
+                                    <p className="text-rh-red font-bold text-sm mb-4">{exp.company}</p>
+                                    <p className="text-gray-500 text-sm leading-relaxed font-medium">{exp.responsibilities}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </section>
+
+                      {/* Expertise & Skills */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
                             <Star className="w-6 h-6 text-rh-red" /> Expertise & Skills
                           </h3>
                         </div>
                         <div className="flex flex-wrap gap-3">
-                          {profile?.skills?.map((skill: string) => (
-                            <span key={skill} className="px-6 py-3 bg-rh-light text-rh-teal rounded-2xl text-xs font-bold border border-rh-teal/5">
-                              {skill}
-                            </span>
-                          ))}
+                          {profile?.skills && profile.skills.length > 0 ? (
+                            profile.skills.map((skill: string) => (
+                              <span key={skill} className="px-6 py-3 bg-rh-light text-rh-teal rounded-2xl text-xs font-bold border border-rh-teal/5">
+                                {skill}
+                              </span>
+                            ))
+                          ) : (
+                            <p className="text-gray-400 font-medium text-sm">No skills added yet.</p>
+                          )}
                         </div>
                       </section>
 
-                      <section className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
+                      {/* Education & Qualifications */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-xl font-bold text-rh-teal flex items-center gap-3">
-                            <GraduationCap className="w-6 h-6 text-rh-red" /> Education
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <GraduationCap className="w-6 h-6 text-rh-red" /> Education & Qualifications
                           </h3>
                         </div>
                         <div className="space-y-6">
-                          {profile?.educations?.map((edu: any, idx: number) => (
-                            <div key={idx} className="flex gap-6 p-6 bg-rh-light/30 rounded-[32px] border border-gray-50">
-                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-rh-teal shadow-sm border border-gray-50">
-                                <GraduationCap className="w-7 h-7" />
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Highest Qualification</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.highestQualification || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Field of Study</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.fieldOfStudy || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Institution</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.institutionName || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Graduation Year</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.graduationYear || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hold Licences?</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.hasLicences || 'Not specified'}</p>
+                            </div>
+                            {profile?.hasLicences === 'Yes' && (
+                              <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50 md:col-span-2">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Licences & Registrations</p>
+                                <p className="text-base font-bold text-rh-teal">{profile?.licencesList || 'Not specified'}</p>
                               </div>
-                              <div>
-                                <h4 className="font-bold text-rh-teal text-lg">{edu.school}</h4>
-                                <p className="text-gray-500 font-semibold">{edu.degree} • <span className="text-rh-red">{edu.year}</span></p>
+                            )}
+                          </div>
+
+                          {profile?.educations && profile.educations.length > 0 && (
+                            <div className="pt-6 border-t border-gray-50 space-y-6">
+                              <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest ml-1">Academic Timeline</h4>
+                              <div className="space-y-4">
+                                {profile.educations.map((edu: any, idx: number) => (
+                                  <div key={idx} className="flex gap-6 p-4 sm:p-6 bg-rh-light/30 rounded-[32px] border border-gray-50">
+                                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-rh-teal shadow-sm border border-gray-50">
+                                      <GraduationCap className="w-7 h-7" />
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-rh-teal text-lg">{edu.school}</h4>
+                                      <p className="text-gray-500 font-semibold">{edu.degree} • <span className="text-rh-red">{edu.year}</span></p>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
-                          ))}
+                          )}
                         </div>
                       </section>
 
-                      <section className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
+                      {/* Language Proficiency */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-xl font-bold text-rh-teal flex items-center gap-3">
-                            <Briefcase className="w-6 h-6 text-rh-red" /> Work Experience
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <Languages className="w-6 h-6 text-rh-red" /> Language Proficiency
                           </h3>
                         </div>
-                        <div className="space-y-8">
-                          {profile?.experiences?.map((exp: any, idx: number) => (
-                            <div key={idx} className="relative pl-10 border-l-2 border-rh-light ml-4">
-                              <div className="absolute top-0 left-0 -translate-x-[50%] w-8 h-8 bg-white border-2 border-rh-red rounded-full flex items-center justify-center">
-                                <div className="w-2.5 h-2.5 bg-rh-red rounded-full" />
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">English Test Status</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.englishTest || 'Not specified'}</p>
+                          </div>
+                          {profile?.englishTest && profile.englishTest !== 'None / English is Native Language' && (
+                            <>
+                              <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Overall Score / Band</p>
+                                <p className="text-base font-bold text-rh-teal">{profile?.overallScore || 'Not specified'}</p>
                               </div>
-                              <div className="bg-rh-light/30 p-8 rounded-[32px] border border-gray-50">
-                                <h4 className="font-bold text-rh-teal text-xl mb-1">{exp.title}</h4>
-                                <p className="text-rh-red font-bold text-sm mb-4">{exp.company}</p>
-                                <p className="text-gray-500 text-sm leading-relaxed font-medium">{exp.responsibilities}</p>
+                              <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Test Date / Validity</p>
+                                <p className="text-base font-bold text-rh-teal">{formatDateBeautifully(profile?.testDate)}</p>
                               </div>
+                            </>
+                          )}
+                        </div>
+                      </section>
+
+                      {/* Visa & Work Rights */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <ShieldCheck className="w-6 h-6 text-rh-red" /> Visa & Work Rights
+                          </h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Visa Status</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.visaStatus || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Work Rights in Target Country</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.legalWorkRights || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Australian Visa History?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.appliedAusVisa || 'Not specified'}</p>
+                          </div>
+                          {profile?.appliedAusVisa === 'Yes' && (
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Australian Visa Subclass</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.visaTypeApplied || 'Not specified'}</p>
                             </div>
-                          ))}
+                          )}
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Had Visa Refusals?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.visaRefusal || 'Not specified'}</p>
+                          </div>
+                          {profile?.visaRefusal === 'Yes' && (
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50 md:col-span-2">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Visa Refusal Details</p>
+                              <p className="text-sm font-bold text-rh-teal leading-relaxed">{profile?.visaRefusalDetails || 'Not specified'}</p>
+                            </div>
+                          )}
+                        </div>
+                      </section>
+
+                      {/* Relocation & Background */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <Plane className="w-6 h-6 text-rh-red" /> Relocation & Background
+                          </h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Open to Relocation?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.openToRelocation || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Relocate Alone / Family</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.relocateAloneOrFamily || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Valid Passport?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.validPassport || 'Not specified'}</p>
+                          </div>
+                          {profile?.validPassport === 'Yes' && (
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Passport Expiry Date</p>
+                              <p className="text-base font-bold text-rh-teal">{formatDateBeautifully(profile?.passportExpiry)}</p>
+                            </div>
+                          )}
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Consent to Medical Check?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.medicalBackgroundCheck || 'Not specified'}</p>
+                          </div>
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Criminal Convictions?</p>
+                            <p className="text-base font-bold text-rh-teal">{profile?.criminalConvictions || 'Not specified'}</p>
+                          </div>
+                          {profile?.criminalConvictions === 'Yes' && (
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50 md:col-span-3">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Criminal Record Details</p>
+                              <p className="text-sm font-bold text-rh-teal leading-relaxed">{profile?.criminalDetails || 'Not specified'}</p>
+                            </div>
+                          )}
+                        </div>
+                      </section>
+
+                      {/* Supporting Documents */}
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                            <FileCheck className="w-6 h-6 text-rh-red" /> Supporting Documents
+                          </h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {profile?.passportUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.passportUrl, title: 'Passport Copy' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Bio-Data Page</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Passport Copy</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
+                          {profile?.visaUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.visaUrl, title: 'Current Visa Document' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Permit / Residency</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Current Visa Document</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
+                          {profile?.eduCertUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.eduCertUrl, title: 'Educational Certificates' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Degree / Certificate</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Educational Certificates</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
+                          {profile?.empCertUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.empCertUrl, title: 'Employment Certificates' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Experience Letter / Reference</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Employment Certificates</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
+                          {profile?.englishTestUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.englishTestUrl, title: 'English Language Results' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">IELTS / PTE / OET Results</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">English Language Results</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
+                          {profile?.licenceUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDoc({ url: profile.licenceUrl, title: 'Licences & Certifications' })}
+                              className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-rh-teal" />
+                                <div>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Professional Registration</p>
+                                  <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Licences & Certifications</p>
+                                </div>
+                              </div>
+                              <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                            </button>
+                          )}
                         </div>
                       </section>
                     </>
                   ) : (
                     <>
                       {/* Employer Overview */}
-                      <section className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
+                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-xl font-bold text-rh-teal flex items-center gap-3">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
                             <Briefcase className="w-6 h-6 text-rh-red" /> Company Details
                           </h3>
                         </div>
                         <div className="grid md:grid-cols-2 gap-8">
-                          <div className="p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Company Name</p>
                             <p className="text-lg font-bold text-rh-teal">{profile?.companyName}</p>
                           </div>
-                          <div className="p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Job Title</p>
                             <p className="text-lg font-bold text-rh-teal">{profile?.jobTitle}</p>
                           </div>
-                          <div className="p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hiring Needs</p>
                             <p className="text-lg font-bold text-rh-teal">{profile?.jobTitleToHire}</p>
                           </div>
-                          <div className="p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Position Type</p>
                             <p className="text-lg font-bold text-rh-teal">{profile?.positionType}</p>
                           </div>
@@ -525,7 +1217,7 @@ export default function ManageProfile() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white rounded-[40px] p-10 shadow-sm border border-gray-100"
+                  className="bg-white rounded-[2rem] sm:rounded-[40px] p-6 sm:p-10 shadow-sm border border-gray-100"
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 border-b border-gray-50 pb-6">
                     <h3 className="text-2xl font-bold text-rh-teal">Update Information</h3>
@@ -539,185 +1231,470 @@ export default function ManageProfile() {
                     <form onSubmit={talentForm.handleSubmit(onUpdateSubmit)} className="space-y-10">
                       <input type="hidden" {...talentForm.register('avatarUrl')} />
                       <input type="hidden" {...talentForm.register('resumeUrl')} />
-                      {/* Resume Upload Section */}
-                      <div className="bg-[#F9FBFF] rounded-[2rem] p-8 border border-rh-teal/5 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-rh-teal/5 rounded-full -mr-16 -mt-16 blur-2xl" />
 
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rh-teal">
-                              <FileText className="w-7 h-7" />
-                            </div>
-                            <div>
-                              <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume</h4>
-                              <p className="text-xs text-gray-500 font-medium">Update your professional CV here</p>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0">
-                            <input
-                              id="resume-upload-edit"
-                              type="file"
-                              className="hidden"
-                              accept=".pdf,.doc,.docx"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  if ((profile?.resumes?.length || 0) >= 5) {
-                                    alert('Maximum 5 resumes allowed. Please delete an existing resume first.');
-                                    return;
-                                  }
-                                  try {
-                                    setSaving(true);
-                                    const timestamp = Date.now();
-                                    const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
-                                    const url = await uploadFile(file, 'resumes', fileName);
-                                    talentForm.setValue('resumeUrl', url);
-
-                                    // Add to resumes list & calculate ATS score
-                                    const newResume = await authApi.addResume({
-                                      fileName: file.name,
-                                      fileUrl: url,
-                                    });
-                                    if (newResume?.atsScore) {
-                                      setResumeScore(newResume.atsScore);
-                                    }
-                                    await fetchProfile();
-                                    alert('Resume uploaded successfully!');
-                                  } catch (err: any) {
-                                    alert(err.response?.data?.message || 'Failed to upload resume');
-                                  } finally {
-                                    setSaving(false);
-                                  }
-                                }
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              onClick={() => document.getElementById('resume-upload-edit')?.click()}
-                              variant="outline"
-                              className="w-full sm:w-auto px-6 py-3 border-2 border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center"
-                            >
-                              <Upload className="w-4 h-4 mr-2" /> Upload New
-                            </Button>
-
-                            {talentForm.watch('resumeUrl') && (
-                              <a
-                                href={talentForm.watch('resumeUrl')}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
-                              >
-                                <Target className="w-4 h-4" /> View Current
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                          <input {...talentForm.register('fullName')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Phone</label>
-                          <input {...talentForm.register('phone')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium" />
-                        </div>
-                        <div className="md:col-span-2 space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Location (City, Country)</label>
-                          <input {...talentForm.register('location')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium" />
-                        </div>
-                      </div>
-
-                      {/* Skills Section */}
+                      {/* Accordion Wrapper */}
                       <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest">Skills</h4>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <input
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                            placeholder="Add a skill..."
-                            className="flex-1 px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium"
-                          />
-                          <Button type="button" onClick={addSkill} variant="outline" className="px-8 border-2 border-gray-100 rounded-2xl font-bold">Add</Button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {watchedSkills.map(s => (
-                            <span key={s} className="px-5 py-2.5 bg-rh-light text-rh-teal rounded-xl text-xs font-bold flex items-center gap-3 group">
-                              {s}
-                              <button type="button" onClick={() => removeSkill(s)}><Trash2 className="w-4 h-4 text-gray-300 group-hover:text-rh-red transition-colors" /></button>
+                        {/* 1. Personal & Contact Details */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'personal' ? '' : 'personal')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <User className="w-5 h-5 text-rh-red" /> 1. Personal & Contact Details
                             </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Education Section */}
-                      <div className="space-y-6 pt-10 border-t border-gray-50">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest">Education</h4>
-                          <button type="button" onClick={() => appendEdu({ school: '', degree: '', year: '' })} className="text-rh-red font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1">
-                            <Plus className="w-4 h-4" /> Add Education
+                            <span className="text-xl text-gray-400">{openSection === 'personal' ? '−' : '+'}</span>
                           </button>
+                          {openSection === 'personal' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="grid md:grid-cols-2 gap-6">
+                                {renderEditInput("Full Name (As per Passport)", "fullName")}
+                                {renderEditInput("Phone Number", "phone")}
+                                {renderEditInput("Location (City, Country)", "location")}
+                                {renderEditInput("Date of Birth", "dob", "DD/MM/YYYY")}
+                                {renderEditInput("Age", "age", "e.g. 28")}
+                                {renderEditSelect("Gender", "gender", ["Male", "Female", "Other", "Prefer not to say"])}
+                                {renderEditInput("Nationality", "nationality")}
+                                {renderEditInput("Country of Residence", "countryOfResidence")}
+                                {renderEditInput("WhatsApp Number (with country code)", "whatsapp", "+971 50 000 0000")}
+                                {renderEditInput("LinkedIn Profile URL", "linkedin", "https://linkedin.com/in/username")}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="space-y-4">
-                          {eduFields.map((field, index) => (
-                            <div key={field.id} className="p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 relative group">
-                              <button type="button" onClick={() => removeEdu(index)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div className="md:col-span-2 space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">School / University</label>
-                                  <input {...talentForm.register(`educations.${index}.school`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium" />
-                                </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Degree</label>
-                                  <input {...talentForm.register(`educations.${index}.degree`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium" />
-                                </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Year</label>
-                                  <input {...talentForm.register(`educations.${index}.year`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium" />
+
+                        {/* 2. Employment Preferences */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'preferences' ? '' : 'preferences')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <Target className="w-5 h-5 text-rh-red" /> 2. Employment Preferences
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'preferences' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'preferences' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="space-y-6">
+                                {renderEditRadio("What type of opportunity are you looking for?", "opportunityType", ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"])}
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditInput("Preferred Industry / Sector", "preferredIndustry", "e.g. Healthcare, IT, Finance")}
+                                  {renderEditInput("Preferred Role / Job Title", "preferredRole", "e.g. Senior Software Engineer")}
+                                  {renderEditInput("Preferred Salary Range & Currency", "preferredSalary", "e.g. $80,000 - $100,000 USD/year")}
+                                  {renderEditInput("Earliest Start Date / Notice Period", "startDate", "e.g. 30 Days / Immediate")}
                                 </div>
                               </div>
                             </div>
-                          ))}
+                          )}
                         </div>
-                      </div>
 
-                      {/* Experience Section */}
-                      <div className="space-y-6 pt-10 border-t border-gray-50">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest">Work Experience</h4>
-                          <button type="button" onClick={() => appendExp({ title: '', company: '', responsibilities: '' })} className="text-rh-red font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1">
-                            <Plus className="w-4 h-4" /> Add Experience
+                        {/* 3. Current Employment & History */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'current' ? '' : 'current')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <Briefcase className="w-5 h-5 text-rh-red" /> 3. Current Employment & History
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'current' ? '−' : '+'}</span>
                           </button>
-                        </div>
-                        <div className="space-y-4">
-                          {expFields.map((field, index) => (
-                            <div key={field.id} className="p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 relative group">
-                              <button type="button" onClick={() => removeExp(index)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title</label>
-                                  <input {...talentForm.register(`experiences.${index}.title`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium" />
+                          {openSection === 'current' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="space-y-6">
+                                {renderEditRadio("Are you currently employed?", "isEmployed", ["Yes", "No"])}
+
+                                {talentForm.watch('isEmployed') === 'Yes' && (
+                                  <div className="grid md:grid-cols-2 gap-6 p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100">
+                                    {renderEditInput("Current Job Title", "jobTitle", "e.g. Engineering Manager")}
+                                    {renderEditInput("Current Employer Name", "employerName", "e.g. Tech Global")}
+                                    {renderEditInput("Country of Employment", "employmentCountry", "e.g. Singapore")}
+                                    {renderEditInput("Total Years of Experience", "totalExp", "e.g. 8 Years")}
+                                    {renderEditInput("Relevant Years of Experience", "relevantExp", "e.g. 6 Years")}
+                                  </div>
+                                )}
+
+                                {renderEditTextarea("Professional Summary / Key Achievements", "summary", "Briefly highlight your core expertise and major achievements...")}
+
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditRadio("Have you worked overseas before?", "workedOverseas", ["Yes", "No"])}
+                                  {talentForm.watch('workedOverseas') === 'Yes' && renderEditInput("Which countries?", "overseasCountries", "e.g. USA, UK, Germany")}
                                 </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company</label>
-                                  <input {...talentForm.register(`experiences.${index}.company`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium" />
-                                </div>
-                                <div className="md:col-span-2 space-y-1.5">
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Responsibilities</label>
-                                  <textarea rows={3} {...talentForm.register(`experiences.${index}.responsibilities`)} className="w-full px-5 py-3 bg-white border border-gray-100 rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium resize-none" />
+
+                                {/* Work Experience List */}
+                                <div className="space-y-6 pt-6 border-t border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest">Work History Timeline</h4>
+                                    <button type="button" onClick={() => appendExp({ title: '', company: '', responsibilities: '' })} className="text-rh-red font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1">
+                                      <Plus className="w-4 h-4" /> Add Experience
+                                    </button>
+                                  </div>
+                                  <div className="space-y-4">
+                                    {expFields.map((field, index) => {
+                                      const expErr = talentForm.formState.errors.experiences?.[index];
+                                      return (
+                                        <div key={field.id} className="p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 relative group">
+                                          <button type="button" onClick={() => removeExp(index)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                                            <Trash2 className="w-4 h-4" />
+                                          </button>
+                                          <div className="grid md:grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title</label>
+                                              <input {...talentForm.register(`experiences.${index}.title`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${expErr?.title ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium`} />
+                                              {expErr?.title && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {expErr.title.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company</label>
+                                              <input {...talentForm.register(`experiences.${index}.company`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${expErr?.company ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium`} />
+                                              {expErr?.company && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {expErr.company.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                            <div className="md:col-span-2 space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Responsibilities</label>
+                                              <textarea rows={3} {...talentForm.register(`experiences.${index}.responsibilities`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${expErr?.responsibilities ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium resize-none`} />
+                                              {expErr?.responsibilities && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {expErr.responsibilities.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          ))}
+                          )}
                         </div>
+
+                        {/* 4. Expertise & Skills */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'skills' ? '' : 'skills')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <Star className="w-5 h-5 text-rh-red" /> 4. Expertise & Skills
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'skills' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'skills' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="flex flex-col sm:flex-row gap-4">
+                                <input
+                                  value={skillInput}
+                                  onChange={(e) => setSkillInput(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                                  placeholder="Add a skill..."
+                                  className="flex-1 px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium animate-fadeIn"
+                                />
+                                <Button type="button" onClick={addSkill} variant="outline" className="px-8 border-2 border-gray-100 rounded-2xl font-bold">Add</Button>
+                              </div>
+                              {talentForm.formState.errors.skills && (
+                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {talentForm.formState.errors.skills.message}
+                                </motion.p>
+                              )}
+                              <div className="flex flex-wrap gap-2 mt-6">
+                                {watchedSkills.map(s => (
+                                  <span key={s} className="px-5 py-2.5 bg-rh-light text-rh-teal rounded-xl text-xs font-bold flex items-center gap-3 group">
+                                    {s}
+                                    <button type="button" onClick={() => removeSkill(s)}><Trash2 className="w-4 h-4 text-gray-300 group-hover:text-rh-red transition-colors" /></button>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 5. Education & Qualifications */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'education' ? '' : 'education')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <GraduationCap className="w-5 h-5 text-rh-red" /> 5. Education & Qualifications
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'education' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'education' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditSelect("Highest Qualification Achieved", "highestQualification", ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"])}
+                                  {renderEditInput("Field of Study / Major", "fieldOfStudy", "e.g. Computer Science")}
+                                  {renderEditInput("Institution Name", "institutionName", "e.g. Stanford University")}
+                                  {renderEditInput("Graduation Year", "graduationYear", "e.g. 2021")}
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditRadio("Do you hold any professional licences or registrations?", "hasLicences", ["Yes", "No"])}
+                                  {talentForm.watch('hasLicences') === 'Yes' && renderEditInput("List Licences & Issuing Authorities", "licencesList", "e.g. CPA (AICPA), PMP (PMI)")}
+                                </div>
+
+                                {/* Education List */}
+                                <div className="space-y-6 pt-6 border-t border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-bold text-rh-teal uppercase tracking-widest">Academic History</h4>
+                                    <button type="button" onClick={() => appendEdu({ school: '', degree: '', year: '' })} className="text-rh-red font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-1">
+                                      <Plus className="w-4 h-4" /> Add Education
+                                    </button>
+                                  </div>
+                                  <div className="space-y-4">
+                                    {eduFields.map((field, index) => {
+                                      const eduErr = talentForm.formState.errors.educations?.[index];
+                                      return (
+                                        <div key={field.id} className="p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 relative group">
+                                          <button type="button" onClick={() => removeEdu(index)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rh-red transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                                            <Trash2 className="w-4 h-4" />
+                                          </button>
+                                          <div className="grid md:grid-cols-2 gap-4">
+                                            <div className="md:col-span-2 space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">School / University</label>
+                                              <input {...talentForm.register(`educations.${index}.school`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${eduErr?.school ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium`} />
+                                              {eduErr?.school && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {eduErr.school.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Degree</label>
+                                              <input {...talentForm.register(`educations.${index}.degree`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${eduErr?.degree ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium`} />
+                                              {eduErr?.degree && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {eduErr.degree.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Year</label>
+                                              <input {...talentForm.register(`educations.${index}.year`)} className={`w-full px-4 sm:px-5 py-2.5 sm:py-3 bg-white border ${eduErr?.year ? 'border-red-500 bg-red-50/10' : 'border-gray-100'} rounded-xl focus:ring-2 focus:ring-rh-teal/10 transition-all text-sm font-medium`} />
+                                              {eduErr?.year && (
+                                                <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {eduErr.year.message}
+                                                </motion.p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 6. Language Proficiency */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'language' ? '' : 'language')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <Languages className="w-5 h-5 text-rh-red" /> 6. Language Proficiency
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'language' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'language' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="grid md:grid-cols-2 gap-6">
+                                {renderEditSelect("English Test Status", "englishTest", ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"])}
+                                {talentForm.watch('englishTest') && talentForm.watch('englishTest') !== 'None / English is Native Language' && (
+                                  <>
+                                    {renderEditInput("Overall Score / Band", "overallScore", "e.g. 7.5")}
+                                    {renderEditInput("Test Date / Validity", "testDate", "e.g. Oct 2023")}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 7. Visa & Work Rights */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'visa' ? '' : 'visa')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <ShieldCheck className="w-5 h-5 text-rh-red" /> 7. Visa & Work Rights
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'visa' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'visa' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditInput("Current Visa / Residency Status", "visaStatus", "e.g. Employment Pass / Citizen")}
+                                  {renderEditInput("Legal Work Rights in Target Country", "legalWorkRights", "e.g. Require Sponsorship / Permanent Resident")}
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditRadio("Are you open to relocation?", "openToRelocation", ["Yes", "No"])}
+                                  {renderEditRadio("Have you applied for an Australian Visa before?", "appliedAusVisa", ["Yes", "No"])}
+                                  {talentForm.watch('appliedAusVisa') === 'Yes' && renderEditInput("Which Visa Subclass?", "visaTypeApplied", "e.g. Subclass 482, 189, 190")}
+                                </div>
+                                <div className="space-y-4">
+                                  {renderEditRadio("Have you ever had a visa refusal or cancellation for any country?", "visaRefusal", ["Yes", "No"])}
+                                  {talentForm.watch('visaRefusal') === 'Yes' && renderEditTextarea("Please provide details of the visa refusal/cancellation", "visaRefusalDetails", "Explain the reasons and country...")}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 8. Relocation & Availability */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'relocation' ? '' : 'relocation')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <Plane className="w-5 h-5 text-rh-red" /> 8. Relocation & Availability
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'relocation' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'relocation' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              <div className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditSelect("If relocating, will you relocate alone or with family?", "relocateAloneOrFamily", ["Alone", "With Partner", "With Family (Partner & Children)"])}
+                                  {renderEditRadio("Do you hold a valid passport?", "validPassport", ["Yes", "No"])}
+                                  {talentForm.watch('validPassport') === 'Yes' && renderEditInput("Passport Expiry Date", "passportExpiry", "DD/MM/YYYY")}
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                  {renderEditRadio("Are you willing to undergo a medical and background check?", "medicalBackgroundCheck", ["Yes", "No"])}
+                                  {renderEditRadio("Do you have any criminal convictions?", "criminalConvictions", ["Yes", "No"])}
+                                </div>
+                                {talentForm.watch('criminalConvictions') === 'Yes' && renderEditTextarea("Please provide details of convictions", "criminalDetails", "Provide details...")}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 9. Uploaded Documents */}
+                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(openSection === 'documents' ? '' : 'documents')}
+                            className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
+                          >
+                            <span className="flex items-center gap-3">
+                              <FileCheck className="w-5 h-5 text-rh-red" /> 9. Uploaded Documents
+                            </span>
+                            <span className="text-xl text-gray-400">{openSection === 'documents' ? '−' : '+'}</span>
+                          </button>
+                          {openSection === 'documents' && (
+                            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
+                              {/* Resume Section inside documents */}
+                              <div className="bg-[#F9FBFF] rounded-[2rem] p-8 border border-rh-teal/5 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-rh-teal/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rh-teal">
+                                      <FileText className="w-7 h-7" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume</h4>
+                                      <p className="text-xs text-gray-500 font-medium">Update your professional CV here</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0">
+                                    <input
+                                      id="resume-upload-edit"
+                                      type="file"
+                                      className="hidden"
+                                      accept=".pdf,.doc,.docx"
+                                      onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          if ((profile?.resumes?.length || 0) >= 5) {
+                                            toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
+                                            return;
+                                          }
+                                          try {
+                                            setSaving(true);
+                                            const timestamp = Date.now();
+                                            const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+                                            const url = await uploadFile(file, 'resumes', fileName);
+                                            talentForm.setValue('resumeUrl', url, { shouldDirty: true });
+
+                                            // Add to resumes list & calculate ATS score
+                                            const newResume = await authApi.addResume({
+                                              fileName: file.name,
+                                              fileUrl: url,
+                                            });
+                                            if (newResume?.atsScore) {
+                                              setResumeScore(newResume.atsScore);
+                                            }
+                                            await fetchProfile();
+                                            toast.success('Resume uploaded successfully!');
+                                          } catch (err: any) {
+                                            toast.error(err.response?.data?.message || 'Failed to upload resume');
+                                          } finally {
+                                            setSaving(false);
+                                          }
+                                        }
+                                      }}
+                                    />
+                                    <Button
+                                      type="button"
+                                      onClick={() => document.getElementById('resume-upload-edit')?.click()}
+                                      variant="outline"
+                                      className="w-full sm:w-auto px-6 py-3 border-2 border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center"
+                                    >
+                                      <Upload className="w-4 h-4 mr-2" /> Upload New
+                                    </Button>
+
+                                    {talentForm.watch('resumeUrl') && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedDoc({ url: talentForm.watch('resumeUrl') || '', title: 'Your Resume' })}
+                                        className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                      >
+                                        <Target className="w-4 h-4" /> View Current
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="grid md:grid-cols-2 gap-6 pt-4">
+                                {renderEditDocUpload("Passport Copy (Bio-Data Page)", "passportUrl", "talent-documents")}
+                                {renderEditDocUpload("Current Visa / Residency Permit / Work Permit", "visaUrl", "talent-documents")}
+                                {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents")}
+                                {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents")}
+                                {renderEditDocUpload("English Test Results (if available)", "englishTestUrl", "talent-documents")}
+                                {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents")}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+
                       </div>
 
                       <div className="flex flex-col sm:flex-row justify-end gap-4 pt-10 border-t border-gray-50">
@@ -737,7 +1714,7 @@ export default function ManageProfile() {
                             <div className="relative group">
                               <div className="w-20 h-20 rounded-2xl bg-white overflow-hidden shadow-md border-4 border-white">
                                 {employerForm.watch('companyLogo') ? (
-                                  <img src={employerForm.watch('companyLogo')} alt="Company Logo" className="w-full h-full object-cover" />
+                                  <img src={employerForm.watch('companyLogo') || ''} alt="Company Logo" className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
                                     <User className="w-8 h-8" />
@@ -782,50 +1759,91 @@ export default function ManageProfile() {
                             />
                           </Button>
                         </div>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-8">
+                      </div>                      <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
-                          <input {...employerForm.register('firstName')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('firstName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.firstName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.firstName && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.firstName.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
-                          <input {...employerForm.register('lastName')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('lastName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.lastName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.lastName && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.lastName.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
-                          <input {...employerForm.register('businessPhone')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('businessPhone')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.businessPhone && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.businessPhone.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
-                          <input {...employerForm.register('companyName')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('companyName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.companyName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.companyName && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.companyName.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
-                          <Controller
-                            name="positionType"
-                            control={employerForm.control}
-                            render={({ field }) => (
-                              <Dropdown
-                                options={signUpPositionType}
-                                value={field.value}
-                                onChange={field.onChange}
-                                className="border-transparent bg-[#F4F7FA] focus:bg-white"
-                              />
-                            )}
-                          />
+                          <div className={`rounded-2xl border ${employerForm.formState.errors.positionType ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+                            <Controller
+                              name="positionType"
+                              control={employerForm.control}
+                              render={({ field }) => (
+                                <Dropdown
+                                  options={signUpPositionType}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="border-transparent bg-[#F4F7FA] focus:bg-white"
+                                />
+                              )}
+                            />
+                          </div>
+                          {employerForm.formState.errors.positionType && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.positionType.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
-                          <input {...employerForm.register('jobTitle')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('jobTitle')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.jobTitle ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.jobTitle && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.jobTitle.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
-                          <input {...employerForm.register('jobTitleToHire')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('jobTitleToHire')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.jobTitleToHire ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.jobTitleToHire && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.jobTitleToHire.message}
+                            </motion.p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
-                          <input {...employerForm.register('zipCode')} className="w-full px-6 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium" />
+                          <input {...employerForm.register('zipCode')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.zipCode ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          {employerForm.formState.errors.zipCode && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.zipCode.message}
+                            </motion.p>
+                          )}
                         </div>
                       </div>
 
@@ -848,7 +1866,7 @@ export default function ManageProfile() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-10"
                 >
-                  <section className="bg-white rounded-[40px] p-10 lg:p-16 shadow-sm border border-gray-100">
+                  <section className="bg-white rounded-[2rem] sm:rounded-[40px] p-6 sm:p-6 sm:p-10 lg:p-16 shadow-sm border border-gray-100">
                     <div className="mb-10 text-center max-w-xl mx-auto">
                       <h3 className="text-3xl font-bold text-rh-teal mb-4">Resume Intelligence</h3>
                       <p className="text-gray-500 font-medium leading-relaxed">Upload your resume to get an AI-powered score and see how you rank against global benchmarks.</p>
@@ -906,7 +1924,7 @@ export default function ManageProfile() {
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-400 font-medium truncate">Uploaded on {new Date(resume.createdAt).toLocaleDateString()}</p>
+                                  <p className="text-xs text-gray-400 font-medium truncate">Uploaded on {formatDateBeautifully(resume.createdAt)}</p>
                                 </div>
                               </div>
 
@@ -929,15 +1947,14 @@ export default function ManageProfile() {
                                       Set Default
                                     </Button>
                                   )}
-                                  <a
-                                    href={resume.fileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedDoc({ url: resume.fileUrl, title: resume.fileName })}
                                     className="p-2 text-gray-400 hover:text-rh-teal bg-gray-50 hover:bg-rh-light rounded-xl transition-all shrink-0"
                                     title="View PDF"
                                   >
                                     <Target className="w-4 h-4" />
-                                  </a>
+                                  </button>
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteResume(resume.id)}
@@ -975,12 +1992,12 @@ export default function ManageProfile() {
                             />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-4xl sm:text-5xl lg:text-6xl font-bold">{resumeScore}</span>
+                            <span className="text-3xl sm:text-5xl lg:text-6xl font-bold">{resumeScore}</span>
                             <span className="text-[10px] sm:text-xs font-bold text-white/60 uppercase tracking-widest mt-1">AI Score</span>                          </div>
                         </div>
 
                         <div className="space-y-6 flex-1 text-center md:text-left">
-                          <h4 className="text-2xl sm:text-3xl font-bold leading-tight">Excellent! Your resume is in the <span className="text-rh-red italic">Top 10%.</span></h4>
+                          <h4 className="text-xl sm:text-3xl font-bold leading-tight">Excellent! Your resume is in the <span className="text-rh-red italic">Top 10%.</span></h4>
                           <p className="text-white/70 font-medium text-base sm:text-lg leading-relaxed">Your professional summary and technical stack are highly relevant to current global market demands.</p>
                           <div className="flex flex-wrap justify-center md:justify-start gap-3">
                             <span className="px-5 py-2.5 bg-white/10 rounded-xl text-xs font-bold border border-white/10 flex items-center gap-2">
@@ -1000,6 +2017,103 @@ export default function ManageProfile() {
           </main>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedDoc && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+            >
+              <div className="flex items-center justify-between p-5 sm:p-8 border-b border-gray-100 gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rh-teal/5 flex items-center justify-center text-rh-teal shrink-0">
+                    <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-xl font-bold text-rh-teal truncate">{selectedDoc.title}</h3>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                  <button
+                    onClick={() => setSelectedDoc(null)}
+                    className="p-2 sm:p-2.5 text-gray-400 hover:text-rh-red hover:bg-red-50 rounded-xl transition-all shrink-0"
+                  >
+                    <Plus className="w-5 h-5 sm:w-6 sm:h-6 rotate-45" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto bg-gray-50/50 p-4 sm:p-8 min-h-[50vh]">
+                {/\.(jpeg|jpg|gif|png)(\?|$)/i.test(selectedDoc.url) ? (
+                  <img src={selectedDoc.url} alt={selectedDoc.title} className="max-w-full rounded-2xl shadow-sm mx-auto" />
+                ) : /\.pdf(\?|$)/i.test(selectedDoc.url) ? (
+                  <iframe src={selectedDoc.url} className="w-full h-[50vh] sm:h-[60vh] rounded-2xl shadow-sm border border-gray-100" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[50vh] text-center">
+                    <FileText className="w-16 h-16 text-gray-300 mb-4" />
+                    <p className="text-gray-500 font-medium mb-4">Preview not available for this file type.</p>
+                    <a
+                      href={selectedDoc.url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-6 py-3 bg-rh-teal text-white rounded-xl font-bold shadow-md hover:bg-[#0E8A8F] transition-all"
+                    >
+                      <Upload className="w-5 h-5 rotate-180" /> Download to View
+                    </a>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deletingResumeId && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeletingResumeId(null)}
+              className="absolute inset-0"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-lg rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden p-8 sm:p-12 text-center z-10"
+            >
+              <div className="w-20 h-20 bg-rh-red/5 rounded-[2rem] flex items-center justify-center text-rh-red mx-auto mb-8">
+                <Trash2 className="w-10 h-10" />
+              </div>
+
+              <h2 className="text-2xl font-bold text-rh-teal mb-4 leading-tight">Delete Resume?</h2>
+              <p className="text-gray-500 text-sm font-medium mb-10 px-4">
+                Are you sure you want to delete this resume? This action is permanent and cannot be undone.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => setDeletingResumeId(null)}
+                  className="flex-1 py-4 bg-[#F4F7FA] text-rh-teal rounded-2xl text-sm font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4" /> Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteResume}
+                  className="flex-1 py-4 bg-rh-red text-white rounded-2xl text-sm font-bold shadow-xl shadow-rh-red/20 hover:bg-rh-red/90 transition-all flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete Permanently
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <style dangerouslySetInnerHTML={{
         __html: `

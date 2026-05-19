@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Zap, Globe2, Loader2, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Zap, Globe2, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { signUpPositionType } from '../data';
@@ -51,7 +51,6 @@ export default function SignUpEmployer() {
     setError(null);
     try {
       await authApi.signUpEmployer(data);
-      // Do NOT set credentials — user must verify email before signing in
       setIsSuccess(true);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed';
@@ -85,8 +84,9 @@ export default function SignUpEmployer() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-sm font-medium mb-8">
-              {error}
+            <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-sm font-medium mb-8 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -111,43 +111,71 @@ export default function SignUpEmployer() {
                   <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
-                      <input {...register('firstName')} placeholder="e.g. John" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.firstName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.firstName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.firstName.message}</p>}
+                      <input {...register('firstName')} placeholder="e.g. John" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.firstName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.firstName && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.firstName.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
-                      <input {...register('lastName')} placeholder="e.g. Doe" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.lastName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.lastName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.lastName.message}</p>}
+                      <input {...register('lastName')} placeholder="e.g. Doe" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.lastName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.lastName && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.lastName.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
-                      <input type="tel" {...register('businessPhone')} placeholder="+1 (555) 000-0000" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.businessPhone ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.businessPhone && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.businessPhone.message}</p>}
+                      <input type="tel" {...register('businessPhone')} placeholder="+1 (555) 000-0000" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.businessPhone && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.businessPhone.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Email</label>
-                      <input type="email" {...register('email')} placeholder="john@company.com" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email.message}</p>}
+                      <input type="email" {...register('email')} placeholder="john@company.com" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.email ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.email && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.email.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
                       <div className="relative">
-                        <input type={showPassword ? 'text' : 'password'} {...register('password')} placeholder="At least 8 characters" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                        <input type={showPassword ? 'text' : 'password'} {...register('password')} placeholder="At least 8 characters" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-red transition-colors">
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
-                      {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password.message}</p>}
+                      {errors.password && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
-                      <input {...register('companyName')} placeholder="e.g. Acme Corp" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.companyName ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.companyName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.companyName.message}</p>}
+                      <input {...register('companyName')} placeholder="e.g. Acme Corp" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.companyName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.companyName && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.companyName.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
-                      <input {...register('jobTitle')} placeholder="e.g. Hiring Manager" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitle ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.jobTitle && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.jobTitle.message}</p>}
+                      <input {...register('jobTitle')} placeholder="e.g. Hiring Manager" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitle ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.jobTitle && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.jobTitle.message}
+                        </motion.p>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -163,30 +191,44 @@ export default function SignUpEmployer() {
                   <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
-                      <input {...register('jobTitleToHire')} placeholder="e.g. Senior Backend Developer" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitleToHire ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.jobTitleToHire && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.jobTitleToHire.message}</p>}
+                      <input {...register('jobTitleToHire')} placeholder="e.g. Senior Backend Developer" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.jobTitleToHire ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.jobTitleToHire && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.jobTitleToHire.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
-                      <input {...register('zipCode')} placeholder="e.g. 10001" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.zipCode ? 'border-red-500' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
-                      {errors.zipCode && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.zipCode.message}</p>}
+                      <input {...register('zipCode')} placeholder="e.g. 10001" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.zipCode ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                      {errors.zipCode && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.zipCode.message}
+                        </motion.p>
+                      )}
                     </div>
                     <div className="sm:col-span-2 space-y-2">
                       <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
-                      <Controller
-                        name="positionType"
-                        control={control}
-                        render={({ field }) => (
-                          <Dropdown
-                            options={signUpPositionType}
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Select position type"
-                            className={`w-full border ${errors.positionType ? 'border-red-500' : 'border-transparent'}`}
-                          />
-                        )}
-                      />
-                      {errors.positionType && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.positionType.message}</p>}
+                      <div className={`rounded-2xl border ${errors.positionType ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+                        <Controller
+                          name="positionType"
+                          control={control}
+                          render={({ field }) => (
+                            <Dropdown
+                              options={signUpPositionType}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select position type"
+                              className="w-full"
+                            />
+                          )}
+                        />
+                      </div>
+                      {errors.positionType && (
+                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.positionType.message}
+                        </motion.p>
+                      )}
                     </div>
                   </div>
                 </section>

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Lock, CheckCircle2, ShieldCheck, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Lock, CheckCircle2, ShieldCheck, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { authApi } from '../lib/auth';
-import toast from 'react-hot-toast';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -16,32 +15,29 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password || !confirmPassword) return;
+    const newErrors: { password?: string; confirmPassword?: string; general?: string } = {};
 
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
+    if (!password) newErrors.password = 'Password is required.';
+    else if (password.length < 8) newErrors.password = 'Password must be at least 8 characters.';
 
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
+    if (!confirmPassword) newErrors.confirmPassword = 'Please confirm your password.';
+    else if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match.';
 
-    if (!token) {
-      toast.error('Invalid reset token');
-      return;
-    }
+    if (!token) newErrors.general = 'Invalid reset token.';
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
 
     setIsLoading(true);
     try {
-      await authApi.resetPassword({ token, newPassword: password });
+      await authApi.resetPassword({ token: token!, newPassword: password });
       setStep('success');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to reset password. The link may have expired.');
+    } catch (err: any) {
+      setErrors({ general: err.response?.data?.message || 'Failed to reset password. The link may have expired.' });
     } finally {
       setIsLoading(false);
     }
@@ -119,6 +115,13 @@ export default function ResetPassword() {
                   Enter your new password below to regain access to your account.
                 </p>
 
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-100 text-red-600 px-5 py-4 rounded-2xl text-sm font-medium mb-6 flex items-center gap-3 animate-shake">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <span>{errors.general}</span>
+                  </div>
+                )}
+
                 <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">New Password</label>
@@ -128,9 +131,9 @@ export default function ResetPassword() {
                         required
                         type={showPassword ? 'text' : 'password'}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors(prev => ({ ...prev, password: '' })); }}
                         placeholder="••••••••"
-                        className="w-full pl-14 pr-12 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base"
+                        className={`w-full pl-14 pr-12 py-4 bg-[#F4F7FA] border ${errors.password ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base`}
                       />
                       <button
                         type="button"
@@ -140,6 +143,11 @@ export default function ResetPassword() {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
+                    {errors.password && (
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password}
+                      </motion.p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -150,11 +158,16 @@ export default function ResetPassword() {
                         required
                         type={showPassword ? 'text' : 'password'}
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={(e) => { setConfirmPassword(e.target.value); if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' })); }}
                         placeholder="••••••••"
-                        className="w-full pl-14 pr-12 py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base"
+                        className={`w-full pl-14 pr-12 py-4 bg-[#F4F7FA] border ${errors.confirmPassword ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 font-medium text-sm md:text-base`}
                       />
                     </div>
+                    {errors.confirmPassword && (
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.confirmPassword}
+                      </motion.p>
+                    )}
                   </div>
 
                   <Button
