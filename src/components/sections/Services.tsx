@@ -18,7 +18,8 @@ export default function Services() {
   // For Talents, we redirect industry service clicks to jobs with a category filter
   const filteredServices = services.map(s => ({
     ...s,
-    link: isTalent ? `/jobs?category=${encodeURIComponent(s.title)}` : s.link
+    link: "/jobs"
+    // link: isTalent ? `/jobs?category=${encodeURIComponent(s.title)}` : s.link
   }));
 
   return (

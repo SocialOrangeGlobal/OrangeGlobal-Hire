@@ -10,7 +10,7 @@ export default function Cta() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   const isEmployer = isAuthenticated && user?.role === 'EMPLOYER';
-  const isTalent = isAuthenticated && user?.role === 'TALENT';
+  const isTalent = !isAuthenticated || (isAuthenticated && user?.role === 'TALENT');
 
   return (
     <section className="bg-rh-dark py-10 relative overflow-hidden">
@@ -40,7 +40,7 @@ export default function Cta() {
               : 'Partner with Orange Global to access the top 5% of industry professionals. Build teams that drive measurable business impact.'}
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row justify-center gap-4">
-            {(!isAuthenticated || isEmployer) && (
+            {isEmployer && (
               <Button
                 size="lg"
                 variant="primary"
@@ -50,7 +50,7 @@ export default function Cta() {
                 Hire Top Talent <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
             )}
-            {(!isAuthenticated || isTalent) && (
+            {isTalent && (
               <Button
                 size="lg"
                 variant="outline"

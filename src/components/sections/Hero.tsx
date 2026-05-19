@@ -9,7 +9,7 @@ export default function Hero() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   const showTalentCTA = !isAuthenticated || user?.role === 'TALENT';
-  const showEmployerCTA = !isAuthenticated || user?.role === 'EMPLOYER';
+  const showEmployerCTA = isAuthenticated && user?.role === 'EMPLOYER';
 
   return (
     <section className="relative bg-rh-dark flex items-center min-h-[90dvh] pt-16 overflow-hidden w-full">

@@ -85,7 +85,10 @@ export default function Navbar() {
   };
 
   const filteredNavItems = navItems.filter((item) => {
-    if (!isAuthenticated) return true;
+    if (!isAuthenticated) {
+      if (item.label === 'Hire Talent') return false;
+      return true;
+    }
     if (user?.role === 'EMPLOYER' && item.label === 'Find Jobs') return false;
     if (user?.role === 'TALENT' && item.label === 'Hire Talent') return false;
     return true;
@@ -494,7 +497,7 @@ export default function Navbar() {
                     </div>
 
                     <div className="space-y-3">
-                      <Link
+                      {/* <Link
                         to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'}
                         onClick={() => setMobileOpen(false)}
                         className="block w-full"
@@ -502,7 +505,7 @@ export default function Navbar() {
                         <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
                           <LayoutDashboard className="w-5 h-5" /> Dashboard
                         </Button>
-                      </Link>
+                      </Link> */}
                       <Link
                         to="/manage-profile"
                         onClick={() => setMobileOpen(false)}

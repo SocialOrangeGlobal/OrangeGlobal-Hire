@@ -1,8 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Linkedin, Twitter, Facebook, Mail, Phone, MapPin } from 'lucide-react';
 import { footerLinks, contactDetails } from '../../data';
+import { useAppSelector } from '../../store';
 
 export default function Footer() {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const filteredFooterLinks = Object.entries(footerLinks).filter(([group]) => {
+    if (!isAuthenticated && group === 'Services') return false;
+    return true;
+  });
+
   return (
     <footer className="bg-[#0A0D10] text-white border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-8">
@@ -48,7 +56,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          {Object.entries(footerLinks).map(([group, links]) => (
+          {filteredFooterLinks.map(([group, links]) => (
             <div key={group} className="flex flex-col text-center sm:text-left mt-8">
               <h3 className="font-bold text-xs uppercase tracking-[0.2em] text-white mb-8 border-b border-white/5 pb-3 inline-block sm:self-start">
                 {group}
