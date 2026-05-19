@@ -1596,7 +1596,7 @@ export default function ManageProfile() {
                   className="bg-white rounded-[2rem] sm:rounded-[40px] p-6 sm:p-10 shadow-sm border border-gray-100"
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 border-b border-gray-50 pb-6">
-                    <h3 className="text-2xl font-bold text-rh-teal">Update Information</h3>
+                    <h3 className="text-2xl font-bold text-rh-teal">Edit Profile Information</h3>
                     <div className="flex items-center gap-2 text-rh-red text-xs font-bold uppercase tracking-widest self-start sm:self-auto">
                       <Info className="w-4 h-4 shrink-0" />
                       Changes will be saved to your profile

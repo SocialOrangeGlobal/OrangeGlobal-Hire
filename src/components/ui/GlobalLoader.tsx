@@ -72,7 +72,7 @@ export const GlobalLoaderProvider: React.FC<{ children: ReactNode }> = ({ childr
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 mb-6 sm:mb-8 flex items-center justify-center">
                 {/* Brand-red glow background */}
                 <div className="absolute inset-0 bg-rh-red/20 rounded-full blur-xl animate-pulse" />
-                
+
                 {/* Rotating track spinner */}
                 <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   <circle
@@ -127,14 +127,14 @@ export const GlobalLoaderProvider: React.FC<{ children: ReactNode }> = ({ childr
               >
                 {message}
               </motion.h3>
-              
+
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.6 }}
                 transition={{ delay: 0.2 }}
                 className="text-white/60 text-xs font-semibold tracking-widest uppercase"
               >
-                Orange Global Staffing
+                Orange Global
               </motion.p>
             </motion.div>
           </motion.div>
