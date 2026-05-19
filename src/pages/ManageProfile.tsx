@@ -750,7 +750,8 @@ export default function ManageProfile() {
     try {
       const timestamp = Date.now();
       const fileName = `${user?.id}-${timestamp}-${file.name}`;
-      const url = await uploadFile(file, 'profile-pictures', fileName);
+      const folder = user?.role === 'TALENT' ? 'profile-pictures' : 'company-logo';
+      const url = await uploadFile(file, folder, fileName);
 
       // Update both forms just in case
       talentForm.setValue('avatarUrl', url);
@@ -2167,7 +2168,7 @@ export default function ManageProfile() {
                                 if (file) {
                                   try {
                                     setSaving(true);
-                                    const url = await uploadFile(file, 'profile-pictures', `${user?.id}-${Date.now()}-${file.name}`);
+                                    const url = await uploadFile(file, 'company-logo', `${user?.id}-${Date.now()}-${file.name}`);
                                     employerForm.setValue('companyLogo', url);
                                     await authApi.updateProfile({ companyLogo: url, avatarUrl: url });
                                     dispatch(updateProfileSuccess({ avatarUrl: url }));
