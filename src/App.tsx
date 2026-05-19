@@ -50,7 +50,16 @@ function App() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Scroll the main window to the very top instantly
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+
+    // Instantly reset the scroll positions of any scrollable container layouts or panels (dashboards, forms, templates)
+    const scrollableElements = document.querySelectorAll(
+      'main, [class*="overflow-y-"], .custom-scrollbar, #signup-container, .dashboard-container'
+    );
+    scrollableElements.forEach((el) => {
+      el.scrollTop = 0;
+    });
   }, [pathname]);
 
   return (

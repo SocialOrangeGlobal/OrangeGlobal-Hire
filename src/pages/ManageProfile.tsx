@@ -32,7 +32,7 @@ const talentUpdateSchema = z.object({
     degree: z.string().min(1, 'Degree is required'),
     year: z.string().min(4, 'Valid year required'),
   })),
-  skills: z.array(z.string()).min(1, 'Please add at least one skill'),
+  skills: z.array(z.string()).max(25, 'You can add a maximum of 25 skills'),
   experiences: z.array(z.object({
     title: z.string().min(1, 'Job title is required'),
     company: z.string().min(1, 'Company is required'),
@@ -81,12 +81,12 @@ const talentUpdateSchema = z.object({
   medicalBackgroundCheck: z.string().optional(),
   criminalConvictions: z.string().optional(),
   criminalDetails: z.string().optional(),
-  passportUrl: z.string().optional(),
-  visaUrl: z.string().optional(),
-  eduCertUrl: z.string().optional(),
-  empCertUrl: z.string().optional(),
-  englishTestUrl: z.string().optional(),
-  licenceUrl: z.string().optional(),
+  passportUrl: z.string().min(1, 'Passport document is required'),
+  visaUrl: z.string().min(1, 'Visa / Residency permit document is required'),
+  eduCertUrl: z.string().min(1, 'Educational certificates are required'),
+  empCertUrl: z.string().min(1, 'Employment certificates are required'),
+  englishTestUrl: z.string().min(1, 'English test results are required'),
+  licenceUrl: z.string().min(1, 'Professional licences / certifications are required'),
   declarationTrue: z.string().optional(),
   declarationConsent: z.string().optional(),
 });
@@ -148,6 +148,71 @@ const formatDateBeautifully = (dateStr: any): string => {
   }
 };
 
+const calculateDynamicProfileScore = (profileData: any): number => {
+  if (!profileData) return 0;
+
+  let score = 0;
+
+  // 1. Personal & Contact Details (Weight: 20)
+  const personalFields = [
+    profileData.fullName,
+    profileData.dob,
+    profileData.nationality,
+    profileData.countryOfResidence
+  ];
+  const personalFilledCount = personalFields.filter(Boolean).length;
+  score += (personalFilledCount / personalFields.length) * 20;
+
+  // 2. Job Preferences / Employment Preferences (Weight: 15)
+  const prefFields = [
+    profileData.opportunityType,
+    profileData.preferredIndustry,
+    profileData.preferredRole
+  ];
+  const prefFilledCount = prefFields.filter(Boolean).length;
+  score += (prefFilledCount / prefFields.length) * 15;
+
+  // 3. Current Employment & History (Weight: 15)
+  if (profileData.isEmployed === 'Yes') {
+    const empFields = [
+      profileData.jobTitle,
+      profileData.employerName,
+      profileData.totalExp
+    ];
+    const empFilledCount = empFields.filter(Boolean).length;
+    score += (empFilledCount / empFields.length) * 15;
+  } else if (profileData.isEmployed === 'No') {
+    score += 15;
+  } else {
+    score += 5; // Partial credit
+  }
+
+  // 4. Expertise & Skills (Weight: 15)
+  if (profileData.skills && profileData.skills.length > 0) {
+    if (profileData.skills.length >= 4) {
+      score += 15;
+    } else {
+      score += 8; // Partial score for 1-3 skills
+    }
+  }
+
+  // 5. Education & Qualifications (Weight: 15)
+  const eduFields = [
+    profileData.highestQualification,
+    profileData.fieldOfStudy,
+    profileData.institutionName
+  ];
+  const eduFilledCount = eduFields.filter(Boolean).length;
+  score += (eduFilledCount / eduFields.length) * 15;
+
+  // 6. Resumes (Weight: 20)
+  if (profileData.resumes && profileData.resumes.length > 0) {
+    score += 20;
+  }
+
+  return Math.min(100, Math.max(0, Math.round(score)));
+};
+
 export default function ManageProfile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -166,6 +231,8 @@ export default function ManageProfile() {
   const [openSection, setOpenSection] = useState<string>('personal');
   const [selectedDoc, setSelectedDoc] = useState<{ url: string; title: string } | null>(null);
   const [deletingResumeId, setDeletingResumeId] = useState<string | null>(null);
+  const [docUploadStates, setDocUploadStates] = useState<Record<string, 'success' | 'failed'>>({});
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   const handleDocumentUpload = async (field: string, file: File, folder: string) => {
     try {
@@ -174,8 +241,10 @@ export default function ManageProfile() {
       const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
       const url = await uploadFile(file, folder, fileName);
       talentForm.setValue(field as any, url, { shouldDirty: true });
+      setDocUploadStates(prev => ({ ...prev, [field]: 'success' }));
       toast.success('Document uploaded successfully!');
     } catch (err: any) {
+      setDocUploadStates(prev => ({ ...prev, [field]: 'failed' }));
       toast.error('Failed to upload document: ' + (err.message || err));
     } finally {
       setSaving(false);
@@ -259,49 +328,104 @@ export default function ManageProfile() {
   const renderEditDocUpload = (label: string, name: string, folder: string, accept: string = ".pdf,.doc,.docx,.jpg,.jpeg,.png") => {
     const url = talentForm.watch(name as any);
     const inputId = `doc-upload-${name}`;
+    const error = (talentForm.formState.errors as any)[name];
+    const sessionState = docUploadStates[name] || 'idle';
+
+    let cardClass = 'border-rh-teal/5 bg-[#F9FBFF]';
+    let blurClass = 'bg-rh-teal/5';
+    let iconClass = 'bg-white text-rh-teal border-gray-50';
+    let iconElement = <FileText className="w-7 h-7" />;
+    let textElement = url ? (
+      <p className="text-xs text-gray-500 font-medium">Update your uploaded {label.toLowerCase()} document here</p>
+    ) : (
+      <p className="text-xs text-gray-500 font-medium">No document uploaded yet</p>
+    );
+    let buttonClass = 'border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white text-rh-teal';
+    let buttonText = url ? 'Update' : 'Upload';
+
+    if (error) {
+      cardClass = 'border-red-500 bg-red-50/10';
+      blurClass = 'bg-red-500/5';
+    } else if (sessionState === 'success') {
+      cardClass = 'border-emerald-500/30 bg-emerald-50/20';
+      blurClass = 'bg-emerald-500/5';
+      iconClass = 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/10';
+      iconElement = <CheckCircle className="w-7 h-7 animate-pulse" />;
+      textElement = (
+        <p className="text-emerald-600 text-xs font-bold flex items-center gap-1.5 mt-0.5 animate-fadeIn">
+          <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" /> Document uploaded successfully
+        </p>
+      );
+      buttonClass = 'border-emerald-500/20 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white text-emerald-600';
+      buttonText = 'Update';
+    } else if (sessionState === 'failed') {
+      cardClass = 'border-red-500 bg-red-50/10';
+      blurClass = 'bg-red-500/5';
+      iconClass = 'bg-red-500 text-white border-red-500 shadow-red-500/10';
+      iconElement = <AlertCircle className="w-7 h-7" />;
+      textElement = (
+        <p className="text-red-600 text-xs font-bold flex items-center gap-1.5 mt-0.5 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" /> Upload failed. Please try again.
+        </p>
+      );
+      buttonClass = 'border-red-500/20 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-600';
+      buttonText = 'Try Again';
+    }
+
     return (
-      <div className="p-4 sm:p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 w-full xl:w-auto min-w-0">
-          <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-rh-teal border border-gray-50 shrink-0">
-            <FileText className="w-6 h-6" />
+      <div className="space-y-1 w-full animate-fadeIn">
+        <div className={`rounded-[2rem] p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 transition-all ${cardClass}`}>
+          <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none ${blurClass}`} />
+
+          <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
+            <div className={`w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center border shrink-0 transition-all ${iconClass}`}>
+              {iconElement}
+            </div>
+            <div>
+              <h4 className="text-lg font-bold text-rh-teal mb-0.5">
+                {label} <span className="text-red-500">*</span>
+              </h4>
+              {textElement}
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h5 className="font-bold text-rh-teal text-sm leading-tight mb-1">{label}</h5>
-            <p className="text-[10px] text-gray-400 font-medium">Click button to upload replacement file</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 w-full xl:w-auto justify-end">
-          <input
-            id={inputId}
-            type="file"
-            className="hidden"
-            accept={accept}
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                await handleDocumentUpload(name, file, folder);
-              }
-            }}
-          />
-          <Button
-            type="button"
-            onClick={() => document.getElementById(inputId)?.click()}
-            variant="outline"
-            className="flex-1 xl:flex-none px-4 py-2 border border-gray-200 hover:border-rh-teal hover:bg-rh-teal hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center whitespace-nowrap"
-          >
-            <Upload className="w-3.5 h-3.5 mr-1" /> Upload
-          </Button>
-          {url && (
-            <button
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 relative z-10">
+            <input
+              id={inputId}
+              type="file"
+              className="hidden"
+              accept={accept}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  await handleDocumentUpload(name, file, folder);
+                }
+              }}
+            />
+            <Button
               type="button"
-              onClick={() => setSelectedDoc({ url, title: label })}
-              className="p-2 text-gray-400 hover:text-rh-teal bg-gray-50 hover:bg-rh-light rounded-xl transition-all shrink-0"
-              title="View File"
+              onClick={() => document.getElementById(inputId)?.click()}
+              variant="outline"
+              className={`w-full sm:w-auto px-6 py-3 border-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center ${buttonClass}`}
             >
-              <Target className="w-4 h-4" />
-            </button>
-          )}
+              <Upload className="w-4 h-4 mr-2" /> {buttonText}
+            </Button>
+            {url && (
+              <button
+                type="button"
+                onClick={() => setSelectedDoc({ url, title: label })}
+                className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                <Target className="w-4 h-4" /> View
+              </button>
+            )}
+          </div>
         </div>
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message as string}
+          </motion.p>
+        )}
       </div>
     );
   };
@@ -450,12 +574,84 @@ export default function ManageProfile() {
       const avatarUpdate = isTalent ? data.avatarUrl : data.companyLogo;
       dispatch(updateProfileSuccess({ fullName: nameUpdate, avatarUrl: avatarUpdate }));
 
+      toast.success('Profile updated successfully!');
       await fetchProfile();
       setActiveTab('overview');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Update failed', err);
+      toast.error(err.response?.data?.message || 'Failed to update profile. Please verify that all required fields and documents are completed.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const onUpdateError = (errors: any) => {
+    console.error('Validation errors:', errors);
+    toast.error('Please check all sections. Some required details or documents are missing.');
+
+    if (isTalent) {
+      const errorKeys = Object.keys(errors);
+      if (errorKeys.length > 0) {
+        const firstError = errorKeys[0];
+        const fieldToSection: Record<string, string> = {
+          fullName: 'personal',
+          dob: 'personal',
+          age: 'personal',
+          gender: 'personal',
+          nationality: 'personal',
+          countryOfResidence: 'personal',
+          whatsapp: 'personal',
+          linkedin: 'personal',
+
+          opportunityType: 'preferences',
+          preferredIndustry: 'preferences',
+          preferredRole: 'preferences',
+          preferredSalary: 'preferences',
+          startDate: 'preferences',
+
+          isEmployed: 'current',
+          jobTitle: 'current',
+          employerName: 'current',
+          totalExp: 'current',
+          summary: 'current',
+
+          skills: 'skills',
+
+          highestQualification: 'education',
+          fieldOfStudy: 'education',
+          institutionName: 'education',
+          graduationYear: 'education',
+          hasLicences: 'education',
+
+          englishTest: 'language',
+          overallScore: 'language',
+
+          relocateAloneOrFamily: 'relocation',
+          validPassport: 'relocation',
+          passportExpiry: 'relocation',
+          medicalBackgroundCheck: 'relocation',
+          criminalConvictions: 'relocation',
+
+          resumeUrl: 'documents',
+          passportUrl: 'documents',
+          visaUrl: 'documents',
+          eduCertUrl: 'documents',
+          empCertUrl: 'documents',
+          englishTestUrl: 'documents',
+          licenceUrl: 'documents',
+        };
+
+        const targetSection = fieldToSection[firstError];
+        if (targetSection) {
+          setOpenSection(targetSection);
+          setTimeout(() => {
+            const firstErrorEl = document.getElementsByName(firstError)[0] || document.getElementById('doc-upload-' + firstError);
+            if (firstErrorEl) {
+              firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 150);
+        }
+      }
     }
   };
 
@@ -521,10 +717,18 @@ export default function ManageProfile() {
   };
 
   const addSkill = () => {
-    if (skillInput.trim() && !watchedSkills.includes(skillInput.trim())) {
-      talentForm.setValue('skills', [...watchedSkills, skillInput.trim()], { shouldValidate: true });
-      setSkillInput('');
+    const newSkill = skillInput.trim();
+    if (!newSkill) return;
+    if (watchedSkills.length >= 25) {
+      toast.error('You can add a maximum of 25 skills.');
+      return;
     }
+    if (watchedSkills.includes(newSkill)) {
+      toast.error('This skill is already added.');
+      return;
+    }
+    talentForm.setValue('skills', [...watchedSkills, newSkill], { shouldValidate: true });
+    setSkillInput('');
   };
 
   const removeSkill = (skill: string) => {
@@ -556,6 +760,7 @@ export default function ManageProfile() {
       // User expected it to be "allowed", usually immediate is better for profile pics
       await authApi.updateProfile({ avatarUrl: url, companyLogo: url });
       dispatch(updateProfileSuccess({ avatarUrl: url }));
+      setAvatarFailed(false);
 
       // Refresh profile data
       fetchProfile();
@@ -575,7 +780,7 @@ export default function ManageProfile() {
     );
   }
 
-  const completion = profile?.profileScore || (isTalent ? 85 : 90);
+  const completion = isTalent ? calculateDynamicProfileScore(profile) : (profile?.profileScore || 90);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] pt-24 pb-20">
@@ -598,11 +803,18 @@ export default function ManageProfile() {
                     <Loader2 className="w-8 h-8 text-white animate-spin" />
                   </div>
                 )}
-                <img
-                  src={profile?.avatarUrl || profile?.companyLogo || `https://i.pravatar.cc/300?u=${user?.email}`}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                {(profile?.avatarUrl || profile?.companyLogo) && !avatarFailed ? (
+                  <img
+                    src={profile.avatarUrl || profile.companyLogo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarFailed(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-rh-teal flex items-center justify-center text-white font-bold text-5xl sm:text-6xl shadow-inner animate-fadeIn">
+                    {(isTalent ? profile?.fullName : `${profile?.firstName} ${profile?.lastName}` || user?.email || 'U')[0]?.toUpperCase()}
+                  </div>
+                )}
               </div>
               <label className="absolute -bottom-2 -right-2 p-4 bg-rh-red text-white rounded-2xl shadow-xl hover:bg-[#B41419] transition-all hover:scale-110 cursor-pointer z-30">
                 <Camera className="w-5 h-5" />
@@ -625,24 +837,32 @@ export default function ManageProfile() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-gray-500 font-medium">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-gray-500 font-medium mt-1">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-rh-red" />
-                  <span className="text-sm">{user?.email}</span>
+                  <span className="text-sm">{user?.email || profile?.workEmail || profile?.businessEmail}</span>
                 </div>
-                {profile?.phone && (
+                {(profile?.phone || profile?.businessPhone) && (
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-rh-red" />
-                    <span className="text-sm">{profile.phone || profile.businessPhone}</span>
+                    <span className="text-sm">{profile?.phone || profile?.businessPhone}</span>
                   </div>
                 )}
-                {profile?.location && (
+                {(profile?.jobTitle || profile?.preferredRole) && (
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-rh-red" />
+                    <span className="text-sm">{profile?.jobTitle || profile?.preferredRole}</span>
+                  </div>
+                )}
+                {(profile?.location || profile?.zipCode) && (
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-rh-red" />
                     <span className="text-sm">
                       {isTalent
-                        ? `${profile.location.city}, ${profile.location.country}`
-                        : profile.zipCode}
+                        ? (profile?.location && typeof profile.location === 'object'
+                          ? `${profile.location.city || ''}, ${profile.location.country || ''}`
+                          : (profile?.location || 'Not specified'))
+                        : (profile?.zipCode || 'Not specified')}
                     </span>
                   </div>
                 )}
@@ -727,6 +947,75 @@ export default function ManageProfile() {
                 >
                   {isTalent ? (
                     <>
+                      {/* Profile Action Center */}
+                      {((!profile?.skills || profile.skills.length < 4) || (!profile?.resumes || profile.resumes.length === 0)) && (
+                        <div className="bg-white rounded-[2rem] p-6 sm:p-8 shadow-md border-2 border-rh-red/20 space-y-4">
+                          <h3 className="text-md sm:text-lg font-bold text-rh-teal flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5 text-rh-red" /> Complete Your Profile
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-500 font-medium leading-relaxed">
+                            Your profile is currently incomplete. To unlock full recruitment matching and allow global employers to find you, please complete the following steps:
+                          </p>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {(!profile?.skills || profile.skills.length < 4) && (
+                              <div className="p-5 bg-rh-red/5 border border-rh-red/10 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rh-red border border-rh-red/10 shrink-0">
+                                    <Star className="w-5 h-5 animate-pulse" />
+                                  </div>
+                                  <div className="text-center sm:text-left">
+                                    <h4 className="text-xs font-bold text-rh-teal">
+                                      {!profile?.skills || profile.skills.length === 0 ? 'Add Skills' : 'Add More Skills'}
+                                    </h4>
+                                    <p className="text-[10px] text-gray-400 font-medium">
+                                      {!profile?.skills || profile.skills.length === 0
+                                        ? 'Domain expertise is missing'
+                                        : `Excellent start (${profile?.skills?.length} added)! Add more to reach 100%`}
+                                    </p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setActiveTab('edit');
+                                    setOpenSection('skills');
+                                    setTimeout(() => {
+                                      const el = document.getElementById('skills-accordion-trigger');
+                                      if (el) {
+                                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                      }
+                                    }, 150);
+                                  }}
+                                  className="px-4 py-2 bg-rh-teal text-white rounded-lg text-[10px] font-bold shadow hover:bg-[#0E8A8F] transition-all whitespace-nowrap"
+                                >
+                                  {!profile?.skills || profile.skills.length === 0 ? 'Add Now' : 'Optimize Now'}
+                                </button>
+                              </div>
+                            )}
+
+                            {(!profile?.resumes || profile.resumes.length === 0) && (
+                              <div className="p-5 bg-rh-red/5 border border-rh-red/10 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rh-red border border-rh-red/10 shrink-0">
+                                    <FileText className="w-5 h-5 animate-pulse" />
+                                  </div>
+                                  <div className="text-center sm:text-left">
+                                    <h4 className="text-xs font-bold text-rh-teal">Upload Resume</h4>
+                                    <p className="text-[10px] text-gray-400 font-medium">CV is required for applications</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setActiveTab('resume');
+                                  }}
+                                  className="px-4 py-2 bg-rh-teal text-white rounded-lg text-[10px] font-bold shadow hover:bg-[#0E8A8F] transition-all whitespace-nowrap"
+                                >
+                                  Upload Now
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Personal & Contact Details */}
                       <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
@@ -891,15 +1180,69 @@ export default function ManageProfile() {
                             <Star className="w-6 h-6 text-rh-red" /> Expertise & Skills
                           </h3>
                         </div>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-col gap-6 w-full">
                           {profile?.skills && profile.skills.length > 0 ? (
-                            profile.skills.map((skill: string) => (
-                              <span key={skill} className="px-6 py-3 bg-rh-light text-rh-teal rounded-2xl text-xs font-bold border border-rh-teal/5">
-                                {skill}
-                              </span>
-                            ))
+                            <>
+                              <div className="flex flex-wrap gap-3">
+                                {profile.skills.map((skill: string) => (
+                                  <span key={skill} className="px-6 py-3 bg-rh-light text-rh-teal rounded-2xl text-xs font-bold border border-rh-teal/5">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+
+                              {profile.skills.length < 4 && (
+                                <div className="w-full p-6 sm:p-8 bg-rh-red/5 rounded-3xl border border-rh-red/10 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left transition-all hover:bg-rh-red/[0.07] animate-fadeIn">
+                                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rh-red shadow-sm shrink-0 border border-rh-red/10">
+                                    <Star className="w-6 h-6 animate-pulse" />
+                                  </div>
+                                  <div className="flex-1 space-y-1">
+                                    <h4 className="text-base font-bold text-rh-teal">Add More Skills & Expertise</h4>
+                                    <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-xl">
+                                      Great start! You have added {profile.skills.length} skills. Please add at least 4 skills to optimize your profile to 100% completion and allow recruiters to discover your expertise!
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setActiveTab('edit');
+                                      setOpenSection('skills');
+                                      setTimeout(() => {
+                                        const el = document.getElementById('skills-accordion-trigger');
+                                        if (el) {
+                                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }
+                                      }, 150);
+                                    }}
+                                    className="px-5 py-2.5 bg-rh-teal text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#0E8A8F] transition-all whitespace-nowrap"
+                                  >
+                                    Add More Now
+                                  </button>
+                                </div>
+                              )}
+                            </>
                           ) : (
-                            <p className="text-gray-400 font-medium text-sm">No skills added yet.</p>
+                            <div className="w-full p-6 sm:p-8 bg-rh-red/5 rounded-3xl border border-rh-red/10 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left transition-all hover:bg-rh-red/[0.07]">
+                              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rh-red shadow-sm shrink-0 border border-rh-red/10">
+                                <Star className="w-6 h-6 animate-pulse" />
+                              </div>
+                              <div className="flex-1 space-y-1">
+                                <h4 className="text-base font-bold text-rh-teal">Add Your Expertise & Skills</h4>
+                                <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-xl">
+                                  Highlight your core technical capabilities and domain expertise. Adding at least one skill increases profile visibility by 40% and is required to unlock your full Profile Completion Score.
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setActiveTab('edit');
+                                  setTimeout(() => {
+                                    document.getElementById('skills-accordion-trigger')?.scrollIntoView({ behavior: 'smooth' });
+                                  }, 150);
+                                }}
+                                className="px-5 py-2.5 bg-rh-teal text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#0E8A8F] transition-all whitespace-nowrap"
+                              >
+                                Add Skills Now
+                              </button>
+                            </div>
                           )}
                         </div>
                       </section>
@@ -1181,31 +1524,63 @@ export default function ManageProfile() {
                   ) : (
                     <>
                       {/* Employer Overview */}
-                      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
-                        <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
-                            <Briefcase className="w-6 h-6 text-rh-red" /> Company Details
-                          </h3>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-8">
-                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Company Name</p>
-                            <p className="text-lg font-bold text-rh-teal">{profile?.companyName}</p>
+                      <div className="space-y-8">
+                        {/* Contact Representative Details Card */}
+                        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100 animate-fadeIn">
+                          <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                              <User className="w-6 h-6 text-rh-red" />Personal Details
+                            </h3>
                           </div>
-                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Job Title</p>
-                            <p className="text-lg font-bold text-rh-teal">{profile?.jobTitle}</p>
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Full Name</p>
+                              <p className="text-base font-bold text-rh-teal">
+                                {[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Not specified'}
+                              </p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Job Title</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.jobTitle || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Job Title to Hire</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.jobTitleToHire || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Business Email</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.businessEmail || user?.email || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Business Phone</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.businessPhone || 'Not specified'}</p>
+                            </div>
                           </div>
-                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hiring Needs</p>
-                            <p className="text-lg font-bold text-rh-teal">{profile?.jobTitleToHire}</p>
+                        </section>
+
+                        {/* Company Profile Card */}
+                        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100 animate-fadeIn">
+                          <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-2 sm:gap-3">
+                              <Briefcase className="w-6 h-6 text-rh-red" /> Company Profile
+                            </h3>
                           </div>
-                          <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Position Type</p>
-                            <p className="text-lg font-bold text-rh-teal">{profile?.positionType}</p>
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Company Name</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.companyName || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-[#F9FBFF] rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Position Type</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.positionType || 'Not specified'}</p>
+                            </div>
+                            <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Zip Code / Location</p>
+                              <p className="text-base font-bold text-rh-teal">{profile?.zipCode || 'Not specified'}</p>
+                            </div>
                           </div>
-                        </div>
-                      </section>
+                        </section>
+                      </div>
                     </>
                   )}
                 </motion.div>
@@ -1228,7 +1603,7 @@ export default function ManageProfile() {
                   </div>
 
                   {isTalent ? (
-                    <form onSubmit={talentForm.handleSubmit(onUpdateSubmit)} className="space-y-10">
+                    <form onSubmit={talentForm.handleSubmit(onUpdateSubmit, onUpdateError)} className="space-y-10">
                       <input type="hidden" {...talentForm.register('avatarUrl')} />
                       <input type="hidden" {...talentForm.register('resumeUrl')} />
 
@@ -1381,8 +1756,9 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 4. Expertise & Skills */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div id="skills-accordion-section" className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
                           <button
+                            id="skills-accordion-trigger"
                             type="button"
                             onClick={() => setOpenSection(openSection === 'skills' ? '' : 'skills')}
                             className="w-full flex items-center justify-between px-5 sm:px-8 py-4 sm:py-6 bg-gray-50/50 hover:bg-gray-50 transition-all font-bold text-rh-teal text-base border-b border-gray-100/50"
@@ -1608,86 +1984,133 @@ export default function ManageProfile() {
                           {openSection === 'documents' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               {/* Resume Section inside documents */}
-                              <div className="bg-[#F9FBFF] rounded-[2rem] p-8 border border-rh-teal/5 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-rh-teal/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+                              {/* Resume Section inside documents */}
+                              {(() => {
+                                const url = talentForm.watch('resumeUrl');
+                                const sessionState = docUploadStates['resumeUrl'] || 'idle';
+                                const hasResume = !!url;
 
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rh-teal">
-                                      <FileText className="w-7 h-7" />
+                                let cardClass = 'border-rh-teal/5 bg-[#F9FBFF]';
+                                let blurClass = 'bg-rh-teal/5';
+                                let iconClass = 'bg-white text-rh-teal border-gray-50';
+                                let iconElement = <FileText className="w-7 h-7" />;
+                                let textElement = hasResume ? (
+                                  <p className="text-xs text-gray-500 font-medium">Update your professional CV here</p>
+                                ) : (
+                                  <p className="text-xs text-gray-500 font-medium">No resume uploaded yet</p>
+                                );
+                                let buttonClass = 'border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white text-rh-teal';
+                                let buttonText = hasResume ? 'Update' : 'Upload';
+
+                                if (sessionState === 'success') {
+                                  cardClass = 'border-emerald-500/30 bg-emerald-50/20';
+                                  blurClass = 'bg-emerald-500/5';
+                                  iconClass = 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/10';
+                                  iconElement = <CheckCircle className="w-7 h-7 animate-pulse" />;
+                                  textElement = (
+                                    <p className="text-emerald-600 text-xs font-bold flex items-center gap-1.5 mt-0.5 animate-fadeIn">
+                                      <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" /> Resume uploaded successfully
+                                    </p>
+                                  );
+                                  buttonClass = 'border-emerald-500/20 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white text-emerald-600';
+                                  buttonText = 'Update';
+                                } else if (sessionState === 'failed') {
+                                  cardClass = 'border-red-500 bg-red-50/10';
+                                  blurClass = 'bg-red-500/5';
+                                  iconClass = 'bg-red-500 text-white border-red-500 shadow-red-500/10';
+                                  iconElement = <AlertCircle className="w-7 h-7" />;
+                                  textElement = (
+                                    <p className="text-red-600 text-xs font-bold flex items-center gap-1.5 mt-0.5 animate-fadeIn">
+                                      <AlertCircle className="w-4 h-4 text-red-500 shrink-0" /> Upload failed. Please try again.
+                                    </p>
+                                  );
+                                  buttonClass = 'border-red-500/20 hover:border-red-500 hover:bg-red-500 hover:text-white text-red-600';
+                                  buttonText = 'Try Again';
+                                }
+
+                                return (
+                                  <div className={`rounded-[2rem] p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 transition-all ${cardClass}`}>
+                                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none ${blurClass}`} />
+
+                                    <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
+                                      <div className={`w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center border shrink-0 transition-all ${iconClass}`}>
+                                        {iconElement}
+                                      </div>
+                                      <div>
+                                        <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume <span className="text-red-500">*</span></h4>
+                                        {textElement}
+                                      </div>
                                     </div>
-                                    <div>
-                                      <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume</h4>
-                                      <p className="text-xs text-gray-500 font-medium">Update your professional CV here</p>
-                                    </div>
-                                  </div>
 
-                                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0">
-                                    <input
-                                      id="resume-upload-edit"
-                                      type="file"
-                                      className="hidden"
-                                      accept=".pdf,.doc,.docx"
-                                      onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                          if ((profile?.resumes?.length || 0) >= 5) {
-                                            toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
-                                            return;
-                                          }
-                                          try {
-                                            setSaving(true);
-                                            const timestamp = Date.now();
-                                            const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
-                                            const url = await uploadFile(file, 'resumes', fileName);
-                                            talentForm.setValue('resumeUrl', url, { shouldDirty: true });
-
-                                            // Add to resumes list & calculate ATS score
-                                            const newResume = await authApi.addResume({
-                                              fileName: file.name,
-                                              fileUrl: url,
-                                            });
-                                            if (newResume?.atsScore) {
-                                              setResumeScore(newResume.atsScore);
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 relative z-10">
+                                      <input
+                                        id="resume-upload-edit"
+                                        type="file"
+                                        className="hidden"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={async (e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            if ((profile?.resumes?.length || 0) >= 5) {
+                                              toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
+                                              return;
                                             }
-                                            await fetchProfile();
-                                            toast.success('Resume uploaded successfully!');
-                                          } catch (err: any) {
-                                            toast.error(err.response?.data?.message || 'Failed to upload resume');
-                                          } finally {
-                                            setSaving(false);
+                                            try {
+                                              setSaving(true);
+                                              const timestamp = Date.now();
+                                              const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+                                              const url = await uploadFile(file, 'resumes', fileName);
+                                              talentForm.setValue('resumeUrl', url, { shouldDirty: true });
+
+                                              // Add to resumes list & calculate ATS score
+                                              const newResume = await authApi.addResume({
+                                                fileName: file.name,
+                                                fileUrl: url,
+                                              });
+                                              if (newResume?.atsScore) {
+                                                setResumeScore(newResume.atsScore);
+                                              }
+                                              setDocUploadStates(prev => ({ ...prev, resumeUrl: 'success' }));
+                                              await fetchProfile();
+                                              toast.success('Resume uploaded successfully!');
+                                            } catch (err: any) {
+                                              setDocUploadStates(prev => ({ ...prev, resumeUrl: 'failed' }));
+                                              toast.error(err.response?.data?.message || 'Failed to upload resume');
+                                            } finally {
+                                              setSaving(false);
+                                            }
                                           }
-                                        }
-                                      }}
-                                    />
-                                    <Button
-                                      type="button"
-                                      onClick={() => document.getElementById('resume-upload-edit')?.click()}
-                                      variant="outline"
-                                      className="w-full sm:w-auto px-6 py-3 border-2 border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center"
-                                    >
-                                      <Upload className="w-4 h-4 mr-2" /> Upload New
-                                    </Button>
-
-                                    {talentForm.watch('resumeUrl') && (
-                                      <button
+                                        }}
+                                      />
+                                      <Button
                                         type="button"
-                                        onClick={() => setSelectedDoc({ url: talentForm.watch('resumeUrl') || '', title: 'Your Resume' })}
-                                        className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                        onClick={() => document.getElementById('resume-upload-edit')?.click()}
+                                        variant="outline"
+                                        className={`w-full sm:w-auto px-6 py-3 border-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center ${buttonClass}`}
                                       >
-                                        <Target className="w-4 h-4" /> View Current
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
+                                        <Upload className="w-4 h-4 mr-2" /> {buttonText}
+                                      </Button>
 
-                              <div className="grid md:grid-cols-2 gap-6 pt-4">
+                                      {hasResume && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedDoc({ url: talentForm.watch('resumeUrl') || '', title: 'Your Resume' })}
+                                          className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                        >
+                                          <Target className="w-4 h-4" /> View
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
+                              <div className="space-y-6 pt-4">
                                 {renderEditDocUpload("Passport Copy (Bio-Data Page)", "passportUrl", "talent-documents")}
                                 {renderEditDocUpload("Current Visa / Residency Permit / Work Permit", "visaUrl", "talent-documents")}
                                 {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents")}
                                 {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents")}
-                                {renderEditDocUpload("English Test Results (if available)", "englishTestUrl", "talent-documents")}
+                                {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents")}
                                 {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents")}
                               </div>
                             </div>
@@ -1705,7 +2128,7 @@ export default function ManageProfile() {
                       </div>
                     </form>
                   ) : (
-                    <form onSubmit={employerForm.handleSubmit(onUpdateSubmit)} className="space-y-10">
+                    <form onSubmit={employerForm.handleSubmit(onUpdateSubmit, onUpdateError)} className="space-y-10">
                       <input type="hidden" {...employerForm.register('companyLogo')} />
                       {/* Employer Avatar Upload */}
                       <div className="bg-rh-light/30 rounded-[2rem] p-8 border border-rh-teal/5 relative overflow-hidden">
@@ -1786,6 +2209,15 @@ export default function ManageProfile() {
                               <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.businessPhone.message}
                             </motion.p>
                           )}
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Email (Registered / Non-editable)</label>
+                          <input
+                            type="text"
+                            value={profile?.businessEmail || user?.email || ''}
+                            disabled
+                            className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-400 cursor-not-allowed font-medium shadow-inner"
+                          />
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
@@ -1871,6 +2303,20 @@ export default function ManageProfile() {
                       <h3 className="text-3xl font-bold text-rh-teal mb-4">Resume Intelligence</h3>
                       <p className="text-gray-500 font-medium leading-relaxed">Upload your resume to get an AI-powered score and see how you rank against global benchmarks.</p>
                     </div>
+
+                    {(!profile?.resumes || profile.resumes.length === 0) && (
+                      <div className="w-full p-6 sm:p-8 bg-rh-red/5 rounded-3xl border border-rh-red/10 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left transition-all hover:bg-rh-red/[0.07] mb-8">
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rh-red shadow-sm shrink-0 border border-rh-red/10">
+                          <FileText className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h4 className="text-base font-bold text-rh-teal">Upload Your Resume / CV</h4>
+                          <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-xl">
+                            You have not uploaded a resume yet. A default resume is required to apply for roles, unlock your dynamic profile score, and get analyzed by our premium AI Resume Intelligence engine.
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     <div
                       onClick={() => fileInputRef.current?.click()}

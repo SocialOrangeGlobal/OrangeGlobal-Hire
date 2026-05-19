@@ -51,6 +51,14 @@ export default function SignUpTalent() {
     if (submitError) setSubmitError('');
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleFileChange = (field: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     updateForm(field, file);
@@ -106,6 +114,12 @@ export default function SignUpTalent() {
     }
     if (currentStep === 8) {
       if (!formData.resumeFile) newErrors.resumeFile = 'Please upload your Resume / CV.';
+      if (!formData.passportFile) newErrors.passportFile = 'Please upload your Passport Copy.';
+      if (!formData.visaFile) newErrors.visaFile = 'Please upload your Current Visa / Residency Permit.';
+      if (!formData.eduCertFile) newErrors.eduCertFile = 'Please upload your Educational Certificates.';
+      if (!formData.empCertFile) newErrors.empCertFile = 'Please upload your Employment Certificates / Experience Letters.';
+      if (!formData.englishTestFile) newErrors.englishTestFile = 'Please upload your English Test Results.';
+      if (!formData.licenceFile) newErrors.licenceFile = 'Please upload your Professional Licences / Certifications.';
     }
     if (currentStep === 9) {
       if (!formData.declarationTrue) newErrors.declarationTrue = 'You must confirm the accuracy of your information.';
@@ -120,12 +134,12 @@ export default function SignUpTalent() {
     const isValid = validateStep(step);
     if (!isValid) {
       setSubmitError('Please correct the highlighted errors below before proceeding.');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
       return;
     }
     setSubmitError('');
     setStep(prev => prev + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   const goBack = () => {
@@ -133,7 +147,7 @@ export default function SignUpTalent() {
       navigate('/signup-choice');
     } else {
       setStep(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     }
   };
 
@@ -147,7 +161,7 @@ export default function SignUpTalent() {
       if (!isValid) {
         setSubmitError(`Please correct the highlighted errors in Step ${s}.`);
         setStep(s);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
         return;
       }
     }
@@ -214,7 +228,7 @@ export default function SignUpTalent() {
           responsibilities: formData.summary || 'Not specified',
         }] : [],
         resumeUrl: docUrls.resumeUrl || undefined,
-        avatarUrl: docUrls.passportUrl || undefined,
+        avatarUrl: undefined,
 
         dob: formData.dob, age: formData.age, gender: formData.gender, nationality: formData.nationality,
         countryOfResidence: formData.countryOfResidence, whatsapp: formData.whatsapp, linkedin: formData.linkedin,
@@ -243,7 +257,7 @@ export default function SignUpTalent() {
         : backendMessage || 'Registration failed. Please try again.';
       setSubmitError(msg);
       dispatch(setAuthError(msg));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     } finally {
       setSubmitting(false);
       dispatch(setLoading(false));
@@ -323,41 +337,42 @@ export default function SignUpTalent() {
     </div>
   );
 
-  const renderFileUpload = ({ label, field, accept = ".pdf,.doc,.docx", required = false }: any) => (
-    <div className={`border-2 border-dashed bg-[#F9FBFF] rounded-2xl sm:rounded-[24px] p-5 sm:p-6 text-center hover:border-rh-teal/30 hover:bg-white transition-all ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}>
-      <label className="cursor-pointer block">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white shadow-sm rounded-xl sm:rounded-[16px] flex items-center justify-center mx-auto mb-2 sm:mb-3 text-rh-teal border border-gray-50">
-          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-        </div>
-        <h3 className="text-xs sm:text-sm font-bold text-[#081B2D] mb-1">
-          {label} {required && <span className="text-red-500">*</span>}
-        </h3>
-        <p className="text-gray-400 text-[10px] sm:text-xs mb-2 sm:mb-3">{(formData as any)[field]?.name || 'Click to select file'}</p>
-        <input type="file" className="hidden" accept={accept} onChange={e => handleFileChange(field, e)} />
-      </label>
-      {errors[field] && (
-        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-2 flex items-center justify-center gap-1.5">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
-        </motion.p>
-      )}
-    </div>
-  );
-
-  if (isSuccess) {
+  const renderFileUpload = ({ label, field, accept = ".pdf,.doc,.docx", required = false }: any) => {
+    const hasFile = !!(formData as any)[field];
     return (
-      <div className="bg-[#F8F9FA] min-h-screen pt-20 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-3xl sm:rounded-[60px] p-6 sm:p-16 lg:p-24 shadow-[0_30px_60px_rgb(0,0,0,0.05)] border border-gray-50 text-center max-w-2xl w-full">
-          <div className="w-20 h-20 sm:w-32 sm:h-32 bg-rh-teal/10 text-rh-teal rounded-2xl sm:rounded-[44px] flex items-center justify-center mx-auto mb-6 sm:mb-10 shadow-xl shadow-rh-teal/10 border border-rh-teal/10">
-            <CheckCircle className="w-10 h-10 sm:w-16 sm:h-16" />
+      <div className={`border-2 border-dashed rounded-2xl sm:rounded-[24px] p-5 sm:p-6 text-center hover:border-rh-teal/30 hover:bg-white transition-all ${errors[field] ? 'border-red-500 bg-red-50/10' : hasFile ? 'border-emerald-500/40 bg-emerald-50/20' : 'border-gray-200 bg-[#F9FBFF]'
+        }`}>
+        <label className="cursor-pointer block">
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 shadow-sm rounded-xl sm:rounded-[16px] flex items-center justify-center mx-auto mb-2 sm:mb-3 border transition-all ${hasFile ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/10' : 'bg-white text-rh-teal border-gray-50'
+            }`}>
+            {hasFile ? <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> : <Upload className="w-4 h-4 sm:w-5 sm:h-5" />}
           </div>
-          <h2 className="text-2xl sm:text-4xl font-light text-rh-teal mb-3 sm:mb-6 tracking-tight leading-tight">Check your inbox!</h2>
-          <p className="text-gray-500 mb-3 sm:mb-4 text-sm sm:text-lg font-medium max-w-md mx-auto leading-relaxed">We've sent a verification link to your registered email address.</p>
-          <p className="text-gray-400 mb-8 sm:mb-10 text-xs sm:text-sm font-medium max-w-md mx-auto">Please verify your email first, then you'll be able to sign in and access your dashboard.</p>
-          <Button onClick={() => navigate('/signin')} variant="primary" className="w-full sm:w-auto px-10 sm:px-16 py-3.5 sm:py-6 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-[28px] shadow-2xl shadow-rh-teal/20 font-bold text-base sm:text-xl">Go to Sign In</Button>
-        </motion.div>
+          <h3 className="text-xs sm:text-sm font-bold text-[#081B2D] mb-1">
+            {label} {required && <span className="text-red-500">*</span>}
+          </h3>
+          {hasFile ? (
+            <div className="space-y-1.5 animate-fadeIn">
+              <p className="text-emerald-600 text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1">
+                Selected successfully
+              </p>
+              <p className="text-rh-teal text-xs font-bold truncate max-w-[200px] mx-auto bg-white/60 px-3 py-1 rounded-xl border border-emerald-100">
+                {(formData as any)[field]?.name}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-[10px] sm:text-xs mb-2 sm:mb-3">Click to select file</p>
+          )}
+          <input type="file" className="hidden" accept={accept} onChange={e => handleFileChange(field, e)} />
+        </label>
+        {errors[field] && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-2 flex items-center justify-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+          </motion.p>
+        )}
       </div>
     );
-  }
+  };
+
 
   return (
     <div className="bg-white min-h-screen pt-16 lg:pt-0 flex flex-col lg:flex-row font-sans overflow-x-hidden">
@@ -381,8 +396,8 @@ export default function SignUpTalent() {
           <div className="hidden lg:block space-y-8 relative mb-8 max-w-xs mx-auto lg:mx-0">
             <div className="absolute left-[23px] top-4 bottom-4 w-[1px] bg-white/10" />
             {stepsInfo.map(s => {
-              const isCompleted = step > s.id;
-              const isActive = step === s.id;
+              const isCompleted = isSuccess || step > s.id;
+              const isActive = !isSuccess && step === s.id;
               return (
                 <div key={s.id} className="flex items-center gap-8 group relative z-10">
                   <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center transition-all duration-500 border-2 shrink-0 ${isActive ? 'bg-rh-teal-lighter border-rh-teal-lighter text-white shadow-xl shadow-rh-teal-lighter/20 scale-110' : isCompleted ? 'bg-rh-teal-lighter/20 border-rh-teal-lighter text-rh-teal-lighter shadow-lg shadow-rh-teal-lighter/5' : 'bg-white/5 border-white/10 text-white/40 group-hover:border-rh-teal-lighter/40'}`}>
@@ -410,18 +425,20 @@ export default function SignUpTalent() {
       <main className="flex-1 bg-[#F8F9FA] p-4 md:p-8 lg:p-16 lg:overflow-y-auto custom-scrollbar flex items-center justify-center">
         <div className="w-full max-w-4xl py-4 md:py-8">
           {/* Mobile/Tablet Stepper Header */}
-          <div className="lg:hidden bg-rh-dark p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-lg mb-6 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-10" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <span className="text-[10px] sm:text-xs font-bold text-rh-teal-lighter uppercase tracking-widest">Step {step} of 9</span>
-                <span className="text-xs sm:text-sm font-bold text-white">{stepsInfo[step - 1]?.title}</span>
-              </div>
-              <div className="w-full bg-white/20 h-1.5 sm:h-2 rounded-full overflow-hidden">
-                <div className="bg-rh-teal-lighter h-full transition-all duration-300" style={{ width: `${(step / 9) * 100}%` }} />
+          {!isSuccess && (
+            <div className="lg:hidden bg-rh-dark p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-lg mb-6 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-10" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <span className="text-[10px] sm:text-xs font-bold text-rh-teal-lighter uppercase tracking-widest">Step {step} of 9</span>
+                  <span className="text-xs sm:text-sm font-bold text-white">{stepsInfo[step - 1]?.title}</span>
+                </div>
+                <div className="w-full bg-white/20 h-1.5 sm:h-2 rounded-full overflow-hidden">
+                  <div className="bg-rh-teal-lighter h-full transition-all duration-300" style={{ width: `${(step / 9) * 100}%` }} />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {submitError && (
             <div className="bg-red-50 border border-red-100 text-red-600 px-5 py-4 sm:px-6 sm:py-4 rounded-xl sm:rounded-[24px] text-xs sm:text-sm font-medium mb-6 sm:mb-8 animate-shake shadow-sm flex items-center gap-3">
@@ -431,13 +448,39 @@ export default function SignUpTalent() {
           )}
 
           <AnimatePresence mode="wait">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-white rounded-2xl sm:rounded-[32px] lg:rounded-[48px] p-5 sm:p-8 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
-            >
+            {isSuccess ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl sm:rounded-[32px] lg:rounded-[48px] p-8 sm:p-12 lg:p-20 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100 text-center"
+              >
+                <div className="w-24 h-24 bg-rh-teal/10 text-rh-teal rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-rh-teal/10 border border-rh-teal/10">
+                  <ShieldCheck className="w-12 h-12" />
+                </div>
+                <h2 className="text-3xl font-bold text-rh-teal mb-4 animate-fadeIn">Check your inbox!</h2>
+                <p className="text-gray-500 mb-4 text-sm sm:text-lg font-medium max-w-md mx-auto leading-relaxed">
+                  We've sent a verification link to your registered email address.
+                </p>
+                <p className="text-gray-400 mb-10 text-xs sm:text-sm font-medium max-w-md mx-auto">
+                  Please verify your email first, then you'll be able to sign in and start tracking your dream job matches.
+                </p>
+                <Button
+                  onClick={() => navigate('/signin')}
+                  variant="primary"
+                  className="px-12 py-4 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-2xl shadow-2xl shadow-rh-teal/20 font-bold text-base sm:text-lg w-full sm:w-auto"
+                >
+                  Go to Sign In
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-white rounded-2xl sm:rounded-[32px] lg:rounded-[48px] p-5 sm:p-8 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
+              >
               <div className="mb-6 sm:mb-10 border-b border-gray-50 pb-4 sm:pb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-rh-teal mb-1 sm:mb-2">{stepsInfo[step - 1]?.title}</h2>
@@ -588,12 +631,12 @@ export default function SignUpTalent() {
                 {step === 8 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                     {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
-                    {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile" })}
-                    {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile" })}
-                    {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile" })}
-                    {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile" })}
-                    {renderFileUpload({ label: "English Test Results (if available)", field: "englishTestFile" })}
-                    {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile" })}
+                    {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile", required: true })}
+                    {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile", required: true })}
+                    {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: true })}
+                    {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
+                    {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: true })}
+                    {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: true })}
                   </div>
                 )}
 
@@ -664,7 +707,8 @@ export default function SignUpTalent() {
                 )}
               </div>
             </motion.div>
-          </AnimatePresence>
+          )}
+        </AnimatePresence>
         </div>
       </main>
     </div>

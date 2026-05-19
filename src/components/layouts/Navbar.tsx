@@ -14,6 +14,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -161,7 +162,11 @@ export default function Navbar() {
                     <div className="relative group/user h-full flex items-center">
                       <button className={`flex items-center gap-3 p-1.5 pr-3 rounded-xl transition-all ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>
                         <div className="w-9 h-9 rounded-lg bg-rh-red flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-900/20 overflow-hidden shrink-0">
-                          {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                          {user?.avatarUrl && !avatarFailed ? (
+                            <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                          ) : (
+                            (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                          )}
                         </div>
                         <span className="text-sm font-bold truncate max-w-[120px] 2xl:max-w-[160px]">{user?.fullName || 'User Account'}</span>
                         <ChevronDown className="w-4 h-4 text-gray-400 group-hover/user:rotate-180 transition-transform shrink-0" />
@@ -173,7 +178,11 @@ export default function Navbar() {
                           <div className="px-5 py-5 bg-rh-light/30 rounded-[1.375rem] mb-2 border border-rh-teal/5">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
-                                {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                                {user?.avatarUrl && !avatarFailed ? (
+                                  <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                                ) : (
+                                  (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold text-rh-teal truncate">{user?.fullName || 'User Account'}</p>
@@ -232,7 +241,11 @@ export default function Navbar() {
                     <div className="flex items-center gap-2 mr-1">
                       <Link to="/manage-profile" className={`flex items-center gap-2.5 p-1 sm:pr-2 rounded-xl border shadow-sm transition-all ${scrolled || isSubPage || isAuthPage ? 'bg-gray-50 border-gray-200 hover:bg-gray-100' : 'bg-white/10 border-white/10 hover:bg-white/20'}`}>
                         <div className="w-8 h-8 rounded-lg bg-rh-teal flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
-                          {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                          {user?.avatarUrl && !avatarFailed ? (
+                            <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                          ) : (
+                            (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                          )}
                         </div>
                         <span className={`hidden sm:block text-xs font-bold truncate sm:max-w-[140px] ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D]' : 'text-white'}`}>{user?.fullName || 'User Account'}</span>
                       </Link>
@@ -442,7 +455,11 @@ export default function Navbar() {
                   <div className="space-y-4">
                     <div className={`p-4 rounded-2xl border flex items-center gap-4 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'bg-rh-light/40 border-rh-teal/10' : 'bg-white/5 border-white/10'}`}>
                       <div className="w-12 h-12 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
-                        {user?.avatarUrl ? <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" /> : user?.email?.[0]?.toUpperCase()}
+                        {user?.avatarUrl && !avatarFailed ? (
+                          <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                        ) : (
+                          (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className={`text-base font-bold truncate ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'}`}>{user?.fullName || 'User Account'}</p>

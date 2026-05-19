@@ -22,6 +22,10 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 *   **Cross-Device Optimization**: Floating dropdown on desktop/tablet and full-screen focused modal on mobile.
 
 ### 👤 Profile & Portfolio Management
+*   **Dual-Role Dashboard Control**: Comprehensive, dedicated user experience flows for both **Talents** (Candidates) and **Employers** (Corporates) managing their visual presence.
+*   **Comprehensive Employer Profile**: Splits corporate overview into a beautifully ordered hierarchy featuring **Personal Details** (Full Name, Job Title, Hiring Needs, Business Email, and Business Phone) followed by a **Company Profile** (Company Name, Position Type, and Zip Code).
+*   **Top Section Header Indicators**: Displays dynamic verified badges, user roles, email, phone number, job title (Briefcase icon), and location/zip code labels right within the top card for both candidate and employer roles.
+*   **Fallback Initials System**: Displays the first character of the user's name as a beautiful CSS-styled profile circle when the custom avatar image or company logo has not been uploaded.
 *   **Profile Score Engine**: Dynamic completion tracking with a visual meter and optimization suggestions.
 *   **Mobile-First Responsive Layout**: Clean fluid-scaling container margins, paddings, and font sizes across mobile, tablet, and desktop viewports.
 *   **Interactive Document Viewer Modal**: Supporting resume and section 9 uploaded documents (Passport, Visa, Educational Certificates, Employment Certificates, English Test, Professional Licenses) opening inside an overlay modal with smooth close animations.
@@ -33,7 +37,7 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 ### 💼 Recruitment & Job Board
 *   **Dynamic Discovery**: Real-time filtering by keywords, industry, and location.
 *   **High-Fidelity Modals**: Feature-rich modals with social sharing and deep-link integration.
-*   **Streamlined Apply Flow**: Multi-step registration for talent with AI-assisted resume scoring.
+*   **Streamlined Apply Flow**: Multi-step registration for talent with AI-assisted resume scoring and an aesthetic, split-view inline inbox verification success screen matching the employer flow.
 
 ## 🏗️ Project Structure
 
