@@ -23,6 +23,7 @@ import ApplyJob from './pages/ApplyJob';
 import PostVacancy from './pages/PostVacancy';
 import ForgotPassword from './pages/ForgotPassword';
 import Contact from './pages/Contact';
+import { GlobalLoaderProvider } from './components/ui/GlobalLoader';
 import EmployerDashboard from './pages/EmployerDashboard';
 import TalentDashboard from './pages/TalentDashboard';
 import ResetPassword from './pages/ResetPassword';
@@ -63,36 +64,38 @@ function App() {
   }, [pathname]);
 
   return (
-    <AuthProvider>
-      <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col relative">
-        <Navbar />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup-employer" element={<SignUpEmployer />} />
-            <Route path="/signup-talent" element={<SignUpTalent />} />
-            <Route path="/signup-choice" element={<SignUpChoice />} />
-            <Route path="/manage-profile" element={<ManageProfile />} />
-            <Route path="/employer-dashboard/*" element={<EmployerDashboard />} />
-            <Route path="/talent-dashboard/*" element={<TalentDashboard />} />
-            <Route path="/jobs/*" element={<Jobs />} />
-            <Route path="/hire-talent/*" element={<HireTalent />} />
-            <Route path="/consulting/*" element={<Consulting />} />
-            <Route path="/insights/*" element={<Insights />} />
-            <Route path="/apply-job/*" element={<ApplyJob />} />
-            <Route path="/post-vacancy/*" element={<PostVacancy />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </main>
-        <Footer />
-        <Chatbot />
-        <Toaster position="top-right" />
-      </div>
-    </AuthProvider>
+    <GlobalLoaderProvider>
+      <AuthProvider>
+        <div className="font-sans text-gray-900 bg-white min-h-screen flex flex-col relative">
+          <Navbar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup-employer" element={<SignUpEmployer />} />
+              <Route path="/signup-talent" element={<SignUpTalent />} />
+              <Route path="/signup-choice" element={<SignUpChoice />} />
+              <Route path="/manage-profile" element={<ManageProfile />} />
+              <Route path="/employer-dashboard/*" element={<EmployerDashboard />} />
+              <Route path="/talent-dashboard/*" element={<TalentDashboard />} />
+              <Route path="/jobs/*" element={<Jobs />} />
+              <Route path="/hire-talent/*" element={<HireTalent />} />
+              <Route path="/consulting/*" element={<Consulting />} />
+              <Route path="/insights/*" element={<Insights />} />
+              <Route path="/apply-job/*" element={<ApplyJob />} />
+              <Route path="/post-vacancy/*" element={<PostVacancy />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </main>
+          <Footer />
+          <Chatbot />
+          <Toaster position="top-right" />
+        </div>
+      </AuthProvider>
+    </GlobalLoaderProvider>
   );
 }
 

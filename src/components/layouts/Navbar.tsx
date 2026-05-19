@@ -8,6 +8,8 @@ import Button from '../ui/Button';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
 import { LogOut, Settings, UserCircle, LayoutDashboard } from 'lucide-react';
+import { authApi } from '../../lib/auth';
+import { useGlobalLoader } from '../ui/GlobalLoader';
 
 export default function Navbar() {
   const scrolled = useScrolled(60);
@@ -20,6 +22,29 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const pathname = location.pathname;
+  const { executeWithLoader } = useGlobalLoader();
+
+  const handleSignOut = async () => {
+    try {
+      await executeWithLoader(
+        'Signing out securely...',
+        async () => {
+          try {
+            await authApi.signOut();
+          } catch (e) {
+            console.error('Failed to sign out on backend', e);
+          }
+          dispatch(logout());
+        },
+        1000
+      );
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      dispatch(logout());
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     setMobileOpen(false);
@@ -211,8 +236,8 @@ export default function Navbar() {
 
                           <button
                             onClick={() => {
-                              dispatch(logout());
-                              navigate('/');
+                              setOpenDropdown(null);
+                              handleSignOut();
                             }}
                             className="w-full flex items-center gap-3 px-5 py-3 rounded-[18px] text-rh-red hover:bg-red-50 transition-all group/item"
                           >
@@ -489,9 +514,8 @@ export default function Navbar() {
                       </Link>
                       <button
                         onClick={() => {
-                          dispatch(logout());
                           setMobileOpen(false);
-                          navigate('/');
+                          handleSignOut();
                         }}
                         className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm ${scrolled || isAuthPage || isSubPage ? 'bg-red-50 text-rh-red hover:bg-red-100' : 'bg-rh-red/10 border border-rh-red/20 text-rh-red hover:bg-rh-red/20'}`}
                       >

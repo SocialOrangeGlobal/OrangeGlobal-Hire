@@ -9,6 +9,7 @@ import { setCredentials, setLoading, setError as setAuthError } from '../store/s
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useGlobalLoader } from '../components/ui/GlobalLoader';
 
 const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -24,6 +25,7 @@ export default function SignIn() {
   const [activeTab, setActiveTab] = useState<'talent' | 'employer'>('talent');
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState(false);
+  const { executeWithLoader } = useGlobalLoader();
 
   const {
     register,
@@ -34,14 +36,17 @@ export default function SignIn() {
   });
 
   const onSignInSubmit = async (data: SignInFormData) => {
-    dispatch(setLoading(true));
     setError(null);
     setUnverifiedEmail(false);
     try {
-      const response = await authApi.signIn({
-        ...data,
-        role: activeTab === 'talent' ? 'TALENT' : 'EMPLOYER',
-      });
+      const response = await executeWithLoader(
+        'Signing in securely...',
+        () => authApi.signIn({
+          ...data,
+          role: activeTab === 'talent' ? 'TALENT' : 'EMPLOYER',
+        }),
+        1200
+      );
 
       dispatch(setCredentials({
         user: response.data.user,
@@ -59,8 +64,6 @@ export default function SignIn() {
         setError(msg);
       }
       dispatch(setAuthError(msg));
-    } finally {
-      dispatch(setLoading(false));
     }
   };
 
@@ -84,7 +87,7 @@ export default function SignIn() {
 
       <main className="flex-1 flex items-center justify-center p-4 sm:p-12 lg:p-16 bg-white overflow-y-auto custom-scrollbar">
         <div className="w-full max-w-[440px] py-8 lg:py-12">
-          <div className="flex bg-gray-100 p-1 rounded-2xl mb-8 lg:mb-10">
+          <div className="hidden bg-gray-100 p-1 rounded-2xl mb-8 lg:mb-10">
             <button onClick={() => { setActiveTab('talent'); setError(null); setUnverifiedEmail(false); }} className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${activeTab === 'talent' ? 'bg-white text-rh-teal shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Talent</button>
             <button onClick={() => { setActiveTab('employer'); setError(null); setUnverifiedEmail(false); }} className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${activeTab === 'employer' ? 'bg-white text-rh-teal shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Employer</button>
           </div>

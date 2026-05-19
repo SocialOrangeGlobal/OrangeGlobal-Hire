@@ -12,6 +12,7 @@ import { uploadFile } from '../lib/storage';
 import { useAppDispatch } from '../store';
 import { setLoading, setError as setAuthError } from '../store/slices/authSlice';
 import { SignUpTalentDto } from '../types/auth';
+import { useGlobalLoader } from '../components/ui/GlobalLoader';
 
 export default function SignUpTalent() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function SignUpTalent() {
   const [uploadProgress, setUploadProgress] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const { executeWithLoader } = useGlobalLoader();
 
   const [formData, setFormData] = useState({
     fullName: '', dob: '', age: '', gender: '', nationality: '', countryOfResidence: '', city: '', whatsapp: '', email: '', password: '', linkedin: '', phone: '',
@@ -168,87 +170,92 @@ export default function SignUpTalent() {
 
     setSubmitting(true);
     setSubmitError('');
-    dispatch(setLoading(true));
 
     try {
-      const fileUploadPromises: Promise<{ field: string; url: string }>[] = [];
+      await executeWithLoader(
+        'Uploading credentials & completing registration...',
+        async () => {
+          const fileUploadPromises: Promise<{ field: string; url: string }>[] = [];
 
-      const uploadFileIfPresent = (file: File | null, fieldName: string) => {
-        if (!file) return;
-        const promise = (async () => {
-          const timestamp = Date.now();
-          const fileName = `${timestamp}-${file.name.replace(/\s+/g, '-')}`;
-          const url = await uploadFile(file, 'talent-documents', fileName);
-          return { field: fieldName, url };
-        })();
-        fileUploadPromises.push(promise);
-      };
+          const uploadFileIfPresent = (file: File | null, fieldName: string) => {
+            if (!file) return;
+            const promise = (async () => {
+              const timestamp = Date.now();
+              const fileName = `${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+              const url = await uploadFile(file, 'talent-documents', fileName);
+              return { field: fieldName, url };
+            })();
+            fileUploadPromises.push(promise);
+          };
 
-      uploadFileIfPresent(formData.resumeFile, 'resumeUrl');
-      uploadFileIfPresent(formData.passportFile, 'passportUrl');
-      uploadFileIfPresent(formData.visaFile, 'visaUrl');
-      uploadFileIfPresent(formData.eduCertFile, 'eduCertUrl');
-      uploadFileIfPresent(formData.empCertFile, 'empCertUrl');
-      uploadFileIfPresent(formData.englishTestFile, 'englishTestUrl');
-      uploadFileIfPresent(formData.licenceFile, 'licenceUrl');
+          uploadFileIfPresent(formData.resumeFile, 'resumeUrl');
+          uploadFileIfPresent(formData.passportFile, 'passportUrl');
+          uploadFileIfPresent(formData.visaFile, 'visaUrl');
+          uploadFileIfPresent(formData.eduCertFile, 'eduCertUrl');
+          uploadFileIfPresent(formData.empCertFile, 'empCertUrl');
+          uploadFileIfPresent(formData.englishTestFile, 'englishTestUrl');
+          uploadFileIfPresent(formData.licenceFile, 'licenceUrl');
 
-      if (fileUploadPromises.length > 0) {
-        setUploadProgress(`Uploading ${fileUploadPromises.length} documents to secure cloud storage...`);
-      } else {
-        setUploadProgress('Preparing application data...');
-      }
+          if (fileUploadPromises.length > 0) {
+            setUploadProgress(`Uploading ${fileUploadPromises.length} documents to secure cloud storage...`);
+          } else {
+            setUploadProgress('Preparing application data...');
+          }
 
-      const uploadResults = await Promise.all(fileUploadPromises);
+          const uploadResults = await Promise.all(fileUploadPromises);
 
-      const docUrls: { [key: string]: string } = {
-        resumeUrl: '', passportUrl: '', visaUrl: '', eduCertUrl: '', empCertUrl: '', englishTestUrl: '', licenceUrl: ''
-      };
+          const docUrls: { [key: string]: string } = {
+            resumeUrl: '', passportUrl: '', visaUrl: '', eduCertUrl: '', empCertUrl: '', englishTestUrl: '', licenceUrl: ''
+          };
 
-      uploadResults.forEach(item => {
-        docUrls[item.field] = item.url;
-      });
+          uploadResults.forEach(item => {
+            docUrls[item.field] = item.url;
+          });
 
-      setUploadProgress('Submitting application...');
+          setUploadProgress('Submitting application...');
 
-      const payload: SignUpTalentDto = {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        phone: formData.whatsapp || formData.phone,
-        location: `${formData.city ? formData.city + ', ' : ''}${formData.countryOfResidence || formData.nationality || ''}`,
-        educations: formData.highestQualification || formData.institutionName ? [{
-          school: formData.institutionName || 'Not specified',
-          degree: [formData.highestQualification, formData.fieldOfStudy].filter(Boolean).join(' - ') || 'Not specified',
-          year: formData.graduationYear || new Date().getFullYear().toString(),
-        }] : [],
-        skills: [formData.preferredRole, formData.preferredIndustry, formData.opportunityType].filter(Boolean) as string[],
-        experiences: formData.jobTitle || formData.employerName ? [{
-          title: formData.jobTitle || 'Not specified',
-          company: formData.employerName || 'Not specified',
-          responsibilities: formData.summary || 'Not specified',
-        }] : [],
-        resumeUrl: docUrls.resumeUrl || undefined,
-        avatarUrl: undefined,
+          const payload: SignUpTalentDto = {
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.fullName,
+            phone: formData.whatsapp || formData.phone,
+            location: `${formData.city ? formData.city + ', ' : ''}${formData.countryOfResidence || formData.nationality || ''}`,
+            educations: formData.highestQualification || formData.institutionName ? [{
+              school: formData.institutionName || 'Not specified',
+              degree: [formData.highestQualification, formData.fieldOfStudy].filter(Boolean).join(' - ') || 'Not specified',
+              year: formData.graduationYear || new Date().getFullYear().toString(),
+            }] : [],
+            skills: [formData.preferredRole, formData.preferredIndustry, formData.opportunityType].filter(Boolean) as string[],
+            experiences: formData.jobTitle || formData.employerName ? [{
+              title: formData.jobTitle || 'Not specified',
+              company: formData.employerName || 'Not specified',
+              responsibilities: formData.summary || 'Not specified',
+            }] : [],
+            resumeUrl: docUrls.resumeUrl || undefined,
+            avatarUrl: undefined,
 
-        dob: formData.dob, age: formData.age, gender: formData.gender, nationality: formData.nationality,
-        countryOfResidence: formData.countryOfResidence, whatsapp: formData.whatsapp, linkedin: formData.linkedin,
-        opportunityType: formData.opportunityType, preferredIndustry: formData.preferredIndustry, preferredRole: formData.preferredRole,
-        preferredSalary: formData.preferredSalary, startDate: formData.startDate, jobTitle: formData.jobTitle,
-        employerName: formData.employerName, employmentCountry: formData.employmentCountry, totalExp: formData.totalExp,
-        relevantExp: formData.relevantExp, summary: formData.summary, isEmployed: formData.isEmployed, workedOverseas: formData.workedOverseas,
-        overseasCountries: formData.overseasCountries, highestQualification: formData.highestQualification, fieldOfStudy: formData.fieldOfStudy,
-        institutionName: formData.institutionName, graduationYear: formData.graduationYear, hasLicences: formData.hasLicences,
-        licencesList: formData.licencesList, englishTest: formData.englishTest, overallScore: formData.overallScore, testDate: formData.testDate,
-        visaStatus: formData.visaStatus, legalWorkRights: formData.legalWorkRights, openToRelocation: formData.openToRelocation,
-        appliedAusVisa: formData.appliedAusVisa, visaTypeApplied: formData.visaTypeApplied, visaRefusal: formData.visaRefusal,
-        visaRefusalDetails: formData.visaRefusalDetails, relocateAloneOrFamily: formData.relocateAloneOrFamily, validPassport: formData.validPassport,
-        passportExpiry: formData.passportExpiry, medicalBackgroundCheck: formData.medicalBackgroundCheck, criminalConvictions: formData.criminalConvictions,
-        criminalDetails: formData.criminalDetails, passportUrl: docUrls.passportUrl, visaUrl: docUrls.visaUrl, eduCertUrl: docUrls.eduCertUrl,
-        empCertUrl: docUrls.empCertUrl, englishTestUrl: docUrls.englishTestUrl, licenceUrl: docUrls.licenceUrl,
-        declarationTrue: formData.declarationTrue ? 'Yes' : 'No', declarationConsent: formData.declarationConsent ? 'Yes' : 'No'
-      };
+            dob: formData.dob, age: formData.age, gender: formData.gender, nationality: formData.nationality,
+            countryOfResidence: formData.countryOfResidence, whatsapp: formData.whatsapp, linkedin: formData.linkedin,
+            opportunityType: formData.opportunityType, preferredIndustry: formData.preferredIndustry, preferredRole: formData.preferredRole,
+            preferredSalary: formData.preferredSalary, startDate: formData.startDate, jobTitle: formData.jobTitle,
+            employerName: formData.employerName, employmentCountry: formData.employmentCountry, totalExp: formData.totalExp,
+            relevantExp: formData.relevantExp, summary: formData.summary, isEmployed: formData.isEmployed, workedOverseas: formData.workedOverseas,
+            overseasCountries: formData.overseasCountries, highestQualification: formData.highestQualification, fieldOfStudy: formData.fieldOfStudy,
+            institutionName: formData.institutionName, graduationYear: formData.graduationYear, hasLicences: formData.hasLicences,
+            licencesList: formData.licencesList, englishTest: formData.englishTest, overallScore: formData.overallScore, testDate: formData.testDate,
+            visaStatus: formData.visaStatus, legalWorkRights: formData.legalWorkRights, openToRelocation: formData.openToRelocation,
+            appliedAusVisa: formData.appliedAusVisa, visaTypeApplied: formData.visaTypeApplied, visaRefusal: formData.visaRefusal,
+            visaRefusalDetails: formData.visaRefusalDetails, relocateAloneOrFamily: formData.relocateAloneOrFamily, validPassport: formData.validPassport,
+            passportExpiry: formData.passportExpiry, medicalBackgroundCheck: formData.medicalBackgroundCheck, criminalConvictions: formData.criminalConvictions,
+            criminalDetails: formData.criminalDetails, passportUrl: docUrls.passportUrl, visaUrl: docUrls.visaUrl, eduCertUrl: docUrls.eduCertUrl,
+            empCertUrl: docUrls.empCertUrl, englishTestUrl: docUrls.englishTestUrl, licenceUrl: docUrls.licenceUrl,
+            declarationTrue: formData.declarationTrue ? 'Yes' : 'No', declarationConsent: formData.declarationConsent ? 'Yes' : 'No'
+          };
 
-      await authApi.signUpTalent(payload);
+          await authApi.signUpTalent(payload);
+        },
+        2200
+      );
       setIsSuccess(true);
     } catch (err: any) {
       const backendMessage = err.response?.data?.message;
@@ -260,7 +267,6 @@ export default function SignUpTalent() {
       scrollToTop();
     } finally {
       setSubmitting(false);
-      dispatch(setLoading(false));
       setUploadProgress('');
     }
   };
@@ -388,7 +394,7 @@ export default function SignUpTalent() {
               Get Your <span className='text-rh-teal-lighter font-medium italic lg:ml-2'>Dream Job!</span>
             </h1>
             <p className="text-gray-200 text-xs sm:text-sm lg:text-base font-normal leading-relaxed max-w-xs mx-auto lg:mx-0 opacity-90">
-              Get discovered by top employers across 40+ countries and join the global elite.
+              Get discovered by top employers across Australia and join the global elite.
             </p>
           </motion.div>
 
@@ -481,234 +487,234 @@ export default function SignUpTalent() {
                 exit={{ opacity: 0, y: -20 }}
                 className="bg-white rounded-2xl sm:rounded-[32px] lg:rounded-[48px] p-5 sm:p-8 lg:p-16 shadow-[0_20px_50px_rgb(0,0,0,0.03)] border border-gray-100"
               >
-              <div className="mb-6 sm:mb-10 border-b border-gray-50 pb-4 sm:pb-6 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-rh-teal mb-1 sm:mb-2">{stepsInfo[step - 1]?.title}</h2>
-                  <p className="text-gray-500 text-xs sm:text-sm lg:text-base font-medium">Please provide accurate details for your application.</p>
-                </div>
-                <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-rh-teal/10 items-center justify-center text-rh-teal font-bold text-sm shrink-0">
-                  {step}/9
-                </div>
-              </div>
-
-              <div className="space-y-6 sm:space-y-10 mb-8 sm:mb-12">
-                {/* SECTION 1 */}
-                {step === 1 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                    {renderInput({ label: "Full Name (As per Passport)", field: "fullName", placeholder: "e.g. John Doe", required: true })}
-                    {renderInput({ label: "Email Address", field: "email", placeholder: "john@example.com", type: "email", required: true })}
-                    <div className="space-y-1 sm:space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Password <span className="text-red-500">*</span></label>
-                      <div className="relative">
-                        <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => updateForm('password', e.target.value)} placeholder="At least 8 characters" className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors.password ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`} />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-teal transition-colors">
-                          {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
-                        </button>
-                      </div>
-                      {errors.password && (
-                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password}
-                        </motion.p>
-                      )}
-                    </div>
-                    {renderInput({ label: "Date of Birth", field: "dob", placeholder: "DD/MM/YYYY", required: true })}
-                    {renderInput({ label: "Age", field: "age", placeholder: "e.g. 28" })}
-                    {renderSelect({ label: "Gender", field: "gender", options: ["Male", "Female", "Other", "Prefer not to say"] })}
-                    {renderInput({ label: "Nationality", field: "nationality", placeholder: "e.g. Indian", required: true })}
-                    {renderInput({ label: "Country of Residence", field: "countryOfResidence", placeholder: "e.g. United Arab Emirates", required: true })}
-                    {renderInput({ label: "City", field: "city", placeholder: "e.g. Dubai" })}
-                    {renderInput({ label: "WhatsApp Number (with country code)", field: "whatsapp", placeholder: "+971 50 000 0000" })}
-                    {renderInput({ label: "LinkedIn Profile URL", field: "linkedin", placeholder: "https://linkedin.com/in/username" })}
+                <div className="mb-6 sm:mb-10 border-b border-gray-50 pb-4 sm:pb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-rh-teal mb-1 sm:mb-2">{stepsInfo[step - 1]?.title}</h2>
+                    <p className="text-gray-500 text-xs sm:text-sm lg:text-base font-medium">Please provide accurate details for your application.</p>
                   </div>
-                )}
-
-                {/* SECTION 2 */}
-                {step === 2 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                    <div className="sm:col-span-2">
-                      {renderRadioGroup({ label: "What type of opportunity are you looking for?", field: "opportunityType", options: ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"], required: true })}
-                    </div>
-                    {renderInput({ label: "Preferred Industry / Sector", field: "preferredIndustry", placeholder: "e.g. Healthcare, IT, Finance", required: true })}
-                    {renderInput({ label: "Preferred Role / Job Title", field: "preferredRole", placeholder: "e.g. Senior Software Engineer", required: true })}
-                    {renderInput({ label: "Preferred Salary Range & Currency", field: "preferredSalary", placeholder: "e.g. $80,000 - $100,000 USD/year" })}
-                    {renderInput({ label: "Earliest Start Date / Notice Period", field: "startDate", placeholder: "e.g. 30 Days / Immediate" })}
+                  <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-rh-teal/10 items-center justify-center text-rh-teal font-bold text-sm shrink-0">
+                    {step}/9
                   </div>
-                )}
+                </div>
 
-                {/* SECTION 3 */}
-                {step === 3 && (
-                  <div className="space-y-6 sm:space-y-8">
+                <div className="space-y-6 sm:space-y-10 mb-8 sm:mb-12">
+                  {/* SECTION 1 */}
+                  {step === 1 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderRadioGroup({ label: "Are you currently employed?", field: "isEmployed", options: ["Yes", "No"], required: true })}
-                      {formData.isEmployed === 'Yes' && (
+                      {renderInput({ label: "Full Name (As per Passport)", field: "fullName", placeholder: "e.g. John Doe", required: true })}
+                      {renderInput({ label: "Email Address", field: "email", placeholder: "john@example.com", type: "email", required: true })}
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Password <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                          <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => updateForm('password', e.target.value)} placeholder="At least 8 characters" className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors.password ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`} />
+                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rh-teal transition-colors">
+                            {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+                          </button>
+                        </div>
+                        {errors.password && (
+                          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.password}
+                          </motion.p>
+                        )}
+                      </div>
+                      {renderInput({ label: "Date of Birth", field: "dob", placeholder: "DD/MM/YYYY", required: true })}
+                      {renderInput({ label: "Age", field: "age", placeholder: "e.g. 28" })}
+                      {renderSelect({ label: "Gender", field: "gender", options: ["Male", "Female", "Other", "Prefer not to say"] })}
+                      {renderInput({ label: "Nationality", field: "nationality", placeholder: "e.g. Indian", required: true })}
+                      {renderInput({ label: "Country of Residence", field: "countryOfResidence", placeholder: "e.g. United Arab Emirates", required: true })}
+                      {renderInput({ label: "City", field: "city", placeholder: "e.g. Dubai" })}
+                      {renderInput({ label: "WhatsApp Number (with country code)", field: "whatsapp", placeholder: "+971 50 000 0000" })}
+                      {renderInput({ label: "LinkedIn Profile URL", field: "linkedin", placeholder: "https://linkedin.com/in/username" })}
+                    </div>
+                  )}
+
+                  {/* SECTION 2 */}
+                  {step === 2 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      <div className="sm:col-span-2">
+                        {renderRadioGroup({ label: "What type of opportunity are you looking for?", field: "opportunityType", options: ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"], required: true })}
+                      </div>
+                      {renderInput({ label: "Preferred Industry / Sector", field: "preferredIndustry", placeholder: "e.g. Healthcare, IT, Finance", required: true })}
+                      {renderInput({ label: "Preferred Role / Job Title", field: "preferredRole", placeholder: "e.g. Senior Software Engineer", required: true })}
+                      {renderInput({ label: "Preferred Salary Range & Currency", field: "preferredSalary", placeholder: "e.g. $80,000 - $100,000 USD/year" })}
+                      {renderInput({ label: "Earliest Start Date / Notice Period", field: "startDate", placeholder: "e.g. 30 Days / Immediate" })}
+                    </div>
+                  )}
+
+                  {/* SECTION 3 */}
+                  {step === 3 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                        {renderRadioGroup({ label: "Are you currently employed?", field: "isEmployed", options: ["Yes", "No"], required: true })}
+                        {formData.isEmployed === 'Yes' && (
+                          <>
+                            {renderInput({ label: "Current Job Title", field: "jobTitle", placeholder: "e.g. Engineering Manager", required: true })}
+                            {renderInput({ label: "Current Employer Name", field: "employerName", placeholder: "e.g. Tech Global", required: true })}
+                            {renderInput({ label: "Country of Employment", field: "employmentCountry", placeholder: "e.g. Singapore" })}
+                            {renderInput({ label: "Total Years of Experience", field: "totalExp", placeholder: "e.g. 8 Years", required: true })}
+                            {renderInput({ label: "Relevant Years of Experience", field: "relevantExp", placeholder: "e.g. 6 Years" })}
+                          </>
+                        )}
+                      </div>
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Professional Summary / Key Achievements</label>
+                        <textarea rows={4} value={formData.summary} onChange={e => updateForm('summary', e.target.value)} placeholder="Briefly highlight your core expertise and major achievements..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                        {renderRadioGroup({ label: "Have you worked overseas before?", field: "workedOverseas", options: ["Yes", "No"] })}
+                        {formData.workedOverseas === "Yes" && renderInput({ label: "Which countries?", field: "overseasCountries", placeholder: "e.g. USA, UK, Germany" })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECTION 4 */}
+                  {step === 4 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                        {renderSelect({ label: "Highest Qualification Achieved", field: "highestQualification", options: ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], required: true })}
+                        {renderInput({ label: "Field of Study / Major", field: "fieldOfStudy", placeholder: "e.g. Computer Science", required: true })}
+                        {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: true })}
+                        {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021" })}
+                        {renderRadioGroup({ label: "Do you hold any professional licences or registrations?", field: "hasLicences", options: ["Yes", "No"] })}
+                        {formData.hasLicences === "Yes" && renderInput({ label: "List Licences & Issuing Authorities", field: "licencesList", placeholder: "e.g. CPA (AICPA), PMP (PMI)" })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECTION 5 */}
+                  {step === 5 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderSelect({ label: "Have you taken an English Language Proficiency Test?", field: "englishTest", options: ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], required: true })}
+                      {formData.englishTest && formData.englishTest !== "None / English is Native Language" && (
                         <>
-                          {renderInput({ label: "Current Job Title", field: "jobTitle", placeholder: "e.g. Engineering Manager", required: true })}
-                          {renderInput({ label: "Current Employer Name", field: "employerName", placeholder: "e.g. Tech Global", required: true })}
-                          {renderInput({ label: "Country of Employment", field: "employmentCountry", placeholder: "e.g. Singapore" })}
-                          {renderInput({ label: "Total Years of Experience", field: "totalExp", placeholder: "e.g. 8 Years", required: true })}
-                          {renderInput({ label: "Relevant Years of Experience", field: "relevantExp", placeholder: "e.g. 6 Years" })}
+                          {renderInput({ label: "Overall Score / Band", field: "overallScore", placeholder: "e.g. 7.5" })}
+                          {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "e.g. Oct 2023" })}
                         </>
                       )}
                     </div>
-                    <div className="space-y-1 sm:space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Professional Summary / Key Achievements</label>
-                      <textarea rows={4} value={formData.summary} onChange={e => updateForm('summary', e.target.value)} placeholder="Briefly highlight your core expertise and major achievements..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderRadioGroup({ label: "Have you worked overseas before?", field: "workedOverseas", options: ["Yes", "No"] })}
-                      {formData.workedOverseas === "Yes" && renderInput({ label: "Which countries?", field: "overseasCountries", placeholder: "e.g. USA, UK, Germany" })}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* SECTION 4 */}
-                {step === 4 && (
-                  <div className="space-y-6 sm:space-y-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderSelect({ label: "Highest Qualification Achieved", field: "highestQualification", options: ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], required: true })}
-                      {renderInput({ label: "Field of Study / Major", field: "fieldOfStudy", placeholder: "e.g. Computer Science", required: true })}
-                      {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: true })}
-                      {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021" })}
-                      {renderRadioGroup({ label: "Do you hold any professional licences or registrations?", field: "hasLicences", options: ["Yes", "No"] })}
-                      {formData.hasLicences === "Yes" && renderInput({ label: "List Licences & Issuing Authorities", field: "licencesList", placeholder: "e.g. CPA (AICPA), PMP (PMI)" })}
-                    </div>
-                  </div>
-                )}
-
-                {/* SECTION 5 */}
-                {step === 5 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                    {renderSelect({ label: "Have you taken an English Language Proficiency Test?", field: "englishTest", options: ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], required: true })}
-                    {formData.englishTest && formData.englishTest !== "None / English is Native Language" && (
-                      <>
-                        {renderInput({ label: "Overall Score / Band", field: "overallScore", placeholder: "e.g. 7.5" })}
-                        {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "e.g. Oct 2023" })}
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* SECTION 6 */}
-                {step === 6 && (
-                  <div className="space-y-6 sm:space-y-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderInput({ label: "Current Visa / Residency Status", field: "visaStatus", placeholder: "e.g. Employment Pass / Citizen", required: true })}
-                      {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: true })}
-                      {renderRadioGroup({ label: "Are you open to relocation?", field: "openToRelocation", options: ["Yes", "No"], required: true })}
-                      {renderRadioGroup({ label: "Have you applied for an Australian Visa before?", field: "appliedAusVisa", options: ["Yes", "No"] })}
-                      {formData.appliedAusVisa === "Yes" && renderInput({ label: "Which Visa Subclass?", field: "visaTypeApplied", placeholder: "e.g. Subclass 482, 189, 190" })}
-                      {renderRadioGroup({ label: "Have you ever had a visa refusal or cancellation for any country?", field: "visaRefusal", options: ["Yes", "No"] })}
-                    </div>
-                    {formData.visaRefusal === "Yes" && (
-                      <div className="space-y-1 sm:space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of the visa refusal/cancellation</label>
-                        <textarea rows={3} value={formData.visaRefusalDetails} onChange={e => updateForm('visaRefusalDetails', e.target.value)} placeholder="Explain the reasons and country..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                  {/* SECTION 6 */}
+                  {step === 6 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                        {renderInput({ label: "Current Visa / Residency Status", field: "visaStatus", placeholder: "e.g. Employment Pass / Citizen", required: true })}
+                        {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: true })}
+                        {renderRadioGroup({ label: "Are you open to relocation?", field: "openToRelocation", options: ["Yes", "No"], required: true })}
+                        {renderRadioGroup({ label: "Have you applied for an Australian Visa before?", field: "appliedAusVisa", options: ["Yes", "No"] })}
+                        {formData.appliedAusVisa === "Yes" && renderInput({ label: "Which Visa Subclass?", field: "visaTypeApplied", placeholder: "e.g. Subclass 482, 189, 190" })}
+                        {renderRadioGroup({ label: "Have you ever had a visa refusal or cancellation for any country?", field: "visaRefusal", options: ["Yes", "No"] })}
                       </div>
-                    )}
-                  </div>
-                )}
-
-                {/* SECTION 7 */}
-                {step === 7 && (
-                  <div className="space-y-6 sm:space-y-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"] })}
-                      {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"], required: true })}
-                      {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "DD/MM/YYYY", required: true })}
-                      {renderRadioGroup({ label: "Are you willing to undergo a medical and background check?", field: "medicalBackgroundCheck", options: ["Yes", "No"] })}
-                      {renderRadioGroup({ label: "Do you have any criminal convictions?", field: "criminalConvictions", options: ["Yes", "No"] })}
-                    </div>
-                    {formData.criminalConvictions === "Yes" && (
-                      <div className="space-y-1 sm:space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of convictions</label>
-                        <textarea rows={3} value={formData.criminalDetails} onChange={e => updateForm('criminalDetails', e.target.value)} placeholder="Provide details..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* SECTION 8 */}
-                {step === 8 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                    {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
-                    {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile", required: true })}
-                    {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile", required: true })}
-                    {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: true })}
-                    {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
-                    {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: true })}
-                    {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: true })}
-                  </div>
-                )}
-
-                {/* SECTION 9 */}
-                {step === 9 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationTrue ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
-                        <input type="checkbox" checked={formData.declarationTrue} onChange={e => updateForm('declarationTrue', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
-                          I confirm that the information and documents provided are true and accurate to the best of my knowledge. I understand that submission of this form does not guarantee employment, visa approval, or employer sponsorship. <span className="text-red-500">*</span>
-                        </span>
-                      </label>
-                      {errors.declarationTrue && (
-                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationTrue}
-                        </motion.p>
+                      {formData.visaRefusal === "Yes" && (
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of the visa refusal/cancellation</label>
+                          <textarea rows={3} value={formData.visaRefusalDetails} onChange={e => updateForm('visaRefusalDetails', e.target.value)} placeholder="Explain the reasons and country..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                        </div>
                       )}
                     </div>
+                  )}
 
-                    <div className="space-y-2">
-                      <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationConsent ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
-                        <input type="checkbox" checked={formData.declarationConsent} onChange={e => updateForm('declarationConsent', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
-                          I consent to Orange Global sharing my profile and supporting documents with potential employers and recruitment partners for assessment purposes. <span className="text-red-500">*</span>
-                        </span>
-                      </label>
-                      {errors.declarationConsent && (
-                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationConsent}
-                        </motion.p>
+                  {/* SECTION 7 */}
+                  {step === 7 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                        {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"] })}
+                        {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"], required: true })}
+                        {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "DD/MM/YYYY", required: true })}
+                        {renderRadioGroup({ label: "Are you willing to undergo a medical and background check?", field: "medicalBackgroundCheck", options: ["Yes", "No"] })}
+                        {renderRadioGroup({ label: "Do you have any criminal convictions?", field: "criminalConvictions", options: ["Yes", "No"] })}
+                      </div>
+                      {formData.criminalConvictions === "Yes" && (
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of convictions</label>
+                          <textarea rows={3} value={formData.criminalDetails} onChange={e => updateForm('criminalDetails', e.target.value)} placeholder="Provide details..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                        </div>
                       )}
                     </div>
+                  )}
 
-                    {/* Anti-spam honeypot field (hidden from users, filled by bots) */}
-                    <div className="absolute left-[-9999px] top-[-9999px]" aria-hidden="true">
-                      <input type="text" name="honeypot" tabIndex={-1} autoComplete="off" value={formData.honeypot} onChange={e => updateForm('honeypot', e.target.value)} />
+                  {/* SECTION 8 */}
+                  {step === 8 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+                      {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
+                      {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile", required: true })}
+                      {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile", required: true })}
+                      {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: true })}
+                      {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
+                      {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: true })}
+                      {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: true })}
                     </div>
+                  )}
 
-                    {uploadProgress && (
-                      <div className="p-4 bg-rh-teal/5 border border-rh-teal/20 rounded-xl sm:rounded-2xl flex items-center gap-3 text-rh-teal font-medium text-xs sm:text-sm animate-pulse">
-                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin shrink-0" />
-                        <span>{uploadProgress}</span>
+                  {/* SECTION 9 */}
+                  {step === 9 && (
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationTrue ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
+                          <input type="checkbox" checked={formData.declarationTrue} onChange={e => updateForm('declarationTrue', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
+                            I confirm that the information and documents provided are true and accurate to the best of my knowledge. I understand that submission of this form does not guarantee employment, visa approval, or employer sponsorship. <span className="text-red-500">*</span>
+                          </span>
+                        </label>
+                        {errors.declarationTrue && (
+                          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationTrue}
+                          </motion.p>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              {/* Navigation Footer */}
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 pt-6 sm:pt-10 border-t border-gray-50">
-                <button type="button" onClick={goBack} disabled={submitting} className="text-gray-400 font-bold hover:text-rh-dark flex items-center justify-center gap-2 transition-colors order-2 sm:order-1 disabled:opacity-50 w-full sm:w-auto py-3 sm:py-0 text-sm sm:text-base">
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> Back
-                </button>
-                {step < 9 ? (
-                  <Button type="button" onClick={nextStep} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-xs sm:text-base order-1 sm:order-2 text-center justify-center">
-                    Continue
-                  </Button>
-                ) : (
-                  <Button type="button" onClick={() => handleSubmit()} disabled={submitting} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/20 font-bold text-xs sm:text-base order-1 sm:order-2 flex items-center justify-center gap-2 min-w-[220px]">
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                        <span>Submitting...</span>
-                      </>
-                    ) : 'SUBMIT APPLICATION'}
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                      <div className="space-y-2">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border bg-[#F9FBFF] cursor-pointer hover:border-rh-teal/30 transition-all ${errors.declarationConsent ? 'border-red-500 bg-red-50/10' : 'border-gray-100'}`}>
+                          <input type="checkbox" checked={formData.declarationConsent} onChange={e => updateForm('declarationConsent', e.target.checked)} className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-rh-teal rounded border-gray-300 focus:ring-rh-teal/20 shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
+                            I consent to Orange Global sharing my profile and supporting documents with potential employers and recruitment partners for assessment purposes. <span className="text-red-500">*</span>
+                          </span>
+                        </label>
+                        {errors.declarationConsent && (
+                          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.declarationConsent}
+                          </motion.p>
+                        )}
+                      </div>
+
+                      {/* Anti-spam honeypot field (hidden from users, filled by bots) */}
+                      <div className="absolute left-[-9999px] top-[-9999px]" aria-hidden="true">
+                        <input type="text" name="honeypot" tabIndex={-1} autoComplete="off" value={formData.honeypot} onChange={e => updateForm('honeypot', e.target.value)} />
+                      </div>
+
+                      {uploadProgress && (
+                        <div className="p-4 bg-rh-teal/5 border border-rh-teal/20 rounded-xl sm:rounded-2xl flex items-center gap-3 text-rh-teal font-medium text-xs sm:text-sm animate-pulse">
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin shrink-0" />
+                          <span>{uploadProgress}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Navigation Footer */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 pt-6 sm:pt-10 border-t border-gray-50">
+                  <button type="button" onClick={goBack} disabled={submitting} className="text-gray-400 font-bold hover:text-rh-dark flex items-center justify-center gap-2 transition-colors order-2 sm:order-1 disabled:opacity-50 w-full sm:w-auto py-3 sm:py-0 text-sm sm:text-base">
+                    <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> Back
+                  </button>
+                  {step < 9 ? (
+                    <Button type="button" onClick={nextStep} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/10 font-bold text-xs sm:text-base order-1 sm:order-2 text-center justify-center">
+                      Continue
+                    </Button>
+                  ) : (
+                    <Button type="button" onClick={() => handleSubmit()} disabled={submitting} variant="primary" className="w-full sm:w-auto px-10 sm:px-12 py-3.5 sm:py-4.5 bg-rh-teal hover:bg-[#0E8A8F] text-white rounded-xl sm:rounded-2xl shadow-xl shadow-rh-teal/20 font-bold text-xs sm:text-base order-1 sm:order-2 flex items-center justify-center gap-2 min-w-[220px]">
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                          <span>Submitting...</span>
+                        </>
+                      ) : 'SUBMIT APPLICATION'}
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
     </div>

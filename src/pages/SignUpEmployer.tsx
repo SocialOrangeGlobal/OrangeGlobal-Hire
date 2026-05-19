@@ -11,6 +11,7 @@ import { setLoading, setError as setAuthError } from '../store/slices/authSlice'
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useGlobalLoader } from '../components/ui/GlobalLoader';
 
 const employerSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -33,6 +34,7 @@ export default function SignUpEmployer() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { executeWithLoader } = useGlobalLoader();
 
   const {
     register,
@@ -47,17 +49,18 @@ export default function SignUpEmployer() {
   });
 
   const onSignUpSubmit = async (data: EmployerFormData) => {
-    dispatch(setLoading(true));
     setError(null);
     try {
-      await authApi.signUpEmployer(data);
+      await executeWithLoader(
+        'Creating corporate account...',
+        () => authApi.signUpEmployer(data),
+        1500
+      );
       setIsSuccess(true);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed';
       setError(msg);
       dispatch(setAuthError(msg));
-    } finally {
-      dispatch(setLoading(false));
     }
   };
 
