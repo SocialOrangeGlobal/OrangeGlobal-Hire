@@ -130,7 +130,7 @@ The Orange Global Frontend operates on a dual-branch enterprise CI/CD workflow m
 *   **Vercel Domain Setting**: Attached to `www.orangeglobal.co` with Git Branch set to `main`.
 
 ### 2. Testing / Staging Environment (`staging` Branch)
-*   **Live URL**: [https://orange-global-hire.vercel.app](https://orange-global-hire.vercel.app)
+*   **Live URL**: [https://orangeglobal.co](https://orangeglobal.co)
 *   **Purpose**: Pre-production quality assurance (QA) and mobile responsiveness verification.
 *   **API Connection**: Connected to the live Render production backend (via Vercel `Preview` environment variables).
 *   **Vercel Domain Setting**: Attached to `orange-global-hire.vercel.app` with Git Branch set to `staging`.
