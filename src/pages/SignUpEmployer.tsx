@@ -18,7 +18,11 @@ const employerSchema = z.object({
   lastName: z.string().min(2, 'Last name is required'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  businessPhone: z.string().min(5, 'Business phone is required'),
+  businessPhone: z.string()
+    .min(1, 'Business phone is required')
+    .refine((val) => val.replace(/\D/g, '').length >= 5, {
+      message: 'Business phone must have at least 5 digits',
+    }),
   companyName: z.string().min(2, 'Company name is required'),
   jobTitle: z.string().min(2, 'Your job title is required'),
   jobTitleToHire: z.string().min(2, 'Job title to hire is required'),
@@ -132,7 +136,16 @@ export default function SignUpEmployer() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
-                        <input type="tel" {...register('businessPhone')} placeholder="+1 (555) 000-0000" className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`} />
+                        <input
+                          type="tel"
+                          {...register('businessPhone', {
+                            onChange: (e) => {
+                              e.target.value = e.target.value.replace(/[^\d+\s\-]/g, '');
+                            }
+                          })}
+                          placeholder="+1 (555) 000-0000"
+                          className={`w-full px-5 py-3.5 sm:py-4 bg-[#F4F7FA] border ${errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all text-gray-900 text-[13px] sm:text-sm font-medium placeholder:text-gray-300`}
+                        />
                         {errors.businessPhone && (
                           <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.businessPhone.message}

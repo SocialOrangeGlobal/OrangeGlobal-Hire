@@ -10,9 +10,24 @@ import Dropdown from '../components/ui/Dropdown';
 import { authApi } from '../lib/auth';
 import { uploadFile } from '../lib/storage';
 import { useAppDispatch } from '../store';
-import { setLoading, setError as setAuthError } from '../store/slices/authSlice';
+import { setError as setAuthError } from '../store/slices/authSlice';
 import { SignUpTalentDto } from '../types/auth';
 import { useGlobalLoader } from '../components/ui/GlobalLoader';
+import { Country, State, City } from 'country-state-city';
+
+const experienceYears = [
+  "Less than 1 Year",
+  "1 Year",
+  "2 Years",
+  "3 Years",
+  "4 Years",
+  "5 Years",
+  "6 Years",
+  "7 Years",
+  "8 Years",
+  "9 Years",
+  "10+ Years"
+];
 
 export default function SignUpTalent() {
   const navigate = useNavigate();
@@ -25,6 +40,48 @@ export default function SignUpTalent() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { executeWithLoader } = useGlobalLoader();
+
+  const [residenceCountryIso, setResidenceCountryIso] = useState<string>('');
+  const [residenceStateIso, setResidenceStateIso] = useState<string>('');
+  const [isCustomNationality, setIsCustomNationality] = useState<boolean>(false);
+  const [isCustomCity, setIsCustomCity] = useState<boolean>(false);
+
+  const countriesData = Country.getAllCountries();
+
+  const handleCountryChange = (countryName: string) => {
+    updateForm('countryOfResidence', countryName);
+    const countryObj = countriesData.find(c => c.name === countryName);
+    if (countryObj) {
+      setResidenceCountryIso(countryObj.isoCode);
+    } else {
+      setResidenceCountryIso('');
+    }
+    setResidenceStateIso('');
+    updateForm('city', '');
+    setIsCustomCity(false);
+  };
+
+  const handleStateChange = (stateName: string) => {
+    const statesList = State.getStatesOfCountry(residenceCountryIso);
+    const stateObj = statesList.find(s => s.name === stateName);
+    if (stateObj) {
+      setResidenceStateIso(stateObj.isoCode);
+    } else {
+      setResidenceStateIso('');
+    }
+    updateForm('city', '');
+    setIsCustomCity(false);
+  };
+
+  const handleCityChange = (cityName: string) => {
+    if (cityName === 'Other') {
+      setIsCustomCity(true);
+      updateForm('city', '');
+    } else {
+      setIsCustomCity(false);
+      updateForm('city', cityName);
+    }
+  };
 
   const [formData, setFormData] = useState({
     fullName: '', dob: '', age: '', gender: '', nationality: '', countryOfResidence: '', city: '', whatsapp: '', email: '', password: '', linkedin: '', phone: '',
@@ -46,9 +103,37 @@ export default function SignUpTalent() {
   });
 
   const updateForm = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let finalValue = value;
+    if (field === 'whatsapp' || field === 'phone') {
+      if (typeof value === 'string') {
+        finalValue = value.replace(/[^\d+\s\-]/g, '');
+      }
+    }
+    setFormData(prev => {
+      const updated = { ...prev, [field]: finalValue };
+      if (field === 'dob') {
+        if (finalValue) {
+          const birthDate = new Date(finalValue);
+          if (!isNaN(birthDate.getTime())) {
+            const today = new Date();
+            let computedAge = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              computedAge--;
+            }
+            updated.age = computedAge >= 0 ? computedAge.toString() : '';
+          }
+        } else {
+          updated.age = '';
+        }
+      }
+      return updated;
+    });
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    if (field === 'dob' && errors.age) {
+      setErrors(prev => ({ ...prev, age: '' }));
     }
     if (submitError) setSubmitError('');
   };
@@ -81,6 +166,14 @@ export default function SignUpTalent() {
       if (!formData.dob.trim()) newErrors.dob = 'Date of Birth is required.';
       if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required.';
       if (!formData.countryOfResidence.trim()) newErrors.countryOfResidence = 'Country of Residence is required.';
+      if (!formData.whatsapp.trim()) {
+        newErrors.whatsapp = 'WhatsApp Number is required.';
+      } else {
+        const digitCount = formData.whatsapp.replace(/\D/g, '').length;
+        if (digitCount < 5) {
+          newErrors.whatsapp = 'WhatsApp Number must be at least 5 digits.';
+        }
+      }
     }
     if (currentStep === 2) {
       if (!formData.opportunityType) newErrors.opportunityType = 'Please select an opportunity type.';
@@ -118,10 +211,6 @@ export default function SignUpTalent() {
       if (!formData.resumeFile) newErrors.resumeFile = 'Please upload your Resume / CV.';
       if (!formData.passportFile) newErrors.passportFile = 'Please upload your Passport Copy.';
       if (!formData.visaFile) newErrors.visaFile = 'Please upload your Current Visa / Residency Permit.';
-      if (!formData.eduCertFile) newErrors.eduCertFile = 'Please upload your Educational Certificates.';
-      if (!formData.empCertFile) newErrors.empCertFile = 'Please upload your Employment Certificates / Experience Letters.';
-      if (!formData.englishTestFile) newErrors.englishTestFile = 'Please upload your English Test Results.';
-      if (!formData.licenceFile) newErrors.licenceFile = 'Please upload your Professional Licences / Certifications.';
     }
     if (currentStep === 9) {
       if (!formData.declarationTrue) newErrors.declarationTrue = 'You must confirm the accuracy of your information.';
@@ -288,7 +377,27 @@ export default function SignUpTalent() {
       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <input type={type} value={(formData as any)[field]} onChange={e => updateForm(field, e.target.value)} placeholder={placeholder} className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors[field] ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`} />
+      <input
+        type={type}
+        value={(formData as any)[field]}
+        onChange={e => updateForm(field, e.target.value)}
+        onClick={type === 'date' ? (e) => {
+          try {
+            e.currentTarget.showPicker();
+          } catch (err) {
+            console.warn(err);
+          }
+        } : undefined}
+        onFocus={type === 'date' ? (e) => {
+          try {
+            e.currentTarget.showPicker();
+          } catch (err) {
+            console.warn(err);
+          }
+        } : undefined}
+        placeholder={placeholder}
+        className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 [color-scheme:light] ${errors[field] ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+      />
       {errors[field] && (
         <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
@@ -311,6 +420,32 @@ export default function SignUpTalent() {
             onChange={(val: string) => updateForm(field, val)}
             options={formattedOptions}
             placeholder="Select an option"
+            searchable={options.length > 8}
+          />
+        </div>
+        {errors[field] && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors[field]}
+          </motion.p>
+        )}
+      </div>
+    );
+  };
+
+  const renderCustomSelect = ({ label, field, options, value, onChange, required = false }: any) => {
+    return (
+      <div className="space-y-1 sm:space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className={`rounded-xl sm:rounded-2xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+          <Dropdown
+            label=""
+            value={value !== undefined ? value : (formData as any)[field]}
+            onChange={onChange ? onChange : (val: string) => updateForm(field, val)}
+            options={options}
+            placeholder={`Select ${label}`}
+            searchable={true}
           />
         </div>
         {errors[field] && (
@@ -517,14 +652,121 @@ export default function SignUpTalent() {
                           </motion.p>
                         )}
                       </div>
-                      {renderInput({ label: "Date of Birth", field: "dob", placeholder: "DD/MM/YYYY", required: true })}
-                      {renderInput({ label: "Age", field: "age", placeholder: "e.g. 28" })}
+                      {renderInput({ label: "Date of Birth", field: "dob", placeholder: "YYYY-MM-DD", type: "date", required: true })}
+                      {renderInput({ label: "Age", field: "age", placeholder: "e.g. 28", type: "number" })}
                       {renderSelect({ label: "Gender", field: "gender", options: ["Male", "Female", "Other", "Prefer not to say"] })}
-                      {renderInput({ label: "Nationality", field: "nationality", placeholder: "e.g. Indian", required: true })}
-                      {renderInput({ label: "Country of Residence", field: "countryOfResidence", placeholder: "e.g. United Arab Emirates", required: true })}
-                      {renderInput({ label: "City", field: "city", placeholder: "e.g. Dubai" })}
-                      {renderInput({ label: "WhatsApp Number (with country code)", field: "whatsapp", placeholder: "+971 50 000 0000" })}
-                      {renderInput({ label: "LinkedIn Profile URL", field: "linkedin", placeholder: "https://linkedin.com/in/username" })}
+                      {isCustomNationality ? (
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+                            Specify Nationality <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={formData.nationality}
+                              onChange={e => updateForm('nationality', e.target.value)}
+                              placeholder="Type nationality..."
+                              className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 ${errors.nationality ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomNationality(false);
+                                updateForm('nationality', '');
+                              }}
+                              className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all"
+                            >
+                              Reset
+                            </button>
+                          </div>
+                          {errors.nationality && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.nationality}
+                            </motion.p>
+                          )}
+                        </div>
+                      ) : (
+                        renderCustomSelect({
+                          label: "Nationality",
+                          field: "nationality",
+                          options: [
+                            ...countriesData.map(c => ({ label: c.name, value: c.name })),
+                            { label: "Other (Specify)", value: "Other" }
+                          ],
+                          value: formData.nationality,
+                          onChange: (val: string) => {
+                            if (val === 'Other') {
+                              setIsCustomNationality(true);
+                              updateForm('nationality', '');
+                            } else {
+                              updateForm('nationality', val);
+                            }
+                          },
+                          required: true
+                        })
+                      )}
+                      {renderCustomSelect({
+                        label: "Country of Residence",
+                        field: "countryOfResidence",
+                        options: countriesData.map(c => ({ label: c.name, value: c.name })),
+                        value: formData.countryOfResidence,
+                        onChange: handleCountryChange,
+                        required: true
+                      })}
+                      {residenceCountryIso && (State.getStatesOfCountry(residenceCountryIso) || []).length > 0 && (
+                        renderCustomSelect({
+                          label: "State / Province",
+                          field: "state",
+                          options: (State.getStatesOfCountry(residenceCountryIso) || []).map(s => ({ label: s.name, value: s.name })),
+                          value: (State.getStatesOfCountry(residenceCountryIso) || []).find(s => s.isoCode === residenceStateIso)?.name || '',
+                          onChange: handleStateChange,
+                          required: false
+                        })
+                      )}
+                      {residenceCountryIso && (
+                        isCustomCity || (residenceStateIso ? (City.getCitiesOfState(residenceCountryIso, residenceStateIso) || []).length === 0 : (City.getCitiesOfCountry(residenceCountryIso) || []).length === 0) ? (
+                          <div className="space-y-1 sm:space-y-2">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">
+                              City <span className="text-gray-400">(Specify)</span>
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={formData.city}
+                                onChange={e => updateForm('city', e.target.value)}
+                                placeholder="Type city..."
+                                className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300"
+                              />
+                              {(residenceStateIso ? (City.getCitiesOfState(residenceCountryIso, residenceStateIso) || []).length > 0 : (City.getCitiesOfCountry(residenceCountryIso) || []).length > 0) && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setIsCustomCity(false);
+                                    updateForm('city', '');
+                                  }}
+                                  className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all"
+                                >
+                                  List
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          renderCustomSelect({
+                            label: "City",
+                            field: "city",
+                            options: [
+                              ...(residenceStateIso ? (City.getCitiesOfState(residenceCountryIso, residenceStateIso) || []) : (City.getCitiesOfCountry(residenceCountryIso) || [])).map(c => ({ label: c.name, value: c.name })),
+                              { label: "Other (Specify)", value: "Other" }
+                            ],
+                            value: formData.city,
+                            onChange: handleCityChange,
+                            required: false
+                          })
+                        )
+                      )}
+                      {renderInput({ label: "WhatsApp Number (with country code)", field: "whatsapp", placeholder: "+971 50 000 0000", type: "tel", required: true })}
+                      {renderInput({ label: "LinkedIn Profile URL", field: "linkedin", placeholder: "https://linkedin.com/in/username", type: "url" })}
                     </div>
                   )}
 
@@ -550,9 +792,16 @@ export default function SignUpTalent() {
                           <>
                             {renderInput({ label: "Current Job Title", field: "jobTitle", placeholder: "e.g. Engineering Manager", required: true })}
                             {renderInput({ label: "Current Employer Name", field: "employerName", placeholder: "e.g. Tech Global", required: true })}
-                            {renderInput({ label: "Country of Employment", field: "employmentCountry", placeholder: "e.g. Singapore" })}
-                            {renderInput({ label: "Total Years of Experience", field: "totalExp", placeholder: "e.g. 8 Years", required: true })}
-                            {renderInput({ label: "Relevant Years of Experience", field: "relevantExp", placeholder: "e.g. 6 Years" })}
+                            {renderCustomSelect({
+                              label: "Country of Employment",
+                              field: "employmentCountry",
+                              options: countriesData.map(c => ({ label: c.name, value: c.name })),
+                              value: formData.employmentCountry,
+                              onChange: (val: string) => updateForm('employmentCountry', val),
+                              required: false
+                            })}
+                            {renderSelect({ label: "Total Years of Experience", field: "totalExp", options: experienceYears, required: true })}
+                            {renderSelect({ label: "Relevant Years of Experience", field: "relevantExp", options: experienceYears })}
                           </>
                         )}
                       </div>
@@ -574,7 +823,7 @@ export default function SignUpTalent() {
                         {renderSelect({ label: "Highest Qualification Achieved", field: "highestQualification", options: ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], required: true })}
                         {renderInput({ label: "Field of Study / Major", field: "fieldOfStudy", placeholder: "e.g. Computer Science", required: true })}
                         {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: true })}
-                        {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021" })}
+                        {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021", type: "number" })}
                         {renderRadioGroup({ label: "Do you hold any professional licences or registrations?", field: "hasLicences", options: ["Yes", "No"] })}
                         {formData.hasLicences === "Yes" && renderInput({ label: "List Licences & Issuing Authorities", field: "licencesList", placeholder: "e.g. CPA (AICPA), PMP (PMI)" })}
                       </div>
@@ -588,7 +837,7 @@ export default function SignUpTalent() {
                       {formData.englishTest && formData.englishTest !== "None / English is Native Language" && (
                         <>
                           {renderInput({ label: "Overall Score / Band", field: "overallScore", placeholder: "e.g. 7.5" })}
-                          {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "e.g. Oct 2023" })}
+                          {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "YYYY-MM-DD", type: "date" })}
                         </>
                       )}
                     </div>
@@ -620,7 +869,7 @@ export default function SignUpTalent() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                         {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"] })}
                         {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"], required: true })}
-                        {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "DD/MM/YYYY", required: true })}
+                        {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "YYYY-MM-DD", type: "date", required: true })}
                         {renderRadioGroup({ label: "Are you willing to undergo a medical and background check?", field: "medicalBackgroundCheck", options: ["Yes", "No"] })}
                         {renderRadioGroup({ label: "Do you have any criminal convictions?", field: "criminalConvictions", options: ["Yes", "No"] })}
                       </div>
@@ -639,10 +888,10 @@ export default function SignUpTalent() {
                       {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
                       {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile", required: true })}
                       {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile", required: true })}
-                      {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: true })}
-                      {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
-                      {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: true })}
-                      {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: true })}
+                      {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: false })}
+                      {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: false })}
+                      {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: false })}
+                      {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: false })}
                     </div>
                   )}
 

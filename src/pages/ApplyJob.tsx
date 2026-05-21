@@ -30,12 +30,53 @@ export default function ApplyJobPage() {
   });
 
   useEffect(() => {
-    // Get job ID from URL query params
-    const jobId = searchParams.get('id');
-    if (jobId) {
+    const fetchJob = async () => {
+      const jobId = searchParams.get('id');
+      if (!jobId) return;
+
+      try {
+        const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs/${jobId}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const result = await res.json();
+          const item = result.data;
+          if (item) {
+            setSelectedJob({
+              id: item.id,
+              title: item.title,
+              company: item.company,
+              companyLogo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+              location: item.location,
+              salary: item.salary || "Negotiable",
+              type: item.type,
+              mode: item.mode,
+              category: item.category,
+              postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              }),
+              description: item.description,
+              requirements: Array.isArray(item.requirements) 
+                ? item.requirements 
+                : JSON.parse(item.requirements || "[]"),
+              benefits: Array.isArray(item.benefits) 
+                ? item.benefits 
+                : JSON.parse(item.benefits || "[]")
+            });
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch live job details:", err);
+      }
+
+      // Fallback to mock jobs
       const job = jobs.find(j => j.id === jobId);
       if (job) setSelectedJob(job);
-    }
+    };
+
+    fetchJob();
   }, [searchParams]);
 
   const handleFormSubmit = async (e: React.FormEvent) => {

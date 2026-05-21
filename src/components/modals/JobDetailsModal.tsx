@@ -102,11 +102,10 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                 <div className="relative">
                   <Button
                     variant="outline"
-                    disabled={true}
-                    className="w-full py-4 rounded-2xl border-gray-200 text-gray-400 bg-gray-50 flex items-center justify-center gap-3 font-bold cursor-not-allowed opacity-60"
-                    onClick={(e) => { e.stopPropagation(); }}
+                    className="w-full py-4 rounded-2xl border-gray-200 text-rh-teal hover:bg-gray-50 flex items-center justify-center gap-3 font-bold cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }}
                   >
-                    <Share2 className="w-4 h-4 text-gray-400" />
+                    <Share2 className="w-4 h-4" />
                     Share this role
                   </Button>
 
@@ -146,9 +145,8 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
 
                 <Button
                   variant="primary"
-                  disabled={true}
-                  className="w-full py-4 rounded-2xl text-sm font-bold bg-gray-300 hover:bg-gray-300 border-none text-gray-500 cursor-not-allowed shadow-none"
-                  onClick={(e) => { e.stopPropagation(); }}
+                  className="w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-rh-red/20 cursor-pointer"
+                  onClick={(e) => navigateToApply(e, job.id)}
                 >
                   Apply Now
                 </Button>
@@ -239,11 +237,10 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  disabled={true}
-                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 cursor-not-allowed opacity-60"
-                  onClick={(e) => { e.stopPropagation(); }}
+                  className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-rh-teal hover:bg-gray-100 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }}
                 >
-                  <Share2 className="w-5 h-5 text-gray-400" />
+                  <Share2 className="w-5 h-5" />
                 </button>
                 <button
                   onClick={onClose}
@@ -366,9 +363,8 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
             <div className="p-6 md:p-10 border-t border-gray-100 bg-white shrink-0">
               <Button
                 variant="primary"
-                disabled={true}
-                className="w-full py-4 md:py-6 rounded-2xl text-sm md:text-base font-bold bg-gray-300 hover:bg-gray-300 border-none text-gray-500 cursor-not-allowed shadow-none"
-                onClick={(e) => { e.stopPropagation(); }}
+                className="w-full py-4 md:py-6 rounded-2xl text-sm md:text-base font-bold shadow-lg shadow-rh-red/20"
+                onClick={(e) => navigateToApply(e, job.id)}
               >
                 Apply for this job
               </Button>

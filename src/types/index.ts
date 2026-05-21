@@ -242,6 +242,8 @@ export interface DropdownProps {
   label?: string;
   placeholder?: string;
   className?: string;
+  triggerClassName?: string;
+  searchable?: boolean;
 }
 
 // Badge Types

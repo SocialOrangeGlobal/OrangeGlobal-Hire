@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Building, Clock } from 'lucide-react';
@@ -12,14 +12,60 @@ import { useAppSelector } from '../../store';
 export default function FeaturedJobs() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const [jobsList, setJobsList] = useState<Job[]>(jobs);
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+  // Fetch from NestJS backend API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=100&published=true`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const result = await res.json();
+          const items = result.data?.items || [];
+          
+          if (items.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const formattedJobs = items.map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              company: item.company,
+              companyLogo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+              location: item.location,
+              salary: item.salary || "Negotiable",
+              type: item.type,
+              mode: item.mode,
+              category: item.category,
+              postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              }),
+              description: item.description,
+              requirements: Array.isArray(item.requirements) 
+                ? item.requirements 
+                : JSON.parse(item.requirements || "[]"),
+              benefits: Array.isArray(item.benefits) 
+                ? item.benefits 
+                : JSON.parse(item.benefits || "[]")
+            }));
+            setJobsList(formattedJobs);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load featured jobs:", err);
+      }
+    };
+    fetchJobs();
+  }, []);
 
   if (isAuthenticated && user?.role === 'EMPLOYER') return null;
 
   const filteredJobs = activeCategory === 'All Jobs'
-    ? jobs
-    : jobs.filter(job => job.category === activeCategory);
+    ? jobsList
+    : jobsList.filter(job => job.category === activeCategory);
 
   return (
     <section id="jobs" className="bg-rh-light py-16 md:py-24">
@@ -134,9 +180,8 @@ export default function FeaturedJobs() {
                   </Button>
                   <Button
                     variant="primary"
-                    disabled={true}
-                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap bg-gray-300 hover:bg-gray-300 border-none text-gray-500 cursor-not-allowed shadow-none"
-                    onClick={(e) => { e.stopPropagation(); }}
+                    className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
                   >
                     Apply Now
                   </Button>

@@ -29,6 +29,7 @@ export interface SignUpTalentDto {
   experiences?: ExperienceEntry[];
   resumeUrl?: string;
   avatarUrl?: string;
+  companyLogo?: string;
 
   dob?: string;
   age?: string;
@@ -101,6 +102,7 @@ export interface AuthUser {
   email: string;
   fullName?: string;
   avatarUrl?: string;
+  companyLogo?: string;
   role: UserRole;
   createdAt: string;
 }

@@ -38,6 +38,7 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 *   **Dynamic Discovery**: Real-time filtering by keywords, industry, and location.
 *   **High-Fidelity Modals**: Feature-rich modals with social sharing and deep-link integration.
 *   **Streamlined Apply Flow**: Multi-step registration for talent with AI-assisted resume scoring and an aesthetic, split-view inline inbox verification success screen matching the employer flow.
+*   **Contact Integration**: Direct communication channels between users and the platform administrators via `src/lib/contact.ts` integration.
 
 ## 🏗️ Project Structure
 

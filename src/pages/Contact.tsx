@@ -2,47 +2,114 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight
+  Mail, Phone, MapPin, Send, ArrowRight, AlertCircle
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
-import { fadeUp, scaleIn } from '../utils/animations';
+import { fadeUp } from '../utils/animations';
 import { contactBoxes, contactDetails, subjectOptions } from '../data/index';
+import { contactApi } from '../lib/contact';
 
 export default function ContactPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [subject, setSubject] = useState('General Inquiry');
+
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    message: '',
+  });
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear validation error when user types
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!formData.fullName.trim()) {
+      errors.fullName = 'Full name is required';
+    } else if (formData.fullName.trim().length < 2) {
+      errors.fullName = 'Full name must be at least 2 characters';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email address is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        errors.email = 'Please enter a valid email address';
+      }
+    }
+
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setSubmitted(true);
+    try {
+      await contactApi.submitMessage({
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || undefined,
+        subject,
+        message: formData.message.trim(),
+      });
+      
+      toast.success('Your message has been submitted successfully!');
+      
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        message: '',
+      });
+      setSubject('General Inquiry');
+      setValidationErrors({});
+    } catch (err: any) {
+      console.error('Contact submission error:', err);
+      const backendMessage = err.response?.data?.message;
+      if (Array.isArray(backendMessage)) {
+        setSubmitError(backendMessage.join(', '));
+      } else if (typeof backendMessage === 'string') {
+        setSubmitError(backendMessage);
+      } else {
+        setSubmitError(err.message || 'An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-6">
-        <motion.div
-          initial="hidden" animate="visible" variants={scaleIn}
-          className="max-w-xl w-full text-center"
-        >
-          <div className="w-24 h-24 bg-green-50 text-green-500 rounded-[32px] flex items-center justify-center mx-auto mb-10 shadow-inner border border-green-100">
-            <CheckCircle2 className="w-12 h-12" />
-          </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-rh-teal mb-6 tracking-tight">Message Received!</h2>
-          <p className="text-gray-500 text-lg leading-relaxed mb-12">
-            Thank you for reaching out. Our team has received your inquiry and will get back to you within 24 business hours.
-          </p>
-          <Button variant="primary" onClick={() => navigate('/')} className="px-12 py-4 rounded-2xl">Return to Home</Button>
-        </motion.div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="bg-white min-h-screen">
@@ -117,22 +184,60 @@ export default function ContactPage() {
                 className="bg-white rounded-[32px] sm:rounded-[48px] p-8 sm:p-12 md:p-16 shadow-2xl shadow-gray-200/50 border border-gray-100"
               >
                 <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                  {submitError && (
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Submission Failed</p>
+                        <p className="text-red-500/90 mt-0.5">{submitError}</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div className="space-y-2">
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                       <input
-                        required type="text"
+                        required
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleInputChange}
                         placeholder="e.g. John Doe"
-                        className="w-full px-6 py-4 bg-rh-light border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 outline-none transition-all text-sm font-medium"
+                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${
+                          validationErrors.fullName
+                            ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                            : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                        }`}
                       />
+                      {validationErrors.fullName && (
+                        <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          {validationErrors.fullName}
+                        </span>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                       <input
-                        required type="email"
+                        required
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         placeholder="john@company.com"
-                        className="w-full px-6 py-4 bg-rh-light border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 outline-none transition-all text-sm font-medium"
+                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${
+                          validationErrors.email
+                            ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                            : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                        }`}
                       />
+                      {validationErrors.email && (
+                        <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          {validationErrors.email}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -141,6 +246,9 @@ export default function ContactPage() {
                       <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                       <input
                         type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
                         placeholder="+91 (000) 000 000"
                         className="w-full px-6 py-4 bg-rh-light border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 outline-none transition-all text-sm font-medium"
                       />
@@ -160,9 +268,22 @@ export default function ContactPage() {
                     <label className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Message</label>
                     <textarea
                       required
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       placeholder="How can we help you?"
-                      className="w-full h-32 sm:h-48 px-6 py-4 bg-rh-light border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 outline-none transition-all text-sm font-medium resize-none"
+                      className={`w-full h-32 sm:h-48 px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium resize-none border ${
+                        validationErrors.message
+                          ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                          : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                      }`}
                     />
+                    {validationErrors.message && (
+                      <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {validationErrors.message}
+                      </span>
+                    )}
                   </div>
 
                   <div className="pt-4">

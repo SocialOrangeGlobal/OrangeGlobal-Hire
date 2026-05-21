@@ -19,14 +19,32 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Dropdown from '../components/ui/Dropdown';
 import { signUpPositionType } from '../data';
+import { Country, State, City } from 'country-state-city';
+
+const toDateInput = (raw: string): string => {
+  if (!raw || typeof raw !== "string") return "";
+  const s = raw.trim();
+  if (!s) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (s.includes("T")) return s.split("T")[0];
+  const slashDMY = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (slashDMY) return `${slashDMY[3]}-${slashDMY[2].padStart(2, "0")}-${slashDMY[1].padStart(2, "0")}`;
+  const dashDMY = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(s);
+  if (dashDMY) return `${dashDMY[3]}-${dashDMY[2].padStart(2, "0")}-${dashDMY[1].padStart(2, "0")}`;
+  return "";
+};
 
 // --- Schemas ---
 const talentUpdateSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
   location: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string()
+    .min(1, 'Phone number is required')
+    .refine((val) => val.replace(/\D/g, '').length >= 5, {
+      message: 'Phone number must have at least 5 digits',
+    }),
   avatarUrl: z.string().optional(),
-  resumeUrl: z.string().optional(),
+  resumeUrl: z.string().min(1, 'Resume / CV is required'),
   educations: z.array(z.object({
     school: z.string().min(1, 'School is required'),
     degree: z.string().min(1, 'Degree is required'),
@@ -38,16 +56,22 @@ const talentUpdateSchema = z.object({
     company: z.string().min(1, 'Company is required'),
     responsibilities: z.string().min(10, 'Please describe your role'),
   })),
-  dob: z.string().optional(),
+  dob: z.string().min(1, 'Date of Birth is required'),
   age: z.string().optional(),
   gender: z.string().optional(),
-  nationality: z.string().optional(),
-  countryOfResidence: z.string().optional(),
-  whatsapp: z.string().optional(),
+  nationality: z.string().min(1, 'Nationality is required'),
+  countryOfResidence: z.string().min(1, 'Country of Residence is required'),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  whatsapp: z.string()
+    .min(1, 'WhatsApp number is required')
+    .refine((val) => val.replace(/\D/g, '').length >= 5, {
+      message: 'WhatsApp number must have at least 5 digits',
+    }),
   linkedin: z.string().optional(),
-  opportunityType: z.string().optional(),
-  preferredIndustry: z.string().optional(),
-  preferredRole: z.string().optional(),
+  opportunityType: z.string().min(1, 'Please select an opportunity type'),
+  preferredIndustry: z.string().min(1, 'Preferred Industry is required'),
+  preferredRole: z.string().min(1, 'Preferred Role is required'),
   preferredSalary: z.string().optional(),
   startDate: z.string().optional(),
   jobTitle: z.string().optional(),
@@ -56,45 +80,82 @@ const talentUpdateSchema = z.object({
   totalExp: z.string().optional(),
   relevantExp: z.string().optional(),
   summary: z.string().optional(),
-  isEmployed: z.string().optional(),
+  isEmployed: z.string().min(1, 'Please indicate if you are currently employed'),
   workedOverseas: z.string().optional(),
   overseasCountries: z.string().optional(),
-  highestQualification: z.string().optional(),
-  fieldOfStudy: z.string().optional(),
-  institutionName: z.string().optional(),
+  highestQualification: z.string().min(1, 'Please select your highest qualification'),
+  fieldOfStudy: z.string().min(1, 'Field of Study is required'),
+  institutionName: z.string().min(1, 'Institution Name is required'),
   graduationYear: z.string().optional(),
   hasLicences: z.string().optional(),
   licencesList: z.string().optional(),
-  englishTest: z.string().optional(),
+  englishTest: z.string().min(1, 'Please select your English test status'),
   overallScore: z.string().optional(),
   testDate: z.string().optional(),
-  visaStatus: z.string().optional(),
-  legalWorkRights: z.string().optional(),
-  openToRelocation: z.string().optional(),
+  visaStatus: z.string().min(1, 'Current Visa / Residency Status is required'),
+  legalWorkRights: z.string().min(1, 'Legal Work Rights information is required'),
+  openToRelocation: z.string().min(1, 'Please indicate if you are open to relocation'),
   appliedAusVisa: z.string().optional(),
   visaTypeApplied: z.string().optional(),
   visaRefusal: z.string().optional(),
   visaRefusalDetails: z.string().optional(),
   relocateAloneOrFamily: z.string().optional(),
-  validPassport: z.string().optional(),
+  validPassport: z.string().min(1, 'Please indicate if you hold a valid passport'),
   passportExpiry: z.string().optional(),
   medicalBackgroundCheck: z.string().optional(),
   criminalConvictions: z.string().optional(),
   criminalDetails: z.string().optional(),
   passportUrl: z.string().min(1, 'Passport document is required'),
   visaUrl: z.string().min(1, 'Visa / Residency permit document is required'),
-  eduCertUrl: z.string().min(1, 'Educational certificates are required'),
-  empCertUrl: z.string().min(1, 'Employment certificates are required'),
-  englishTestUrl: z.string().min(1, 'English test results are required'),
-  licenceUrl: z.string().min(1, 'Professional licences / certifications are required'),
+  eduCertUrl: z.string().optional(),
+  empCertUrl: z.string().optional(),
+  englishTestUrl: z.string().optional(),
+  licenceUrl: z.string().optional(),
   declarationTrue: z.string().optional(),
   declarationConsent: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.isEmployed === 'Yes') {
+    if (!data.jobTitle || !data.jobTitle.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Current Job Title is required',
+        path: ['jobTitle'],
+      });
+    }
+    if (!data.employerName || !data.employerName.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Current Employer Name is required',
+        path: ['employerName'],
+      });
+    }
+    if (!data.totalExp || !data.totalExp.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Total Years of Experience is required',
+        path: ['totalExp'],
+      });
+    }
+  }
+  if (data.validPassport === 'Yes') {
+    if (!data.passportExpiry || !data.passportExpiry.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Passport Expiry Date is required',
+        path: ['passportExpiry'],
+      });
+    }
+  }
 });
 
 const employerUpdateSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
   lastName: z.string().min(2, 'Last name is required'),
-  businessPhone: z.string().optional(),
+  businessPhone: z.string()
+    .min(1, 'Business phone is required')
+    .refine((val) => val.replace(/\D/g, '').length >= 5, {
+      message: 'Business phone must have at least 5 digits',
+    }),
   companyLogo: z.string().optional(),
   companyName: z.string().min(2, 'Company name is required'),
   jobTitle: z.string().min(2, 'Your job title is required'),
@@ -228,6 +289,11 @@ export default function ManageProfile() {
 
   const isTalent = user?.role === 'TALENT';
 
+  const [residenceCountryIso, setResidenceCountryIso] = useState<string>('');
+  const [residenceStateIso, setResidenceStateIso] = useState<string>('');
+  const [isCustomCity, setIsCustomCity] = useState<boolean>(false);
+  const [isCustomNationality, setIsCustomNationality] = useState<boolean>(false);
+
   const [openSection, setOpenSection] = useState<string>('personal');
   const [selectedDoc, setSelectedDoc] = useState<{ url: string; title: string } | null>(null);
   const [deletingResumeId, setDeletingResumeId] = useState<string | null>(null);
@@ -251,44 +317,82 @@ export default function ManageProfile() {
     }
   };
 
-  const renderEditInput = (label: string, name: string, placeholder?: string, type: string = "text") => {
+  const renderEditInput = (label: string, name: string, placeholder?: string, type: string = "text", required: boolean = false) => {
+    const isPhoneNumber = name === 'phone' || name === 'whatsapp' || name === 'businessPhone';
+    const formToUse = isTalent ? talentForm : employerForm;
+    const error = (formToUse.formState.errors as any)[name];
     return (
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
         <input
           type={type}
           placeholder={placeholder}
-          {...talentForm.register(name as any)}
-          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium"
-        />
-      </div>
-    );
-  };
-
-  const renderEditSelect = (label: string, name: string, options: string[]) => {
-    return (
-      <div className="space-y-2">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
-        <Controller
-          name={name as any}
-          control={talentForm.control}
-          render={({ field }) => (
-            <Dropdown
-              options={options.map(o => ({ label: o, value: o }))}
-              value={field.value || ''}
-              onChange={field.onChange}
-              className="border-transparent bg-[#F4F7FA] focus:bg-white"
-            />
+          {...(isTalent
+            ? talentForm.register(name as any, isPhoneNumber ? {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/[^\d+\s\-]/g, '');
+              }
+            } : undefined)
+            : employerForm.register(name as any, isPhoneNumber ? {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/[^\d+\s\-]/g, '');
+              }
+            } : undefined)
           )}
+          onClick={type === "date" ? (e) => {
+            try {
+              e.currentTarget.showPicker();
+            } catch (err) { }
+          } : undefined}
+          onFocus={type === "date" ? (e) => {
+            try {
+              e.currentTarget.showPicker();
+            } catch (err) { }
+          } : undefined}
+          className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium dark:[color-scheme:dark]`}
         />
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+          </motion.p>
+        )}
       </div>
     );
   };
 
-  const renderEditRadio = (label: string, name: string, options: string[]) => {
+  const renderEditSelect = (label: string, name: string, options: string[], required: boolean = false) => {
+    const error = (talentForm.formState.errors as any)[name];
     return (
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
+        <div className={`rounded-2xl border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+          <Controller
+            name={name as any}
+            control={talentForm.control}
+            render={({ field }) => (
+              <Dropdown
+                options={options.map(o => ({ label: o, value: o }))}
+                value={field.value || ''}
+                onChange={field.onChange}
+                className="border-transparent bg-[#F4F7FA] focus:bg-white"
+              />
+            )}
+          />
+        </div>
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+          </motion.p>
+        )}
+      </div>
+    );
+  };
+
+  const renderEditRadio = (label: string, name: string, options: string[], required: boolean = false) => {
+    const error = (talentForm.formState.errors as any)[name];
+    return (
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
         <Controller
           name={name as any}
           control={talentForm.control}
@@ -299,7 +403,12 @@ export default function ManageProfile() {
                   key={o}
                   type="button"
                   onClick={() => field.onChange(o)}
-                  className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border text-sm font-bold transition-all ${field.value === o ? 'border-rh-teal bg-rh-teal/5 text-rh-teal' : 'border-gray-200 hover:border-rh-teal/30 text-gray-600 bg-white'}`}
+                  className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border text-sm font-bold transition-all ${field.value === o
+                      ? 'border-rh-teal bg-rh-teal/5 text-rh-teal'
+                      : error
+                        ? 'border-red-300 hover:border-red-400 text-gray-600 bg-white'
+                        : 'border-gray-200 hover:border-rh-teal/30 text-gray-600 bg-white'
+                    }`}
                 >
                   {o}
                 </button>
@@ -307,25 +416,36 @@ export default function ManageProfile() {
             </div>
           )}
         />
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+          </motion.p>
+        )}
       </div>
     );
   };
 
-  const renderEditTextarea = (label: string, name: string, placeholder?: string, rows: number = 3) => {
+  const renderEditTextarea = (label: string, name: string, placeholder?: string, rows: number = 3, required: boolean = false) => {
+    const error = (talentForm.formState.errors as any)[name];
     return (
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
         <textarea
           rows={rows}
           placeholder={placeholder}
           {...talentForm.register(name as any)}
-          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium resize-none"
+          className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium resize-none`}
         />
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+          </motion.p>
+        )}
       </div>
     );
   };
 
-  const renderEditDocUpload = (label: string, name: string, folder: string, accept: string = ".pdf,.doc,.docx,.jpg,.jpeg,.png") => {
+  const renderEditDocUpload = (label: string, name: string, folder: string, required: boolean = false, accept: string = ".pdf,.doc,.docx,.jpg,.jpeg,.png") => {
     const url = talentForm.watch(name as any);
     const inputId = `doc-upload-${name}`;
     const error = (talentForm.formState.errors as any)[name];
@@ -383,7 +503,7 @@ export default function ManageProfile() {
             </div>
             <div>
               <h4 className="text-lg font-bold text-rh-teal mb-0.5">
-                {label} <span className="text-red-500">*</span>
+                {label} {required && <span className="text-red-500">*</span>}
               </h4>
               {textElement}
             </div>
@@ -461,6 +581,35 @@ export default function ManageProfile() {
     fetchProfile();
   }, []);
 
+  const watchedDob = talentForm.watch('dob');
+  useEffect(() => {
+    if (watchedDob) {
+      const birthDateVal = toDateInput(watchedDob);
+      if (birthDateVal) {
+        const birthDate = new Date(birthDateVal);
+        if (!isNaN(birthDate.getTime())) {
+          const today = new Date();
+          let computedAge = today.getFullYear() - birthDate.getFullYear();
+          const m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            computedAge--;
+          }
+          if (computedAge >= 0) {
+            const currentAge = talentForm.getValues('age');
+            if (currentAge !== computedAge.toString()) {
+              talentForm.setValue('age', computedAge.toString(), { shouldDirty: true, shouldValidate: true });
+            }
+          }
+        }
+      }
+    } else {
+      const currentAge = talentForm.getValues('age');
+      if (currentAge) {
+        talentForm.setValue('age', '', { shouldDirty: true, shouldValidate: true });
+      }
+    }
+  }, [watchedDob, talentForm]);
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -470,10 +619,44 @@ export default function ManageProfile() {
       console.log("Profile: ", profile);
 
       if (data.role === 'TALENT') {
-        const p = data.profile;
+        const p = data.profile || {};
         const locationString = p.location && typeof p.location === 'object'
           ? `${p.location.city || ''}${p.location.city && p.location.country ? ', ' : ''}${p.location.country || ''}`
           : (p.location || '');
+
+        const countryName = p.location && typeof p.location === 'object' ? (p.location.country || '') : (p.countryOfResidence || '');
+        const stateName = p.location && typeof p.location === 'object' ? (p.location.state || '') : '';
+        const cityName = p.location && typeof p.location === 'object' ? (p.location.city || '') : '';
+
+        // Find country IsoCode
+        const countriesList = Country.getAllCountries();
+        const countryObj = countriesList.find(c => c.name === countryName);
+        const cIso = countryObj ? countryObj.isoCode : '';
+        setResidenceCountryIso(cIso);
+
+        // Find state IsoCode
+        let sIso = '';
+        if (cIso && stateName) {
+          const statesList = State.getStatesOfCountry(cIso);
+          const stateObj = statesList.find(s => s.name === stateName);
+          sIso = stateObj ? stateObj.isoCode : '';
+        }
+        setResidenceStateIso(sIso);
+
+        // Check if city is custom
+        if (cIso && cityName) {
+          const citiesList = sIso
+            ? City.getCitiesOfState(cIso, sIso)
+            : City.getCitiesOfCountry(cIso);
+          const cityExists = (citiesList || []).some(c => c.name === cityName);
+          setIsCustomCity(!cityExists);
+        } else {
+          setIsCustomCity(false);
+        }
+
+        const nationalityName = p.nationality || '';
+        const nationalityExists = countriesList.some(c => c.name === nationalityName);
+        setIsCustomNationality(nationalityName ? !nationalityExists : false);
 
         talentForm.reset({
           fullName: p.fullName || '',
@@ -484,11 +667,13 @@ export default function ManageProfile() {
           educations: p.educations || [],
           skills: p.skills || [],
           experiences: p.experiences || [],
-          dob: p.dob || '',
+          dob: toDateInput(p.dob || ''),
           age: p.age || '',
           gender: p.gender || '',
           nationality: p.nationality || '',
           countryOfResidence: p.countryOfResidence || '',
+          city: cityName,
+          state: stateName,
           whatsapp: p.whatsapp || '',
           linkedin: p.linkedin || '',
           opportunityType: p.opportunityType || '',
@@ -523,7 +708,7 @@ export default function ManageProfile() {
           visaRefusalDetails: p.visaRefusalDetails || '',
           relocateAloneOrFamily: p.relocateAloneOrFamily || '',
           validPassport: p.validPassport || '',
-          passportExpiry: p.passportExpiry || '',
+          passportExpiry: toDateInput(p.passportExpiry || ''),
           medicalBackgroundCheck: p.medicalBackgroundCheck || '',
           criminalConvictions: p.criminalConvictions || '',
           criminalDetails: p.criminalDetails || '',
@@ -567,6 +752,9 @@ export default function ManageProfile() {
   const onUpdateSubmit = async (data: any) => {
     setSaving(true);
     try {
+      if (isTalent) {
+        data.location = `${data.city ? data.city + ', ' : ''}${data.countryOfResidence || ''}`;
+      }
       await authApi.updateProfile(data);
 
       // Update local Redux state for the header/navbar
@@ -1625,15 +1813,186 @@ export default function ManageProfile() {
                           {openSection === 'personal' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="grid md:grid-cols-2 gap-6">
-                                {renderEditInput("Full Name (As per Passport)", "fullName")}
-                                {renderEditInput("Phone Number", "phone")}
-                                {renderEditInput("Location (City, Country)", "location")}
-                                {renderEditInput("Date of Birth", "dob", "DD/MM/YYYY")}
+                                {renderEditInput("Full Name (As per Passport)", "fullName", undefined, "text", true)}
+                                {renderEditInput("Phone Number", "phone", undefined, "text", true)}
+                                {renderEditInput("Date of Birth", "dob", "YYYY-MM-DD", "date", true)}
                                 {renderEditInput("Age", "age", "e.g. 28")}
                                 {renderEditSelect("Gender", "gender", ["Male", "Female", "Other", "Prefer not to say"])}
-                                {renderEditInput("Nationality", "nationality")}
-                                {renderEditInput("Country of Residence", "countryOfResidence")}
-                                {renderEditInput("WhatsApp Number (with country code)", "whatsapp", "+971 50 000 0000")}
+
+                                <div className="space-y-2">
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nationality<span className="text-red-500 ml-0.5">*</span></label>
+                                  <Controller
+                                    name="nationality"
+                                    control={talentForm.control}
+                                    render={({ field }) => {
+                                      const countries = Country.getAllCountries();
+                                      const options = [
+                                        ...countries.map(c => ({ label: c.name, value: c.name })),
+                                        { label: 'Other (Specify)', value: 'Other' }
+                                      ];
+                                      return (
+                                        <div className="space-y-3">
+                                          <div className={`rounded-2xl border ${talentForm.formState.errors.nationality ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+                                            <Dropdown
+                                              options={options}
+                                              value={isCustomNationality ? 'Other' : field.value || ''}
+                                              onChange={(val) => {
+                                                if (val === 'Other') {
+                                                  setIsCustomNationality(true);
+                                                  field.onChange('');
+                                                } else {
+                                                  setIsCustomNationality(false);
+                                                  field.onChange(val);
+                                                }
+                                              }}
+                                              searchable={true}
+                                              placeholder="Select Nationality"
+                                              className="border-transparent bg-[#F4F7FA] focus:bg-white"
+                                            />
+                                          </div>
+                                          {isCustomNationality && (
+                                            <input
+                                              type="text"
+                                              value={field.value || ''}
+                                              onChange={(e) => field.onChange(e.target.value)}
+                                              placeholder="Enter custom nationality"
+                                              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium"
+                                            />
+                                          )}
+                                        </div>
+                                      );
+                                    }}
+                                  />
+                                  {talentForm.formState.errors.nationality && (
+                                    <p className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                      <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {talentForm.formState.errors.nationality.message}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="space-y-2">
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Country of Residence<span className="text-red-500 ml-0.5">*</span></label>
+                                  <Controller
+                                    name="countryOfResidence"
+                                    control={talentForm.control}
+                                    render={({ field }) => {
+                                      const countries = Country.getAllCountries();
+                                      const options = countries.map(c => ({ label: c.name, value: c.name }));
+                                      return (
+                                        <div className={`rounded-2xl border ${talentForm.formState.errors.countryOfResidence ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
+                                          <Dropdown
+                                            options={options}
+                                            value={field.value || ''}
+                                            onChange={(val) => {
+                                              field.onChange(val);
+                                              const countryObj = countries.find(c => c.name === val);
+                                              if (countryObj) {
+                                                setResidenceCountryIso(countryObj.isoCode);
+                                              } else {
+                                                setResidenceCountryIso('');
+                                              }
+                                              setResidenceStateIso('');
+                                              talentForm.setValue('state', '');
+                                              talentForm.setValue('city', '');
+                                              setIsCustomCity(false);
+                                            }}
+                                            searchable={true}
+                                            placeholder="Select Country"
+                                            className="border-transparent bg-[#F4F7FA] focus:bg-white"
+                                          />
+                                        </div>
+                                      );
+                                    }}
+                                  />
+                                  {talentForm.formState.errors.countryOfResidence && (
+                                    <p className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                      <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {talentForm.formState.errors.countryOfResidence.message}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="space-y-2">
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">State / Province</label>
+                                  <Controller
+                                    name="state"
+                                    control={talentForm.control}
+                                    render={({ field }) => {
+                                      const statesList = residenceCountryIso ? State.getStatesOfCountry(residenceCountryIso) : [];
+                                      const options = statesList.map(s => ({ label: s.name, value: s.name }));
+                                      return (
+                                        <Dropdown
+                                          options={options}
+                                          value={field.value || ''}
+                                          onChange={(val) => {
+                                            field.onChange(val);
+                                            const stateObj = statesList.find(s => s.name === val);
+                                            if (stateObj) {
+                                              setResidenceStateIso(stateObj.isoCode);
+                                            } else {
+                                              setResidenceStateIso('');
+                                            }
+                                            talentForm.setValue('city', '');
+                                            setIsCustomCity(false);
+                                          }}
+                                          searchable={true}
+                                          placeholder={residenceCountryIso ? "Select State / Province" : "Please select a country first"}
+                                          className={!residenceCountryIso ? "opacity-60 pointer-events-none" : ""}
+                                        />
+                                      );
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">City</label>
+                                  <Controller
+                                    name="city"
+                                    control={talentForm.control}
+                                    render={({ field }) => {
+                                      let citiesList: any[] = [];
+                                      if (residenceCountryIso) {
+                                        citiesList = (residenceStateIso
+                                          ? City.getCitiesOfState(residenceCountryIso, residenceStateIso)
+                                          : City.getCitiesOfCountry(residenceCountryIso)) || [];
+                                      }
+                                      const options = [
+                                        ...(citiesList || []).map(c => ({ label: c.name, value: c.name })),
+                                        { label: 'Other (Specify)', value: 'Other' }
+                                      ];
+                                      return (
+                                        <div className="space-y-3">
+                                          <Dropdown
+                                            options={options}
+                                            value={isCustomCity ? 'Other' : field.value || ''}
+                                            onChange={(val) => {
+                                              if (val === 'Other') {
+                                                setIsCustomCity(true);
+                                                field.onChange('');
+                                              } else {
+                                                setIsCustomCity(false);
+                                                field.onChange(val);
+                                              }
+                                            }}
+                                            searchable={true}
+                                            placeholder={residenceCountryIso ? "Select City" : "Please select a country first"}
+                                            className={!residenceCountryIso ? "opacity-60 pointer-events-none" : ""}
+                                          />
+                                          {isCustomCity && (
+                                            <input
+                                              type="text"
+                                              value={field.value || ''}
+                                              onChange={(e) => field.onChange(e.target.value)}
+                                              placeholder="Enter custom city"
+                                              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium"
+                                            />
+                                          )}
+                                        </div>
+                                      );
+                                    }}
+                                  />
+                                </div>
+
+                                {renderEditInput("WhatsApp Number (with country code)", "whatsapp", "+971 50 000 0000", "text", true)}
                                 {renderEditInput("LinkedIn Profile URL", "linkedin", "https://linkedin.com/in/username")}
                               </div>
                             </div>
@@ -1655,10 +2014,10 @@ export default function ManageProfile() {
                           {openSection === 'preferences' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="space-y-6">
-                                {renderEditRadio("What type of opportunity are you looking for?", "opportunityType", ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"])}
+                                {renderEditRadio("What type of opportunity are you looking for?", "opportunityType", ["Full-Time Onsite", "Remote", "Hybrid", "Contract / Project-Based"], true)}
                                 <div className="grid md:grid-cols-2 gap-6">
-                                  {renderEditInput("Preferred Industry / Sector", "preferredIndustry", "e.g. Healthcare, IT, Finance")}
-                                  {renderEditInput("Preferred Role / Job Title", "preferredRole", "e.g. Senior Software Engineer")}
+                                  {renderEditInput("Preferred Industry / Sector", "preferredIndustry", "e.g. Healthcare, IT, Finance", "text", true)}
+                                  {renderEditInput("Preferred Role / Job Title", "preferredRole", "e.g. Senior Software Engineer", "text", true)}
                                   {renderEditInput("Preferred Salary Range & Currency", "preferredSalary", "e.g. $80,000 - $100,000 USD/year")}
                                   {renderEditInput("Earliest Start Date / Notice Period", "startDate", "e.g. 30 Days / Immediate")}
                                 </div>
@@ -1682,14 +2041,14 @@ export default function ManageProfile() {
                           {openSection === 'current' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="space-y-6">
-                                {renderEditRadio("Are you currently employed?", "isEmployed", ["Yes", "No"])}
+                                {renderEditRadio("Are you currently employed?", "isEmployed", ["Yes", "No"], true)}
 
                                 {talentForm.watch('isEmployed') === 'Yes' && (
                                   <div className="grid md:grid-cols-2 gap-6 p-4 sm:p-6 bg-[#F9FBFF] rounded-2xl border border-gray-100">
-                                    {renderEditInput("Current Job Title", "jobTitle", "e.g. Engineering Manager")}
-                                    {renderEditInput("Current Employer Name", "employerName", "e.g. Tech Global")}
+                                    {renderEditInput("Current Job Title", "jobTitle", "e.g. Engineering Manager", "text", true)}
+                                    {renderEditInput("Current Employer Name", "employerName", "e.g. Tech Global", "text", true)}
                                     {renderEditInput("Country of Employment", "employmentCountry", "e.g. Singapore")}
-                                    {renderEditInput("Total Years of Experience", "totalExp", "e.g. 8 Years")}
+                                    {renderEditInput("Total Years of Experience", "totalExp", "e.g. 8 Years", "text", true)}
                                     {renderEditInput("Relevant Years of Experience", "relevantExp", "e.g. 6 Years")}
                                   </div>
                                 )}
@@ -1814,9 +2173,9 @@ export default function ManageProfile() {
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
-                                  {renderEditSelect("Highest Qualification Achieved", "highestQualification", ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"])}
-                                  {renderEditInput("Field of Study / Major", "fieldOfStudy", "e.g. Computer Science")}
-                                  {renderEditInput("Institution Name", "institutionName", "e.g. Stanford University")}
+                                  {renderEditSelect("Highest Qualification Achieved", "highestQualification", ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], true)}
+                                  {renderEditInput("Field of Study / Major", "fieldOfStudy", "e.g. Computer Science", "text", true)}
+                                  {renderEditInput("Institution Name", "institutionName", "e.g. Stanford University", "text", true)}
                                   {renderEditInput("Graduation Year", "graduationYear", "e.g. 2021")}
                                 </div>
 
@@ -1895,7 +2254,7 @@ export default function ManageProfile() {
                           {openSection === 'language' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="grid md:grid-cols-2 gap-6">
-                                {renderEditSelect("English Test Status", "englishTest", ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"])}
+                                {renderEditSelect("English Test Status", "englishTest", ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], true)}
                                 {talentForm.watch('englishTest') && talentForm.watch('englishTest') !== 'None / English is Native Language' && (
                                   <>
                                     {renderEditInput("Overall Score / Band", "overallScore", "e.g. 7.5")}
@@ -1923,11 +2282,11 @@ export default function ManageProfile() {
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
-                                  {renderEditInput("Current Visa / Residency Status", "visaStatus", "e.g. Employment Pass / Citizen")}
-                                  {renderEditInput("Legal Work Rights in Target Country", "legalWorkRights", "e.g. Require Sponsorship / Permanent Resident")}
+                                  {renderEditInput("Current Visa / Residency Status", "visaStatus", "e.g. Employment Pass / Citizen", "text", true)}
+                                  {renderEditInput("Legal Work Rights in Target Country", "legalWorkRights", "e.g. Require Sponsorship / Permanent Resident", "text", true)}
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
-                                  {renderEditRadio("Are you open to relocation?", "openToRelocation", ["Yes", "No"])}
+                                  {renderEditRadio("Are you open to relocation?", "openToRelocation", ["Yes", "No"], true)}
                                   {renderEditRadio("Have you applied for an Australian Visa before?", "appliedAusVisa", ["Yes", "No"])}
                                   {talentForm.watch('appliedAusVisa') === 'Yes' && renderEditInput("Which Visa Subclass?", "visaTypeApplied", "e.g. Subclass 482, 189, 190")}
                                 </div>
@@ -1957,8 +2316,8 @@ export default function ManageProfile() {
                               <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditSelect("If relocating, will you relocate alone or with family?", "relocateAloneOrFamily", ["Alone", "With Partner", "With Family (Partner & Children)"])}
-                                  {renderEditRadio("Do you hold a valid passport?", "validPassport", ["Yes", "No"])}
-                                  {talentForm.watch('validPassport') === 'Yes' && renderEditInput("Passport Expiry Date", "passportExpiry", "DD/MM/YYYY")}
+                                  {renderEditRadio("Do you hold a valid passport?", "validPassport", ["Yes", "No"], true)}
+                                  {talentForm.watch('validPassport') === 'Yes' && renderEditInput("Passport Expiry Date", "passportExpiry", "YYYY-MM-DD", "date", true)}
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditRadio("Are you willing to undergo a medical and background check?", "medicalBackgroundCheck", ["Yes", "No"])}
@@ -1990,6 +2349,7 @@ export default function ManageProfile() {
                                 const url = talentForm.watch('resumeUrl');
                                 const sessionState = docUploadStates['resumeUrl'] || 'idle';
                                 const hasResume = !!url;
+                                const error = talentForm.formState.errors.resumeUrl;
 
                                 let cardClass = 'border-rh-teal/5 bg-[#F9FBFF]';
                                 let blurClass = 'bg-rh-teal/5';
@@ -2003,7 +2363,10 @@ export default function ManageProfile() {
                                 let buttonClass = 'border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white text-rh-teal';
                                 let buttonText = hasResume ? 'Update' : 'Upload';
 
-                                if (sessionState === 'success') {
+                                if (error) {
+                                  cardClass = 'border-red-500 bg-red-50/10';
+                                  blurClass = 'bg-red-500/5';
+                                } else if (sessionState === 'success') {
                                   cardClass = 'border-emerald-500/30 bg-emerald-50/20';
                                   blurClass = 'bg-emerald-500/5';
                                   iconClass = 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/10';
@@ -2030,89 +2393,96 @@ export default function ManageProfile() {
                                 }
 
                                 return (
-                                  <div className={`rounded-[2rem] p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 transition-all ${cardClass}`}>
-                                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none ${blurClass}`} />
+                                  <div className="space-y-1 w-full animate-fadeIn">
+                                    <div className={`rounded-[2rem] p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 transition-all ${cardClass}`}>
+                                      <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none ${blurClass}`} />
 
-                                    <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
-                                      <div className={`w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center border shrink-0 transition-all ${iconClass}`}>
-                                        {iconElement}
+                                      <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
+                                        <div className={`w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center border shrink-0 transition-all ${iconClass}`}>
+                                          {iconElement}
+                                        </div>
+                                        <div>
+                                          <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume <span className="text-red-500">*</span></h4>
+                                          {textElement}
+                                        </div>
                                       </div>
-                                      <div>
-                                        <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume <span className="text-red-500">*</span></h4>
-                                        {textElement}
-                                      </div>
-                                    </div>
 
-                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 relative z-10">
-                                      <input
-                                        id="resume-upload-edit"
-                                        type="file"
-                                        className="hidden"
-                                        accept=".pdf,.doc,.docx"
-                                        onChange={async (e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                            if ((profile?.resumes?.length || 0) >= 5) {
-                                              toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
-                                              return;
-                                            }
-                                            try {
-                                              setSaving(true);
-                                              const timestamp = Date.now();
-                                              const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
-                                              const url = await uploadFile(file, 'resumes', fileName);
-                                              talentForm.setValue('resumeUrl', url, { shouldDirty: true });
-
-                                              // Add to resumes list & calculate ATS score
-                                              const newResume = await authApi.addResume({
-                                                fileName: file.name,
-                                                fileUrl: url,
-                                              });
-                                              if (newResume?.atsScore) {
-                                                setResumeScore(newResume.atsScore);
+                                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 relative z-10">
+                                        <input
+                                          id="resume-upload-edit"
+                                          type="file"
+                                          className="hidden"
+                                          accept=".pdf,.doc,.docx"
+                                          onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                              if ((profile?.resumes?.length || 0) >= 5) {
+                                                toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
+                                                return;
                                               }
-                                              setDocUploadStates(prev => ({ ...prev, resumeUrl: 'success' }));
-                                              await fetchProfile();
-                                              toast.success('Resume uploaded successfully!');
-                                            } catch (err: any) {
-                                              setDocUploadStates(prev => ({ ...prev, resumeUrl: 'failed' }));
-                                              toast.error(err.response?.data?.message || 'Failed to upload resume');
-                                            } finally {
-                                              setSaving(false);
-                                            }
-                                          }
-                                        }}
-                                      />
-                                      <Button
-                                        type="button"
-                                        onClick={() => document.getElementById('resume-upload-edit')?.click()}
-                                        variant="outline"
-                                        className={`w-full sm:w-auto px-6 py-3 border-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center ${buttonClass}`}
-                                      >
-                                        <Upload className="w-4 h-4 mr-2" /> {buttonText}
-                                      </Button>
+                                              try {
+                                                setSaving(true);
+                                                const timestamp = Date.now();
+                                                const fileName = `${user?.id}-${timestamp}-${file.name.replace(/\s+/g, '-')}`;
+                                                const url = await uploadFile(file, 'resumes', fileName);
+                                                talentForm.setValue('resumeUrl', url, { shouldDirty: true });
 
-                                      {hasResume && (
-                                        <button
+                                                // Add to resumes list & calculate ATS score
+                                                const newResume = await authApi.addResume({
+                                                  fileName: file.name,
+                                                  fileUrl: url,
+                                                });
+                                                if (newResume?.atsScore) {
+                                                  setResumeScore(newResume.atsScore);
+                                                }
+                                                setDocUploadStates(prev => ({ ...prev, resumeUrl: 'success' }));
+                                                await fetchProfile();
+                                                toast.success('Resume uploaded successfully!');
+                                              } catch (err: any) {
+                                                setDocUploadStates(prev => ({ ...prev, resumeUrl: 'failed' }));
+                                                toast.error(err.response?.data?.message || 'Failed to upload resume');
+                                              } finally {
+                                                setSaving(false);
+                                              }
+                                            }
+                                          }}
+                                        />
+                                        <Button
                                           type="button"
-                                          onClick={() => setSelectedDoc({ url: talentForm.watch('resumeUrl') || '', title: 'Your Resume' })}
-                                          className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                          onClick={() => document.getElementById('resume-upload-edit')?.click()}
+                                          variant="outline"
+                                          className={`w-full sm:w-auto px-6 py-3 border-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center ${buttonClass}`}
                                         >
-                                          <Target className="w-4 h-4" /> View
-                                        </button>
-                                      )}
+                                          <Upload className="w-4 h-4 mr-2" /> {buttonText}
+                                        </Button>
+
+                                        {hasResume && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setSelectedDoc({ url: talentForm.watch('resumeUrl') || '', title: 'Your Resume' })}
+                                            className="w-full sm:w-auto px-6 py-3 bg-white text-rh-teal rounded-xl font-bold text-sm shadow-sm border border-gray-100 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                          >
+                                            <Target className="w-4 h-4" /> View
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
+                                    {error && (
+                                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+                                      </motion.p>
+                                    )}
                                   </div>
                                 );
                               })()}
 
                               <div className="space-y-6 pt-4">
-                                {renderEditDocUpload("Passport Copy (Bio-Data Page)", "passportUrl", "talent-documents")}
-                                {renderEditDocUpload("Current Visa / Residency Permit / Work Permit", "visaUrl", "talent-documents")}
-                                {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents")}
-                                {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents")}
-                                {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents")}
-                                {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents")}
+                                {renderEditDocUpload("Passport Copy (Bio-Data Page)", "passportUrl", "talent-documents", true)}
+                                {renderEditDocUpload("Current Visa / Residency Permit / Work Permit", "visaUrl", "talent-documents", true)}
+                                {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents", false)}
+                                {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents", false)}
+                                {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents", false)}
+                                {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents", false)}
                               </div>
                             </div>
                           )}
@@ -2185,7 +2555,7 @@ export default function ManageProfile() {
                         </div>
                       </div>                      <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">First Name <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('firstName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.firstName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.firstName && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -2194,7 +2564,7 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('lastName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.lastName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.lastName && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -2203,8 +2573,12 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone</label>
-                          <input {...employerForm.register('businessPhone')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Business Phone <span className="text-red-500">*</span></label>
+                          <input {...employerForm.register('businessPhone', {
+                            onChange: (e) => {
+                              e.target.value = e.target.value.replace(/[^\d+\s\-]/g, '');
+                            }
+                          })} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.businessPhone ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.businessPhone && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
                               <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {employerForm.formState.errors.businessPhone.message}
@@ -2221,7 +2595,7 @@ export default function ManageProfile() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Company Name <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('companyName')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.companyName ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.companyName && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -2230,7 +2604,7 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Position Type <span className="text-red-500">*</span></label>
                           <div className={`rounded-2xl border ${employerForm.formState.errors.positionType ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}>
                             <Controller
                               name="positionType"
@@ -2252,7 +2626,7 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Your Job Title <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('jobTitle')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.jobTitle ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.jobTitle && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -2261,7 +2635,7 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Job Title to Hire <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('jobTitleToHire')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.jobTitleToHire ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.jobTitleToHire && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -2270,7 +2644,7 @@ export default function ManageProfile() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code <span className="text-red-500">*</span></label>
                           <input {...employerForm.register('zipCode')} className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${employerForm.formState.errors.zipCode ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20 transition-all font-medium`} />
                           {employerForm.formState.errors.zipCode && (
                             <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
