@@ -24,7 +24,7 @@ export default function FeaturedJobs() {
         const res = await fetch(url);
         if (res.ok) {
           const result = await res.json();
-          const items = result.data?.data?.items || [];
+          const items = result?.data?.data?.items || [];
 
           if (items.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

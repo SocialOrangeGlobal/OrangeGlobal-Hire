@@ -39,7 +39,7 @@ export default function ApplyJobPage() {
         const res = await fetch(url);
         if (res.ok) {
           const result = await res.json();
-          const item = result.data;
+          const item = result?.data?.data;
           if (item) {
             setSelectedJob({
               id: item.id,
@@ -57,11 +57,11 @@ export default function ApplyJobPage() {
                 year: "numeric"
               }),
               description: item.description,
-              requirements: Array.isArray(item.requirements) 
-                ? item.requirements 
+              requirements: Array.isArray(item.requirements)
+                ? item.requirements
                 : JSON.parse(item.requirements || "[]"),
-              benefits: Array.isArray(item.benefits) 
-                ? item.benefits 
+              benefits: Array.isArray(item.benefits)
+                ? item.benefits
                 : JSON.parse(item.benefits || "[]")
             });
             return;
