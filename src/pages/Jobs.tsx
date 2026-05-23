@@ -31,7 +31,7 @@ export default function JobsPage() {
         const res = await fetch(url);
         if (res.ok) {
           const result = await res.json();
-          const items = result.data?.items || [];
+          const items = result.data?.data?.items || [];
           
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const formattedJobs = items.map((item: any) => ({

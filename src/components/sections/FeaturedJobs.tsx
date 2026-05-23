@@ -24,8 +24,8 @@ export default function FeaturedJobs() {
         const res = await fetch(url);
         if (res.ok) {
           const result = await res.json();
-          const items = result.data?.items || [];
-          
+          const items = result.data?.data?.items || [];
+
           if (items.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const formattedJobs = items.map((item: any) => ({
@@ -44,11 +44,11 @@ export default function FeaturedJobs() {
                 year: "numeric"
               }),
               description: item.description,
-              requirements: Array.isArray(item.requirements) 
-                ? item.requirements 
+              requirements: Array.isArray(item.requirements)
+                ? item.requirements
                 : JSON.parse(item.requirements || "[]"),
-              benefits: Array.isArray(item.benefits) 
-                ? item.benefits 
+              benefits: Array.isArray(item.benefits)
+                ? item.benefits
                 : JSON.parse(item.benefits || "[]")
             }));
             setJobsList(formattedJobs);
