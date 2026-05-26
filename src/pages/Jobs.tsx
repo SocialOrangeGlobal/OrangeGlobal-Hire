@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';
 import { fadeUp } from '../utils/animations';
 import type { Job } from '../types';
+import { useAppSelector } from '../store';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -20,6 +21,9 @@ export default function JobsPage() {
   const [sortBy, setSortBy] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+  const { isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
   const [jobsList, setJobsList] = useState<Job[]>([]);
 
@@ -64,8 +68,25 @@ export default function JobsPage() {
         console.error("Failed to load jobs:", err);
       }
     };
+
+    const fetchApplications = async () => {
+      if (!isAuthenticated || !accessToken) return;
+      try {
+        const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/talent/applications`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+        if (res.ok) {
+          const result = await res.json();
+          const appliedIds = result?.data?.map((app: any) => app.jobId) || [];
+          setAppliedJobIds(new Set(appliedIds));
+        }
+      } catch (err) {
+        console.error("Failed to load applications:", err);
+      }
+    };
+
     fetchJobs();
-  }, []);
+    fetchApplications();
+  }, [isAuthenticated, accessToken]);
 
   // Check for category in URL params
   useEffect(() => {
@@ -138,7 +159,7 @@ export default function JobsPage() {
               <span className="text-rh-red font-[300]">reimagined from here</span>
             </h1>
 
-            {/* <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
               <Button
                 onClick={() => navigate('/talent-dashboard')}
                 variant="primary"
@@ -146,7 +167,7 @@ export default function JobsPage() {
               >
                 View Dashboard <ArrowRight className="w-4 h-4" />
               </Button>
-            </div> */}
+            </div>
 
             <div className="relative bg-[#1a1f24]/40 backdrop-blur-3xl p-1.5 rounded-[20px] md:rounded-[28px] border border-white/10 flex flex-col md:flex-row items-center gap-1 md:gap-1.5 shadow-2xl z-20 overflow-hidden">
               <div className="flex-1 flex items-center px-4 md:px-6 gap-3 w-full border-b md:border-b-0 md:border-r border-white/5 py-1 md:py-0">
@@ -310,20 +331,38 @@ export default function JobsPage() {
                       </div>
 
                       <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
-                        <Button
-                          variant="outline"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
-                          onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="primary"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
-                          onClick={(e) => navigateToApply(e, job.id)}
-                        >
-                          Apply Now
-                        </Button>
+                        {appliedJobIds.has(job.id) ? (
+                          <div className="flex items-center gap-2">
+                            <div className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 bg-rh-red rounded-full shadow-sm shadow-rh-red/20">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                              <span className="text-[10px] text-white font-bold uppercase tracking-wider">Applied</span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 cursor-pointer"
+                              onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
+                            >
+                              View Application
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
+                              onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="primary"
+                              className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
+                              onClick={(e) => navigateToApply(e, job.id)}
+                            >
+                              Apply Now
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-rh-red scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" />

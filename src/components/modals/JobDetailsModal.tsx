@@ -109,7 +109,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                     Share this role
                   </Button>
 
-                  {/* <AnimatePresence>
+                  <AnimatePresence>
                     {showShareOptions && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -140,7 +140,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                         </button>
                       </motion.div>
                     )}
-                  </AnimatePresence> */}
+                  </AnimatePresence>
                 </div>
 
                 <Button
@@ -155,7 +155,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto bg-white p-12 custom-scrollbar">
-              <div className="mb-16 border-b border-gray-50 pb-16">
+              <div className="mb-4 border-b border-gray-50 pb-4">
                 <h2 className="text-3xl sm:text-4xl font-light text-rh-teal leading-tight tracking-tight mb-6">
                   {job.title}
                 </h2>

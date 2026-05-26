@@ -4,7 +4,14 @@
 
 A premium, high-fidelity recruitment and consulting platform designed for the modern global economy. This portal provides a seamless bridge between ambitious organizations and elite professionals through AI-enhanced screening, enterprise-grade talent solutions, and fully-featured management dashboards.
 
-## 🚀 Key Features
+## 🚀 Key Features & Recent Updates
+
+### ✨ Latest Enhancements
+*   **Smooth Talent Dashboard**: A highly polished, animated dashboard utilizing Framer Motion for seamless transitions, loading states, and robust error recovery.
+*   **Application Tracking Timeline**: Candidates can track their applications in real-time through all stages (Applied, Under Review, Shortlisted, Interview Scheduled, Offer Sent).
+*   **Interview Coordination**: A dedicated "Next Steps" section renders scheduled interview details, dates, and a one-click "Join Interview" button when applicable.
+*   **Offer Management**: Visibility into Offer Sent details, with clear states for accepted, rejected, or withdrawn applications.
+*   **Applied Status Indicators**: Job postings dynamically show an "Applied" badge instead of a "View" button for jobs the talent has already submitted an application for.
 
 ### 📊 Professional Dashboards
 *   **Talent Command Hub**: A centralized portal for candidates to track applications, optimize their resumes, and receive smart job matches.

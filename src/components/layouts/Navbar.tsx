@@ -7,7 +7,7 @@ import { navItems } from '../../data';
 import Button from '../ui/Button';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
-import { LogOut, Settings, UserCircle, LayoutDashboard } from 'lucide-react';
+import { LogOut, Settings, LayoutDashboard } from 'lucide-react';
 import { authApi } from '../../lib/auth';
 import { useGlobalLoader } from '../ui/GlobalLoader';
 
@@ -221,12 +221,12 @@ export default function Navbar() {
                           </div>
 
                           <div className="space-y-1">
-                            {/* <Link to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'} className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                            <Link to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'} className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
                               <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
-                                <UserCircle className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                                <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
                               </div>
                               <span className="text-sm font-bold">Dashboard</span>
-                            </Link> */}
+                            </Link>
                             <Link to="/manage-profile" className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
                               <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
                                 <Settings className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
@@ -497,7 +497,7 @@ export default function Navbar() {
                     </div>
 
                     <div className="space-y-3">
-                      {/* <Link
+                      <Link
                         to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'}
                         onClick={() => setMobileOpen(false)}
                         className="block w-full"
@@ -505,7 +505,7 @@ export default function Navbar() {
                         <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
                           <LayoutDashboard className="w-5 h-5" /> Dashboard
                         </Button>
-                      </Link> */}
+                      </Link>
                       <Link
                         to="/manage-profile"
                         onClick={() => setMobileOpen(false)}

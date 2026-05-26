@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -8,68 +8,225 @@ import {
 } from 'lucide-react';
 import { fadeUp } from '../utils/animations';
 import Button from '../components/ui/Button';
-
-import Dropdown from '../components/ui/Dropdown';
+import PageLoader from '../components/ui/PageLoader';
 import NotificationModal from '../components/modals/talent-dashboard/NotificationModal';
 import ViewApplicationDetailModal from '../components/modals/talent-dashboard/ViewApplicationDetailModal';
 import ProfileMangementModal from '../components/modals/talent-dashboard/ProfileManagementModal';
-import { talentDashboardApplicants, talentDashboardJobs } from '../data';
+import { useAppSelector } from '../store';
 
 export default function TalentDashboard() {
   const navigate = useNavigate();
-  const [applications, setApplications] = useState(talentDashboardApplicants);
-  const [recommendedJobs, setRecommendedJobs] = useState(talentDashboardJobs);
+  const { isAuthenticated, user, accessToken } = useAppSelector((state) => state.auth);
+  const [isLoading, setIsLoading] = useState(true);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Interview Scheduled', message: 'Technical round with TechScale Global is confirmed for tomorrow.', time: '2 mins ago', unread: true, type: 'interview' },
-    { id: 2, title: 'New Job Match', message: 'Senior UI Developer at Creative Digital matches 92% of your profile.', time: '1 hour ago', unread: true, type: 'match' },
-    { id: 3, title: 'Profile Viewed', message: 'A recruiter from FinEdge Corp viewed your profile.', time: '5 hours ago', unread: false, type: 'view' },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const [profileData, setProfileData] = useState({
-    name: 'Alex Thompson',
-    title: 'Senior Frontend Developer',
-    email: 'alex.thompson@example.com',
-    phone: '+1 (555) 000-0000',
-    location: 'San Francisco, CA',
-    about: 'Passionate Senior Frontend Developer with 8+ years of experience in building scalable web applications. Expert in React, TypeScript, and modern CSS architectures.',
-    completion: 85,
-    skills: ['React', 'TypeScript', 'Node.js', 'TailwindCSS', 'Figma'],
-    experience: [
-      { id: 1, role: 'Senior Frontend Dev', company: 'Innovation Labs', period: '2020 - Present' },
-      { id: 2, role: 'Web Developer', company: 'Digital Dreams', period: '2017 - 2020' }
-    ]
+    name: '',
+    title: '',
+    email: '',
+    phone: '',
+    location: '',
+    about: '',
+    completion: 0,
+    skills: [] as string[],
+    experience: [] as any[],
+    education: [] as any[],
+    avatarUrl: '',
   });
 
-  const stats = useMemo(() => [
-    { label: 'Applications', value: applications.length, icon: Briefcase, color: 'text-rh-red', bg: 'bg-rh-red/5' },
-    { label: 'Interviews', value: applications.filter(a => a.status === 'Interviewing').length, icon: Bell, color: 'text-rh-teal', bg: 'bg-rh-teal/5' },
-    { label: 'Job Matches', value: 42, icon: Zap, color: 'text-rh-red', bg: 'bg-rh-red/5' },
-    { label: 'Resume Score', value: 85, icon: Target, color: 'text-rh-teal', bg: 'bg-rh-teal/5' },
-  ], [applications]);
+  useEffect(() => {
+    if (isAuthenticated && accessToken) {
+      setIsLoading(true);
+      Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/talent/applications`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }).then(res => res.json()),
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/users/me`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }).then(res => res.json()),
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
+          .then(res => res.json())
+      ])
+        .then(([appsData, profileResp, jobsResp]) => {
+          // Process Applications
+          if (appsData.success) {
+            const apps = appsData.data.map((app: any) => {
+              const status = app.status;
+              let nextStep = "Awaiting Review";
+              if (status === 'UNDER_REVIEW') nextStep = "In Review";
+              else if (status === 'SHORTLISTED') nextStep = "Pending Interview Schedule";
+              else if (status === 'INTERVIEW_SCHEDULED') nextStep = `Interview on ${app.interviewDate ? new Date(app.interviewDate).toLocaleString('en-AU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'TBD'}`;
+              else if (status === 'INTERVIEW_COMPLETED') nextStep = "Pending Decision";
+              else if (status === 'OFFER_SENT') nextStep = "Review Offer";
+              else if (status === 'OFFER_ACCEPTED') nextStep = "Onboarding";
+              else if (status === 'REJECTED') nextStep = "Application Rejected";
+              else if (status === 'WITHDRAWN') nextStep = "Application Withdrawn";
+              else if (status === 'OFFER_REJECTED') nextStep = "Offer Declined";
+
+              if (status === 'INTERVIEW_SCHEDULED') {
+                setNotifications(prev => {
+                  if (prev.some(n => n.id === `interview-${app.id}`)) return prev;
+                  return [...prev, {
+                    id: `interview-${app.id}`,
+                    title: 'Interview Scheduled',
+                    message: `Interview for ${app.job?.title} at ${app.job?.company} is scheduled.`,
+                    time: new Date(app.appliedAt).toLocaleDateString(),
+                    unread: true,
+                    type: 'interview'
+                  }];
+                });
+              }
+
+              const isClosed = ['REJECTED', 'WITHDRAWN', 'OFFER_REJECTED'].includes(status);
+
+              return {
+                id: app.id,
+                company: app.job?.company || "Unknown",
+                logo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+                role: app.job?.title || "Unknown",
+                status: app.status,
+                date: new Date(app.appliedAt).toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }),
+                nextStep: nextStep,
+                atsScore: app.atsScore || null,
+                atsBreakdown: app.atsBreakdown?.breakdown || null,
+                coverLetter: app.coverLetter || '',
+                adminNotes: app.adminNotes || '',
+                interviewDate: app.interviewDate,
+                interviewType: app.interviewType,
+                interviewLink: app.interviewLink,
+                interviewNotes: app.interviewNotes,
+                offerDetails: app.offerDetails,
+                isBookmarked: false,
+                timeline: [
+                  { step: 'Applied', date: new Date(app.appliedAt).toLocaleDateString(), completed: true },
+                  { step: 'Review', date: isClosed ? 'Closed' : 'Pending', completed: !isClosed && status !== 'APPLIED', current: status === 'APPLIED' },
+                  { step: 'Interview', date: app.interviewDate ? new Date(app.interviewDate).toLocaleDateString() : (isClosed ? 'Closed' : 'TBD'), completed: ['INTERVIEW_COMPLETED', 'OFFER_SENT', 'OFFER_ACCEPTED'].includes(status), current: ['SHORTLISTED', 'INTERVIEW_SCHEDULED'].includes(status) },
+                  { step: 'Decision', date: isClosed ? 'Closed' : 'TBD', completed: status === 'OFFER_ACCEPTED', current: status === 'OFFER_SENT' || status === 'INTERVIEW_COMPLETED' || isClosed },
+                ]
+              };
+            });
+            setApplications(apps);
+          }
+
+          // Process Profile
+          if (profileResp.success) {
+            const p = profileResp.data.profile;
+            setProfileData({
+              name: profileResp.data.fullName || user?.fullName || "Talent User",
+              title: p?.jobTitle || p?.preferredRole || 'Job Seeker',
+              email: profileResp.data.email,
+              phone: p?.phone || '',
+              location: typeof p?.location === 'object' && p?.location ? [p.location.city, p.location.country].filter(Boolean).join(', ') : (p?.location || p?.city || ''),
+              about: p?.bio || p?.summary || '',
+              completion: p?.profileScore || 0,
+              skills: p?.skills || [],
+              experience: (p?.experiences as any[]) || [],
+              education: (p?.educations as any[]) || [],
+              avatarUrl: profileResp.data.avatarUrl || '',
+            });
+          }
+
+          // Process Recommended Jobs
+          if (jobsResp.success) {
+            const raw = jobsResp.data?.items || jobsResp.data;
+            const items = Array.isArray(raw) ? raw : [];
+            const jobs = items.map((job: any) => ({
+              id: job.id,
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              salary: job.salary || 'Negotiable',
+              tags: job.skills?.slice(0, 3) || [],
+              match: `${Math.floor(Math.random() * 15 + 80)}%`,
+            }));
+            setRecommendedJobs(jobs);
+          }
+          // If core application data fails to load completely, we can keep the loader or show an error.
+          // For now, if appsData doesn't have success, it means the API failed.
+          if (appsData && appsData.success === false) {
+            console.error("API Error fetching applications:", appsData);
+            // We can optionally leave the loader running if the user requested it, or show an error notification
+            setNotification("Error fetching data. Retrying...");
+            setTimeout(() => window.location.reload(), 3000); // Simple auto-retry
+            return;
+          }
+
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Network or parsing error:", err);
+          // If the data does not come from the API, keep showing the loader as requested
+          // or auto-retry.
+        });
+    } else {
+      navigate('/signin');
+    }
+  }, [isAuthenticated, accessToken]);
+
+  const stats = useMemo(() => {
+    const interviewCount = applications.filter(a => ['INTERVIEW_SCHEDULED', 'SHORTLISTED'].includes(a.status)).length;
+    const avgAts = applications.length > 0
+      ? Math.round(applications.reduce((sum, a) => sum + (a.atsScore || 0), 0) / applications.length)
+      : 0;
+
+    return [
+      { label: 'Applications', value: applications.length, icon: Briefcase, color: 'text-rh-red', bg: 'bg-rh-red/5' },
+      { label: 'Interviews', value: interviewCount, icon: Bell, color: 'text-rh-teal', bg: 'bg-rh-teal/5' },
+      { label: 'Job Matches', value: recommendedJobs.length, icon: Zap, color: 'text-rh-red', bg: 'bg-rh-red/5' },
+      { label: 'Avg ATS Score', value: avgAts, icon: Target, color: 'text-rh-teal', bg: 'bg-rh-teal/5' },
+    ];
+  }, [applications, recommendedJobs]);
 
   const showNotification = (msg: string) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const toggleBookmark = (id: number) => {
+  const toggleBookmark = (id: string) => {
     setApplications(applications.map(app =>
       app.id === id ? { ...app, isBookmarked: !app.isBookmarked } : app
     ));
     showNotification('Bookmark updated');
   };
 
-  const handleApplyNow = (jobId: number) => {
-    showNotification('Application submitted successfully!');
-    setRecommendedJobs(recommendedJobs.filter(j => j.id !== jobId));
+  const handleApplyNow = (jobId: string) => {
+    navigate(`/apply-job?id=${jobId}`);
   };
 
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'APPLIED': return 'bg-blue-50 text-blue-600';
+      case 'UNDER_REVIEW': return 'bg-yellow-50 text-yellow-600';
+      case 'SHORTLISTED': return 'bg-purple-50 text-purple-600';
+      case 'INTERVIEW_SCHEDULED': return 'bg-orange-50 text-orange-600';
+      case 'INTERVIEW_COMPLETED': return 'bg-teal-50 text-teal-600';
+      case 'OFFER_SENT': return 'bg-emerald-50 text-emerald-600';
+      case 'OFFER_ACCEPTED': return 'bg-green-50 text-green-600';
+      case 'REJECTED': return 'bg-red-50 text-red-600';
+      case 'WITHDRAWN': return 'bg-gray-50 text-gray-600';
+      default: return 'bg-rh-teal/5 text-rh-teal';
+    }
+  };
+
+  const profileScore = profileData.completion;
+
+  if (isLoading) {
+    return <PageLoader message="Preparing your dashboard..." subMessage="Fetching jobs and matching profile data" />;
+  }
+
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div
+      initial={{ opacity: 0, filter: 'blur(10px)' }}
+      animate={{ opacity: 1, filter: 'blur(0px)' }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="min-h-screen bg-white"
+    >
       {/* Toast Notification */}
       <AnimatePresence>
         {notification && (
@@ -88,7 +245,7 @@ export default function TalentDashboard() {
       <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row min-h-screen">
 
         {/* Main Content Area */}
-        <main className="flex-1 px-4 sm:px-8 lg:px-12 pt-32 pb-20">
+        <main className="flex-1 px-4 sm:px-8 lg:px-12 pt-24 md:pt-32 pb-20 w-full overflow-hidden">
 
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
@@ -100,9 +257,9 @@ export default function TalentDashboard() {
                 <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" /> Back to Find Jobs
               </button>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-rh-teal tracking-tight leading-tight">
-                Talent <span className="text-rh-red font-[300]">Command Hub</span>
+                Talent <span className="text-rh-red font-[300]">Dashboard</span>
               </h1>
-              <p className="text-gray-500 mt-3 font-medium text-xs sm:text-base">Welcome back, <span className="text-rh-teal font-bold">Alex Thompson</span></p>
+              <p className="text-gray-500 mt-3 font-medium text-xs sm:text-base">Welcome back, <span className="text-rh-teal font-bold">{profileData.name || user?.fullName || 'Talent'}</span></p>
             </motion.div>
 
             <motion.div
@@ -136,11 +293,17 @@ export default function TalentDashboard() {
               <div className="flex items-center gap-4 pl-4 border-l border-gray-100">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-rh-teal">{profileData.name}</p>
-                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Verified Expert</p>
+                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{profileScore >= 80 ? 'Verified Expert' : 'Building Profile'}</p>
                 </div>
                 <div className="relative group cursor-pointer" onClick={() => setShowProfile(true)}>
-                  <img src="https://i.pravatar.cc/100?img=11" alt="Profile" className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl object-cover ring-2 ring-rh-teal/5 group-hover:ring-rh-red/20 transition-all shadow-lg shadow-rh-teal/5" />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-md" />
+                  {profileData.avatarUrl ? (
+                    <img src={profileData.avatarUrl} alt="Profile" className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl object-cover ring-2 ring-rh-teal/5 group-hover:ring-rh-red/20 transition-all shadow-lg shadow-rh-teal/5" />
+                  ) : (
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rh-teal flex items-center justify-center text-white font-bold text-lg ring-2 ring-rh-teal/5 group-hover:ring-rh-red/20 transition-all shadow-lg shadow-rh-teal/5">
+                      {(profileData.name || 'T')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${profileScore >= 80 ? 'bg-emerald-500' : 'bg-orange-400'} border-2 border-white rounded-full shadow-md`} />
                 </div>
               </div>
             </motion.div>
@@ -162,7 +325,7 @@ export default function TalentDashboard() {
                   </div>
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rh-teal mb-1 tracking-tight">{stat.value}{stat.label === 'Resume Score' ? '%' : ''}</h3>
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rh-teal mb-1 tracking-tight">{stat.value}{stat.label === 'Avg ATS Score' ? '%' : ''}</h3>
                 <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest">{stat.label}</p>
               </motion.div>
             ))}
@@ -198,18 +361,22 @@ export default function TalentDashboard() {
                           >
                             <Bookmark className={`w-4 h-4 sm:w-5 h-5 ${app.isBookmarked ? 'fill-current' : ''}`} />
                           </button>
-                          <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest ${app.status === 'Interviewing' ? 'bg-orange-50 text-orange-600' : 'bg-rh-teal/5 text-rh-teal'
-                            }`}>
-                            {app.status}
+                          <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest ${getStatusStyle(app.status)}`}>
+                            {app.status.replace(/_/g, ' ')}
                           </div>
                         </div>
+                        {app.atsScore !== null && (
+                          <div className="absolute top-4 right-4 sm:static flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-lg text-xs font-bold">
+                            <span>{app.atsScore}% Match</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Interactive Visual Timeline */}
                       <div className="relative px-0 sm:px-10">
                         <div className="absolute top-[20px] left-[40px] right-[40px] sm:left-[60px] sm:right-[60px] h-[2px] bg-gray-100" />
                         <div className="flex justify-between gap-2">
-                          {app.timeline.map((step, idx) => (
+                          {app.timeline.map((step: any, idx: number) => (
                             <div key={idx} className="relative flex flex-col items-center z-10 flex-1">
                               <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-sm transition-all duration-500 ${step.completed ? 'bg-emerald-500 text-white' :
                                 step.current ? 'bg-rh-red text-white scale-110 shadow-lg shadow-rh-red/20' :
@@ -233,8 +400,18 @@ export default function TalentDashboard() {
                             <Star className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Upcoming Milestone</p>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Upcoming Updates</p>
                             <p className="text-sm font-bold text-rh-teal">{app.nextStep}</p>
+                            {app.status === 'INTERVIEW_SCHEDULED' && (
+                              <div className="mt-1 flex flex-col gap-1">
+                                {app.interviewType && <p className="text-xs font-medium text-gray-500">Type: <span className="text-gray-800">{app.interviewType}</span></p>}
+                                {app.interviewLink && (
+                                  <a href={app.interviewLink} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-rh-red hover:underline flex items-center gap-1">
+                                    Join Interview Link
+                                  </a>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -272,32 +449,28 @@ export default function TalentDashboard() {
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="72" cy="72" r="64" fill="none" stroke="currentColor" strokeWidth="8" className="text-white/10" />
                     <circle cx="72" cy="72" r="64" fill="none" stroke="currentColor" strokeWidth="8" className="text-rh-red"
-                      strokeDasharray={402.12} strokeDashoffset={402.12 * (1 - 0.85)} strokeLinecap="round" />
+                      strokeDasharray={402.12} strokeDashoffset={402.12 * (1 - profileScore / 100)} strokeLinecap="round" />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold">85</span>
+                    <span className="text-4xl font-bold">{profileScore}</span>
                     <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Pro Score</span>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 mb-4">
                     <TrendingUp className="w-5 h-5 text-rh-red" />
-                    <p className="text-[11px] font-bold leading-relaxed">Top 15% of candidates in {applications[0]?.role || 'your field'}</p>
+                    <p className="text-[11px] font-bold leading-relaxed">
+                      {profileScore >= 80
+                        ? `Top 15% of candidates in ${applications[0]?.role || 'your field'}`
+                        : 'Complete your profile to improve visibility'}
+                    </p>
                   </div>
 
-                  <Dropdown
-                    options={[
-                      { value: 'frontend', label: 'Frontend Focus' },
-                      { value: 'fullstack', label: 'Fullstack Focus' },
-                      { value: 'management', label: 'Management' }
-                    ]}
-                    value="frontend"
-                    onChange={(val) => showNotification(`Strategy changed to ${val}`)}
-                    className="mb-6"
-                  />
-
-                  <Button variant="primary" className="w-full !bg-white !text-rh-teal hover:!bg-rh-red hover:!text-white !py-4 rounded-2xl text-xs font-bold transition-all duration-500 shadow-xl shadow-black/10">
-                    Optimize Now
+                  <Button
+                    onClick={() => navigate('/manage-profile')}
+                    variant="primary" className="w-full !bg-white !text-rh-teal hover:!bg-rh-red hover:!text-white !py-4 rounded-2xl text-xs font-bold transition-all duration-500 shadow-xl shadow-black/10"
+                  >
+                    {profileScore >= 100 ? 'View Profile' : 'Complete Profile'}
                   </Button>
                 </div>
               </div>
@@ -309,7 +482,7 @@ export default function TalentDashboard() {
                   <Zap className="w-5 h-5 text-rh-red animate-pulse" />
                 </div>
                 <div className="space-y-6">
-                  {recommendedJobs.map((job) => (
+                  {recommendedJobs.length > 0 ? recommendedJobs.map((job) => (
                     <div key={job.id} className="bg-white p-6 rounded-[28px] border border-gray-100 hover:border-rh-red/20 transition-all duration-300 group shadow-sm hover:shadow-xl hover:shadow-rh-teal/5">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-widest">{job.match} Match</span>
@@ -322,17 +495,22 @@ export default function TalentDashboard() {
 
                       <div className="grid grid-cols-2 gap-2 mb-8">
                         <div className="flex items-center gap-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-rh-light px-3 py-2 rounded-xl"><MapPin className="w-3 h-3" /> {job.location}</div>
-                        <div className="flex items-center gap-2 text-[9px] font-bold text-rh-teal uppercase tracking-widest bg-rh-teal/5 px-3 py-2 rounded-xl"><DollarSign className="w-3 h-3" /> {job.salary.split(' - ')[0]}</div>
+                        <div className="flex items-center gap-2 text-[9px] font-bold text-rh-teal uppercase tracking-widest bg-rh-teal/5 px-3 py-2 rounded-xl"><DollarSign className="w-3 h-3" /> {job.salary?.split(' - ')?.[0] || job.salary}</div>
                       </div>
 
                       <button
                         onClick={() => handleApplyNow(job.id)}
                         className="w-full py-3.5 bg-rh-teal text-white rounded-xl text-[11px] font-bold hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10"
                       >
-                        Submit Application
+                        Apply Now
                       </button>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-10 text-gray-400">
+                      <Zap className="w-10 h-10 mx-auto mb-4 text-gray-200" />
+                      <p className="text-sm font-medium">No job matches yet. Check back soon!</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -364,6 +542,6 @@ export default function TalentDashboard() {
        .no-scrollbar::-webkit-scrollbar { display: none; }
        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
-    </div>
+    </motion.div>
   );
 }

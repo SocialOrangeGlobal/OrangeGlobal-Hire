@@ -13,6 +13,7 @@ import { logout, updateProfileSuccess } from '../store/slices/authSlice';
 import { authApi } from '../lib/auth';
 import { uploadFile } from '../lib/storage';
 import Button from '../components/ui/Button';
+import PageLoader from '../components/ui/PageLoader';
 import { toast } from 'react-hot-toast';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -962,11 +963,7 @@ export default function ManageProfile() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
-        <Loader2 className="w-12 h-12 text-rh-teal animate-spin" />
-      </div>
-    );
+    return <PageLoader fullScreen={true} message="Loading Profile..." subMessage="Fetching your details" />;
   }
 
   const completion = isTalent ? calculateDynamicProfileScore(profile) : (profile?.profileScore || 90);

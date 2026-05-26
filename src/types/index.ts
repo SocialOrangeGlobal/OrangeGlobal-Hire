@@ -32,6 +32,10 @@ export interface Job {
   requirements?: string[];
   benefits?: string[];
   tags?: string[];
+  applicationsCount?: number;
+  deadline?: string;
+  skills?: string[];
+  vacancies?: number;
 }
 
 // Employer Dashboard Applicant Types
