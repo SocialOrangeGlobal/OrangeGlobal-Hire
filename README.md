@@ -7,6 +7,9 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 ## 🚀 Key Features & Recent Updates
 
 ### ✨ Latest Enhancements
+*   **Horizontal Stepper Navigation & Resume Auto-fill**: Implemented a responsive form multistepper for job applications. Utilizes smooth native horizontal swipe scrolling on mobile/tablet (with progress line segments) and dynamic flex wrapping with custom chevrons on desktop. Clicking any resume dynamically parses and auto-populates the entire form, while starting manual apply begins from a completely empty scratch state. Form navigation is fully unlocked across all tabs.
+*   **Light Theme Date Pickers & Black Calendar Icons**: Integrated `[color-scheme:light]` on date input inputs (e.g. Date of Birth, testDate in Language Proficiency, and Passport Expiry). Restores a clear black/dark native calendar icon and ensures browser popups (`showPicker`) render in a beautiful light theme.
+*   **Redirection Page Loader**: Added a dedicated coordinated loading screen (`PageLoader`) on `/apply-job` to track asynchronous profile and job fetches, eliminating "Job Not Found" page flickering.
 *   **Smooth Talent Dashboard**: A highly polished, animated dashboard utilizing Framer Motion for seamless transitions, loading states, and robust error recovery.
 *   **Application Tracking Timeline**: Candidates can track their applications in real-time through all stages (Applied, Under Review, Shortlisted, Interview Scheduled, Offer Sent).
 *   **Interview Coordination**: A dedicated "Next Steps" section renders scheduled interview details, dates, and a one-click "Join Interview" button when applicable.

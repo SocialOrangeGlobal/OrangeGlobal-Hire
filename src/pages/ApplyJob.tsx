@@ -11,6 +11,7 @@ import { useAppSelector } from '../store';
 import toast from 'react-hot-toast';
 import { uploadFile } from '../lib/storage';
 import { authApi } from '../lib/auth';
+import PageLoader from '../components/ui/PageLoader';
 
 const STEPS = [
   { id: 1, title: 'Resume', icon: FileText },
@@ -28,6 +29,8 @@ export default function ApplyJobPage() {
   const { isAuthenticated, user, accessToken } = useAppSelector((state) => state.auth);
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [jobLoading, setJobLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(isAuthenticated);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -65,9 +68,13 @@ export default function ApplyJobPage() {
   useEffect(() => {
     const fetchJob = async () => {
       const jobId = searchParams.get('id');
-      if (!jobId) return;
+      if (!jobId) {
+        setJobLoading(false);
+        return;
+      }
 
       try {
+        setJobLoading(true);
         const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs/${jobId}`;
         const res = await fetch(url);
         if (res.ok) {
@@ -95,6 +102,8 @@ export default function ApplyJobPage() {
         }
       } catch (err) {
         console.error("Failed to fetch live job details:", err);
+      } finally {
+        setJobLoading(false);
       }
     };
     fetchJob();
@@ -102,8 +111,12 @@ export default function ApplyJobPage() {
 
   // Fetch profile
   const fetchProfile = async () => {
-    if (!isAuthenticated || !accessToken) return;
+    if (!isAuthenticated || !accessToken) {
+      setProfileLoading(false);
+      return;
+    }
     try {
+      setProfileLoading(true);
       const data = await authApi.getMe();
       const p = data.profile;
       setProfile(p);
@@ -120,6 +133,8 @@ export default function ApplyJobPage() {
       }
     } catch (err) {
       console.error("Failed to load profile:", err);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -137,11 +152,10 @@ export default function ApplyJobPage() {
     }
   }, [currentStep, applyMode]);
 
-  // Pre-fill Step 2 when moving from Step 1
+  // Auto-fill manual details dynamically in Easy Apply mode whenever selectedResumeId changes
   useEffect(() => {
-    if (currentStep === 2 && !hasEditedDetails) {
+    if (applyMode === 'easy' && selectedResumeId && resumes.length > 0) {
       const selected = resumes.find(r => r.id === selectedResumeId);
-
       setManualDetails({
         fullName: selected?.parsedName || profile?.fullName || user?.fullName || '',
         email: selected?.parsedEmail || profile?.workEmail || user?.email || '',
@@ -153,7 +167,7 @@ export default function ApplyJobPage() {
         hobbies: profile?.hobbies || ''
       });
     }
-  }, [currentStep, selectedResumeId, resumes, profile, user, hasEditedDetails]);
+  }, [selectedResumeId, resumes, profile, user, applyMode]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -293,6 +307,12 @@ export default function ApplyJobPage() {
 
   const goBack = () => navigate('/jobs');
 
+  const pageLoading = jobLoading || profileLoading;
+
+  if (pageLoading) {
+    return <PageLoader message="Loading application details..." subMessage="Setting up your application portal" />;
+  }
+
   if (!selectedJob && !isSubmitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rh-light p-10">
@@ -378,7 +398,13 @@ export default function ApplyJobPage() {
 
                     <div className="grid grid-cols-1 gap-4">
                       <div
-                        onClick={() => setApplyMode('easy')}
+                        onClick={() => {
+                          setApplyMode('easy');
+                          const defaultResume = resumes.find((r: any) => r.isDefault) || resumes[0];
+                          if (defaultResume) {
+                            setSelectedResumeId(defaultResume.id);
+                          }
+                        }}
                         className="cursor-pointer border border-gray-200 hover:border-rh-teal hover:ring-1 hover:ring-rh-teal bg-white p-5 rounded-2xl transition-all flex items-start gap-4 shadow-sm group"
                       >
                         <div className="w-10 h-10 bg-rh-teal/10 text-rh-teal rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rh-teal group-hover:text-white transition-colors">
@@ -394,7 +420,20 @@ export default function ApplyJobPage() {
                       </div>
 
                       <div
-                        onClick={() => setApplyMode('manual')}
+                        onClick={() => {
+                          setApplyMode('manual');
+                          setSelectedResumeId('');
+                          setManualDetails({
+                            fullName: '',
+                            email: '',
+                            phone: '',
+                            skills: [],
+                            experienceSummary: '',
+                            experiences: [],
+                            educations: [],
+                            hobbies: ''
+                          });
+                        }}
                         className="cursor-pointer border border-gray-200 hover:border-rh-teal hover:ring-1 hover:ring-rh-teal bg-white p-5 rounded-2xl transition-all flex items-start gap-4 shadow-sm group"
                       >
                         <div className="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rh-teal group-hover:text-white transition-colors">
@@ -419,24 +458,18 @@ export default function ApplyJobPage() {
                 ) : (
                   <>
                     <div className="mb-10">
-                      {/* Scrollable steps indicator for mobile compatibility */}
-                      <div ref={stepperRef} className="flex items-center overflow-x-auto pb-4 hide-scrollbar gap-2 sm:gap-4 snap-x">
+                      {/* Scrollable steps indicator with responsive wrapping on larger screens */}
+                      <div ref={stepperRef} className="flex items-center overflow-x-auto lg:overflow-x-visible lg:flex-wrap pb-4 hide-scrollbar gap-2 lg:gap-3 snap-x w-full">
                         {(applyMode === 'easy' ? STEPS.filter(s => s.id === 1 || s.id === 7) : STEPS).map((step, idx, arr) => (
                           <div
                             key={step.id}
                             className={`flex items-center shrink-0 snap-center ${currentStep === step.id ? 'active-step' : ''} cursor-pointer`}
                             onClick={() => {
                               if (applyMode === 'easy') {
-                                if (step.id === 1) setCurrentStep(1);
-                                // Don't allow jumping to step 7 if resume isn't selected
-                                if (step.id === 7 && selectedResumeId) easyApply();
+                                  if (step.id === 1) setCurrentStep(1);
+                                  if (step.id === 7 && selectedResumeId) easyApply();
                               } else {
-                                // Only allow clicking steps you have passed or current + 1
-                                if (step.id <= currentStep) {
                                   setCurrentStep(step.id);
-                                } else if (step.id === currentStep + 1 && selectedResumeId) {
-                                  setCurrentStep(step.id);
-                                }
                               }
                             }}
                           >
@@ -450,7 +483,10 @@ export default function ApplyJobPage() {
                               <span>{step.title}</span>
                             </div>
                             {idx < arr.length - 1 && (
-                              <div className={`w-4 sm:w-8 h-[2px] ml-2 sm:ml-4 rounded-full transition-colors ${currentStep > step.id ? 'bg-rh-red' : 'bg-gray-100'}`} />
+                              <div className={`w-4 sm:w-8 h-[2px] ml-2 sm:ml-4 rounded-full transition-colors ${currentStep > step.id ? 'bg-rh-red' : 'bg-gray-100'} lg:hidden`} />
+                            )}
+                            {idx < arr.length - 1 && (
+                              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mx-2 hidden lg:block" />
                             )}
                           </div>
                         ))}
@@ -477,7 +513,22 @@ export default function ApplyJobPage() {
                               {resumes.map(r => (
                                 <div
                                   key={r.id}
-                                  onClick={() => setSelectedResumeId(r.id)}
+                                  onClick={() => {
+                                    setSelectedResumeId(r.id);
+                                    if (applyMode === 'manual') {
+                                      const selected = resumes.find(res => res.id === r.id);
+                                      setManualDetails({
+                                        fullName: selected?.parsedName || profile?.fullName || user?.fullName || '',
+                                        email: selected?.parsedEmail || profile?.workEmail || user?.email || '',
+                                        phone: selected?.parsedPhone || profile?.phone || '',
+                                        skills: selected?.parsedSkills?.length ? selected.parsedSkills : (profile?.skills || []),
+                                        experienceSummary: selected?.parsedExperience?.toString() || profile?.totalExp || '',
+                                        experiences: profile?.experiences || [],
+                                        educations: profile?.educations || [],
+                                        hobbies: profile?.hobbies || ''
+                                      });
+                                    }
+                                  }}
                                   className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3
                                                 ${selectedResumeId === r.id ? 'border-rh-red bg-rh-red/5' : 'border-gray-100 hover:border-gray-200'}`}
                                 >

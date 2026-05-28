@@ -171,6 +171,11 @@ export default function FeaturedJobs() {
                   <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
                   </span>
+                  {appliedJobIds.has(job.id) && (
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
                   {job.title}
@@ -262,6 +267,7 @@ export default function FeaturedJobs() {
       <JobDetailsModal
         job={selectedJob}
         onClose={() => setSelectedJob(null)}
+        isApplied={selectedJob ? appliedJobIds.has(selectedJob.id) : false}
       />
 
       <style dangerouslySetInnerHTML={{

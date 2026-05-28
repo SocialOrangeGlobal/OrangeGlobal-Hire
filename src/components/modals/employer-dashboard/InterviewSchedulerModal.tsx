@@ -13,14 +13,14 @@ interface InterviewSchedulerModalProps {
 
 function InterviewSchedulerModal({ schedulingInterview, setSchedulingInterview, handleUpdateApplicantStatus, showNotification, setViewingApplicant }: InterviewSchedulerModalProps) {
     return (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden">
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 md:p-6 lg:p-12 overflow-hidden">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSchedulingInterview(null)} className="absolute inset-0 bg-rh-dark/60 backdrop-blur-md" />
             <motion.div
-                initial={{ opacity: 0, y: "100%" }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: "100%" }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="relative bg-white w-full max-w-2xl rounded-t-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col mt-auto md:m-auto h-[80vh] md:h-auto max-h-[85vh]"
+                className="relative bg-white w-full max-w-2xl rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85vh]"
             >
                 <div className="px-6 md:px-12 py-6 md:py-8 border-b border-gray-100 flex flex-col items-center shrink-0 bg-white relative">
                     <button onClick={() => setSchedulingInterview(null)} className="absolute top-4 right-4 md:top-8 md:right-8 w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all"><X className="w-5 h-5" /></button>

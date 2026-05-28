@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook, CheckCircle2 } from 'lucide-react';
 import Button from '../ui/Button';
 import type { Job } from '../../types';
 
 interface JobDetailsModalProps {
   job: Job | null;
   onClose: () => void;
+  isApplied?: boolean;
 }
 
-export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) {
+export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsModalProps) {
   const navigate = useNavigate();
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -42,7 +43,7 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 lg:p-12 overflow-hidden"
         >
           <div className="absolute inset-0 bg-rh-dark/60 backdrop-blur-md" onClick={onClose} />
 
@@ -74,6 +75,12 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                       <MapPin className="w-3 h-3 text-rh-red" />
                       {job.location}
                     </div>
+                    {isApplied && (
+                      <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-green-50 border border-green-200/50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm shadow-green-500/5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Applied
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -143,13 +150,23 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                   </AnimatePresence>
                 </div>
 
-                <Button
-                  variant="primary"
-                  className="w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-rh-red/20 cursor-pointer"
-                  onClick={(e) => navigateToApply(e, job.id)}
-                >
-                  Apply Now
-                </Button>
+                {isApplied ? (
+                  <Button
+                    variant="outline"
+                    className="w-full py-4 rounded-2xl !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 flex items-center justify-center gap-3 font-bold cursor-pointer shadow-sm"
+                    onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
+                  >
+                    View Application
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    className="w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-rh-red/20 cursor-pointer"
+                    onClick={(e) => navigateToApply(e, job.id)}
+                  >
+                    Apply Now
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -159,7 +176,12 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                 <h2 className="text-3xl sm:text-4xl font-light text-rh-teal leading-tight tracking-tight mb-6">
                   {job.title}
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 items-center">
+                  {isApplied && (
+                    <span className="px-4 py-2 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-widest rounded-xl border border-green-200/40 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+                    </span>
+                  )}
                   {job.tags?.map(tag => (
                     <span key={tag} className="px-4 py-2 bg-gray-50 text-gray-400 text-[10px] font-bold uppercase tracking-widest rounded-xl border border-gray-100">#{tag}</span>
                   ))}
@@ -218,11 +240,11 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
 
           {/* Tablet & Mobile Layout: Single Scroll Layout */}
           <motion.div
-            initial={{ opacity: 0, y: "100%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "100%" }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative flex lg:hidden w-full h-[90vh] bg-white rounded-t-[32px] md:rounded-[48px] overflow-hidden flex-col mt-auto md:m-auto md:max-w-2xl lg:max-w-none"
+            className="relative flex lg:hidden w-full max-w-2xl max-h-[85vh] bg-white rounded-[32px] overflow-hidden flex-col shadow-2xl"
           >
             {/* Header (Fixed) */}
             <div className="px-6 md:px-10 py-5 md:py-8 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white z-10">
@@ -233,6 +255,12 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
                 <div className="min-w-0">
                   <h3 className="text-sm md:text-xl font-bold text-rh-teal truncate leading-tight">{job.company}</h3>
                   <p className="text-[10px] md:text-sm text-gray-400 truncate mt-0.5">{job.location}</p>
+                  {isApplied && (
+                    <span className="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 bg-green-50 border border-green-200/50 text-green-600 rounded-full text-[9px] font-bold uppercase tracking-wider w-max shadow-sm shadow-green-500/5">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      Applied
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -292,9 +320,14 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
               </AnimatePresence>
 
               <div className="mb-8 md:mb-12">
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4 items-center">
                   <span className="px-2.5 py-1 bg-rh-teal/5 text-rh-teal text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider">{job.category}</span>
                   <span className="px-2.5 py-1 bg-rh-red/5 text-rh-red text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider">{job.mode}</span>
+                  {isApplied && (
+                    <span className="px-2.5 py-1 bg-green-50 text-green-600 text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider flex items-center gap-1 border border-green-200/50">
+                      <CheckCircle2 className="w-3 h-3" /> Applied
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-xl md:text-3xl font-bold text-rh-teal mb-8 md:mb-10 leading-tight">{job.title}</h2>
 
@@ -361,13 +394,23 @@ export default function JobDetailsModal({ job, onClose }: JobDetailsModalProps) 
 
             {/* Mobile Footer (Fixed) */}
             <div className="p-6 md:p-10 border-t border-gray-100 bg-white shrink-0">
-              <Button
-                variant="primary"
-                className="w-full py-4 md:py-6 rounded-2xl text-sm md:text-base font-bold shadow-lg shadow-rh-red/20"
-                onClick={(e) => navigateToApply(e, job.id)}
-              >
-                Apply for this job
-              </Button>
+              {isApplied ? (
+                <Button
+                  variant="outline"
+                  className="w-full py-4 rounded-xl !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 flex items-center justify-center gap-2 font-bold cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
+                >
+                  View Application
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  className="w-full py-4 md:py-6 rounded-2xl text-sm md:text-base font-bold shadow-lg shadow-rh-red/20"
+                  onClick={(e) => navigateToApply(e, job.id)}
+                >
+                  Apply for this job
+                </Button>
+              )}
             </div>
           </motion.div>
         </motion.div>

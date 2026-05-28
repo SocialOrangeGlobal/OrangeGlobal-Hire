@@ -1,11 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, User, Sparkles, Minus } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Sparkles, Minus, CheckCircle2 } from 'lucide-react';
 import { Message } from '../../types';
+import { useAppSelector } from '../../store';
+
+/** Generates a RFC-4122 v4-like UUID using the Web Crypto API (available in all modern browsers) */
+function generateSessionId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  // Fallback for older environments
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
+  // Stable session ID – generated once per component mount, not per message
+  const [sessionId] = useState<string>(() => generateSessionId());
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -34,6 +48,25 @@ export default function Chatbot() {
   const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password'].some(path => currentPath.startsWith(path));
   if (isAuthPage) return null;
 
+  const renderMessageText = (text: string) => {
+    // Bold: **text**
+    let html = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Italics: *text*
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Inline Code: `text`
+    html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">$1</code>');
+    
+    // Links: [label](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="font-bold underline text-rh-red hover:text-red-700">$1</a>');
+    
+    // Newlines
+    html = html.split('\n').join('<br />');
+
+    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  };
+
   const handleSend = async () => {
     if (!inputValue.trim()) return;
 
@@ -45,37 +78,57 @@ export default function Chatbot() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: getAIResponse(inputValue),
+    try {
+      const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/chatbot`;
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      };
+
+      if (isAuthenticated && accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ message: currentInput, sessionId })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        // The global NestJS interceptor wraps the controller's return value in { data: ... },
+        // so the actual reply is at result.data.data.reply. We fall back gracefully either way.
+        const reply =
+          result?.data?.data?.reply ??
+          result?.data?.reply ??
+          "I'm sorry, I couldn't formulate a response.";
+        
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          text: reply,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiMessage]);
+      } else {
+        throw new Error("Failed to fetch reply");
+      }
+    } catch (err) {
+      console.error(err);
+      const errorMsg: Message = {
+        id: Date.now().toString(),
+        text: "I'm having trouble connecting to the dynamic server right now. Please check your internet connection or try again shortly!",
         sender: 'ai',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const getAIResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    if (lowerInput.includes('job') || lowerInput.includes('vacancy')) {
-      return "You can explore all our global openings on the Jobs page! We have active roles across Tech, Finance, and Legal sectors.";
     }
-    if (lowerInput.includes('hire') || lowerInput.includes('talent')) {
-      return "Orange Global provides elite staffing solutions. You can post a vacancy on our 'Hire Talent' page or talk to our consultants for executive search.";
-    }
-    if (lowerInput.includes('consulting')) {
-      return "Our consulting team specializes in business transformation and global delivery models. Check the 'Consulting' page for our full framework.";
-    }
-    if (lowerInput.includes('salary') || lowerInput.includes('report')) {
-      return "Our latest Salary Guides and Market Reports are available in the 'Insights' section. Stay ahead of the market curve!";
-    }
-    return "That's a great question! Orange Global is a leading talent solutions provider. I recommend checking our Services or Insights sections for deep domain knowledge.";
   };
 
   return (
@@ -129,7 +182,7 @@ export default function Chatbot() {
                     ? 'bg-rh-red text-white rounded-br-none'
                     : 'bg-white text-rh-teal border border-gray-100 rounded-bl-none'
                     }`}>
-                    {msg.text}
+                    {msg.sender === 'user' ? msg.text : renderMessageText(msg.text)}
                   </div>
                   {msg.sender === 'user' && (
                     <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rh-red/10 flex items-center justify-center shrink-0 border border-rh-red/5">

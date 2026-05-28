@@ -350,7 +350,7 @@ export default function ManageProfile() {
               e.currentTarget.showPicker();
             } catch (err) { }
           } : undefined}
-          className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium dark:[color-scheme:dark]`}
+          className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium [color-scheme:light]`}
         />
         {error && (
           <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
@@ -405,10 +405,10 @@ export default function ManageProfile() {
                   type="button"
                   onClick={() => field.onChange(o)}
                   className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border text-sm font-bold transition-all ${field.value === o
-                      ? 'border-rh-teal bg-rh-teal/5 text-rh-teal'
-                      : error
-                        ? 'border-red-300 hover:border-red-400 text-gray-600 bg-white'
-                        : 'border-gray-200 hover:border-rh-teal/30 text-gray-600 bg-white'
+                    ? 'border-rh-teal bg-rh-teal/5 text-rh-teal'
+                    : error
+                      ? 'border-red-300 hover:border-red-400 text-gray-600 bg-white'
+                      : 'border-gray-200 hover:border-rh-teal/30 text-gray-600 bg-white'
                     }`}
                 >
                   {o}
@@ -2255,7 +2255,7 @@ export default function ManageProfile() {
                                 {talentForm.watch('englishTest') && talentForm.watch('englishTest') !== 'None / English is Native Language' && (
                                   <>
                                     {renderEditInput("Overall Score / Band", "overallScore", "e.g. 7.5")}
-                                    {renderEditInput("Test Date / Validity", "testDate", "e.g. Oct 2023")}
+                                    {renderEditInput("Test Date / Validity", "testDate", "YYYY-MM-DD", "date")}
                                   </>
                                 )}
                               </div>

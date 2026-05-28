@@ -13,6 +13,7 @@ import NotificationModal from '../components/modals/talent-dashboard/Notificatio
 import ViewApplicationDetailModal from '../components/modals/talent-dashboard/ViewApplicationDetailModal';
 import ProfileMangementModal from '../components/modals/talent-dashboard/ProfileManagementModal';
 import { useAppSelector } from '../store';
+import { useSocket } from '../contexts/SocketContext';
 
 export default function TalentDashboard() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function TalentDashboard() {
   const [notification, setNotification] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const { unreadCount } = useSocket();
 
   const [profileData, setProfileData] = useState({
     name: '',
@@ -68,20 +69,6 @@ export default function TalentDashboard() {
               else if (status === 'REJECTED') nextStep = "Application Rejected";
               else if (status === 'WITHDRAWN') nextStep = "Application Withdrawn";
               else if (status === 'OFFER_REJECTED') nextStep = "Offer Declined";
-
-              if (status === 'INTERVIEW_SCHEDULED') {
-                setNotifications(prev => {
-                  if (prev.some(n => n.id === `interview-${app.id}`)) return prev;
-                  return [...prev, {
-                    id: `interview-${app.id}`,
-                    title: 'Interview Scheduled',
-                    message: `Interview for ${app.job?.title} at ${app.job?.company} is scheduled.`,
-                    time: new Date(app.appliedAt).toLocaleDateString(),
-                    unread: true,
-                    type: 'interview'
-                  }];
-                });
-              }
 
               const isClosed = ['REJECTED', 'WITHDRAWN', 'OFFER_REJECTED'].includes(status);
 
@@ -221,12 +208,7 @@ export default function TalentDashboard() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, filter: 'blur(0px)' }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="min-h-screen bg-white"
-    >
+    <div className="min-h-screen bg-white">
       {/* Toast Notification */}
       <AnimatePresence>
         {notification && (
@@ -245,7 +227,7 @@ export default function TalentDashboard() {
       <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row min-h-screen">
 
         {/* Main Content Area */}
-        <main className="flex-1 px-4 sm:px-8 lg:px-12 pt-24 md:pt-32 pb-20 w-full overflow-hidden">
+        <main className="flex-1 px-4 sm:px-8 lg:px-12 pt-24 md:pt-32 pb-20 w-full">
 
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
@@ -267,27 +249,24 @@ export default function TalentDashboard() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4"
             >
-              <div className="relative">
+              <div className="relative z-50">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl transition-all relative ${showNotifications ? 'bg-rh-red text-white' : 'bg-rh-light text-rh-teal hover:bg-rh-red/10'}`}
+                  className={`notification-bell-btn p-3.5 sm:p-4 rounded-xl sm:rounded-2xl transition-all relative ${showNotifications ? 'bg-rh-red text-white' : 'bg-rh-light text-rh-teal hover:bg-rh-red/10'}`}
                 >
                   <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-                  {notifications.some(n => n.unread) && (
-                    <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rh-red border-2 border-white rounded-full" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 bg-rh-red text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
                   )}
                 </button>
 
-                {/* Notifications Dropdown / Modal */}
-                <AnimatePresence>
-                  {showNotifications && (
-                    <NotificationModal
-                      notifications={notifications}
-                      setShowNotifications={setShowNotifications}
-                      setNotifications={setNotifications}
-                    />
-                  )}
-                </AnimatePresence>
+                {/* Notifications Modal */}
+                <NotificationModal
+                  isOpen={showNotifications}
+                  onClose={() => setShowNotifications(false)}
+                />
               </div>
 
               <div className="flex items-center gap-4 pl-4 border-l border-gray-100">
@@ -542,6 +521,6 @@ export default function TalentDashboard() {
        .no-scrollbar::-webkit-scrollbar { display: none; }
        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
-    </motion.div>
+    </div>
   );
 }

@@ -11,14 +11,14 @@ interface ViewApplicantProfileModalProps {
 
 function ViewApplicantProfileModal({ viewingApplicant, setViewingApplicant, setSchedulingInterview }: ViewApplicantProfileModalProps) {
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 lg:p-12 overflow-hidden">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewingApplicant(null)} className="absolute inset-0 bg-rh-dark/60 backdrop-blur-md" />
             <motion.div
-                initial={{ opacity: 0, y: "100%" }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: "100%" }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="relative bg-white w-full max-w-5xl rounded-t-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col mt-auto md:m-auto h-[90vh] md:h-auto max-h-[90vh]"
+                className="relative bg-white w-full max-w-5xl rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85vh]"
             >
                 <button onClick={() => setViewingApplicant(null)} className="absolute top-6 md:top-8 right-6 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red z-20 transition-all shadow-sm"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
 

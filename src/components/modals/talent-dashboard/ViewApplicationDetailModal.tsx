@@ -44,18 +44,18 @@ function ViewApplicationDetailModal({ selectedApp, setSelectedApp }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-hidden">
             <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setSelectedApp(null)}
                 className="absolute inset-0 bg-rh-dark/60 backdrop-blur-md"
             />
             <motion.div
-                initial={{ opacity: 0, y: "100%" }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: "100%" }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="relative bg-white w-full max-w-2xl rounded-t-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col mt-auto md:m-auto h-[85vh] md:h-auto max-h-[90vh]"
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                className="relative bg-white w-full max-w-2xl rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85vh] md:max-h-[90vh] mx-auto my-auto"
             >
                 {/* Header */}
                 <div className="px-6 md:px-12 py-6 md:py-6 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">

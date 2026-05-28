@@ -20,7 +20,7 @@ function ProfileManagementModal({ setShowProfile, profileData }: { setShowProfil
     const navigate = useNavigate();
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-hidden">
             <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setShowProfile(false)}
@@ -29,15 +29,17 @@ function ProfileManagementModal({ setShowProfile, profileData }: { setShowProfil
             <motion.div
                 initial={{
                     opacity: 0,
-                    y: "100%"
+                    scale: 0.95,
+                    y: 15
                 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{
                     opacity: 0,
-                    y: "100%"
+                    scale: 0.95,
+                    y: 15
                 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="relative bg-white w-full max-w-4xl lg:max-w-5xl md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-full md:h-auto md:max-h-[90vh] mx-auto mt-auto md:m-auto"
+                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                className="relative bg-white w-full max-w-4xl lg:max-w-5xl rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85vh] md:max-h-[90vh] mx-auto my-auto"
             >
                 {/* Profile Header */}
                 <div className="px-6 md:px-12 py-6 md:py-10 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between shrink-0 bg-rh-light/20 relative overflow-hidden gap-4">
