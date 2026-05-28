@@ -86,7 +86,7 @@ export default function TalentDashboard() {
             return {
               id: app.id,
               company: app.job?.company || "Unknown",
-              logo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+              logo: app.job?.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
               role: app.job?.title || "Unknown",
               status: app.status,
               date: new Date(app.appliedAt).toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }),

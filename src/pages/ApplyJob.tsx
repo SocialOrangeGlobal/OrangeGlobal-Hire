@@ -93,7 +93,7 @@ export default function ApplyJobPage() {
               id: item.id,
               title: item.title,
               company: item.company,
-              companyLogo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+              companyLogo: item.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
               location: item.location,
               salary: item.salary || "Negotiable",
               type: item.type,

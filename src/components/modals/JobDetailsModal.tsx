@@ -66,8 +66,16 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
             <div className="w-[320px] bg-rh-light flex flex-col shrink-0 border-r border-gray-100 overflow-y-auto no-scrollbar">
               <div className="p-8 pb-0">
                 <div className="flex items-center gap-5 mb-12">
-                  <div className="w-20 h-20 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-rh-red shrink-0">
-                    <Building2 className="w-10 h-10" strokeWidth={1.5} />
+                  <div className="w-20 h-20 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-rh-red shrink-0 overflow-hidden">
+                    {job.companyLogo ? (
+                      <img
+                        src={job.companyLogo}
+                        alt={`${job.company} Logo`}
+                        className="h-full w-full object-contain p-2"
+                      />
+                    ) : (
+                      <Building2 className="w-10 h-10" strokeWidth={1.5} />
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-lg font-bold text-rh-teal truncate leading-tight mb-1">{job.company}</h3>
@@ -249,8 +257,16 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
             {/* Header (Fixed) */}
             <div className="px-6 md:px-10 py-5 md:py-8 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white z-10">
               <div className="flex items-center gap-3 md:gap-5">
-                <div className="w-10 h-10 md:w-16 md:h-16 bg-rh-light rounded-xl md:rounded-2xl flex items-center justify-center text-rh-red">
-                  <Building2 className="w-5 h-5 md:w-8 md:h-8" />
+                <div className="w-10 h-10 md:w-16 md:h-16 bg-rh-light rounded-xl md:rounded-2xl flex items-center justify-center text-rh-red overflow-hidden border border-gray-100">
+                  {job.companyLogo ? (
+                    <img
+                      src={job.companyLogo}
+                      alt={`${job.company} Logo`}
+                      className="h-full w-full object-contain p-1.5 md:p-2.5 bg-white"
+                    />
+                  ) : (
+                    <Building2 className="w-5 h-5 md:w-8 md:h-8" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-sm md:text-xl font-bold text-rh-teal truncate leading-tight">{job.company}</h3>

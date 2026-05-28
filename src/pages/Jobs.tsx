@@ -44,7 +44,7 @@ export default function JobsPage() {
             id: item.id,
             title: item.title,
             company: item.company,
-            companyLogo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+            companyLogo: item.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
             location: item.location,
             salary: item.salary || "Negotiable",
             type: item.type,
@@ -307,23 +307,31 @@ export default function JobsPage() {
                     onClick={() => setSelectedJob(job)}
                     className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 md:mb-3">
-                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
-                          {job.category}
-                        </span>
-                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
-                        </span>
-                        {appliedJobIds.has(job.id) && (
-                          <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Applied
-                          </span>
-                        )}
+                    <div className="flex-1 flex gap-4 md:gap-5 items-start">
+                      <div className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-2xl border border-gray-100 bg-white flex items-center justify-center shadow-sm overflow-hidden mt-1">
+                        <img
+                          src={job.companyLogo}
+                          alt={`${job.company} Logo`}
+                          className="h-full w-full object-contain p-1.5 md:p-2"
+                        />
                       </div>
-                      <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
-                        {job.title}
-                      </h3>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2 md:mb-3">
+                          <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
+                            {job.category}
+                          </span>
+                          <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
+                          </span>
+                          {appliedJobIds.has(job.id) && (
+                            <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
+                          {job.title}
+                        </h3>
 
                       <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
                         <div className="flex items-center gap-1.5">
@@ -339,6 +347,7 @@ export default function JobsPage() {
                         </div>
                       </div>
                     </div>
+                  </div>
 
                     <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
                       <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
