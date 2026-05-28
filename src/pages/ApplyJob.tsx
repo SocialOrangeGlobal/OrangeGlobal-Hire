@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  ArrowLeft, CheckCircle2, User, FileText, Send, Building2, MapPin, Briefcase, Globe, Clock, Award, Upload, AlertCircle, ChevronRight, Edit3, Trash2, GraduationCap, Star, MessageSquare, Zap
+  ArrowLeft, CheckCircle2, User, FileText, Send, Building2, MapPin, Briefcase, Globe, Clock, Award, Upload, AlertCircle, ChevronRight, Edit3, Trash2, GraduationCap, Star, MessageSquare, Zap, ArrowRight
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { fadeUp, scaleIn } from '../utils/animations';
