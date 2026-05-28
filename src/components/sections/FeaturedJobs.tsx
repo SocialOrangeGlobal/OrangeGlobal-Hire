@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Building, Clock, CheckCircle2 } from 'lucide-react';
+import { MapPin, Building, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';
@@ -16,11 +16,13 @@ export default function FeaturedJobs() {
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch from NestJS backend API
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setIsLoading(true);
         const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=100&published=true`;
         const res = await fetch(url);
         if (res.ok) {
@@ -65,6 +67,8 @@ export default function FeaturedJobs() {
         }
       } catch (err) {
         console.error("Failed to load featured jobs:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -152,105 +156,117 @@ export default function FeaturedJobs() {
 
         {/* Job List */}
         <div className="space-y-4">
-          {filteredJobs.map((job, i) => (
-            <motion.div
-              key={job.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
-              className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
-            >
-              {/* Left Side */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2 md:mb-3">
-                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
-                    {job.category}
-                  </span>
-                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
-                  </span>
-                  {appliedJobIds.has(job.id) && (
-                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm min-h-[300px]">
+              <Loader2 className="w-10 h-10 text-rh-teal animate-spin mb-4" />
+              <p className="text-gray-500 font-semibold text-xs sm:text-sm">Retrieving active career opportunities...</p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm min-h-[300px]">
+              <p className="text-gray-400 font-bold mb-2">No jobs found in this category.</p>
+              <p className="text-gray-300 text-xs font-semibold">Please check back later or try a different filter.</p>
+            </div>
+          ) : (
+            filteredJobs.map((job, i) => (
+              <motion.div
+                key={job.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
+                className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
+              >
+                {/* Left Side */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2 md:mb-3">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
+                      {job.category}
                     </span>
-                  )}
-                </div>
-                <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
-                  {job.title}
-                </h3>
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
+                    </span>
+                    {appliedJobIds.has(job.id) && (
+                      <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
+                    {job.title}
+                  </h3>
 
-                <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                    {job.company}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                    {job.location}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
-                    {job.salary}
-                  </div>
-                  {job.deadline && (
-                    <div className="flex items-center gap-1.5 text-rh-red font-medium text-xs">
-                      Due: {job.deadline}
+                  <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
+                    <div className="flex items-center gap-1.5">
+                      <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                      {job.company}
                     </div>
-                  )}
-                  <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
-                    {job.applicationsCount} applicant{job.applicationsCount === 1 ? '' : 's'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side */}
-              <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
-                <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
-                  <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                  {job.postedAt}
-                </div>
-
-                <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
-                  {appliedJobIds.has(job.id) ? (
-                    <div className="flex items-center gap-2">
-                      <div className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 bg-rh-red rounded-full shadow-sm shadow-rh-red/20">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                        <span className="text-[10px] text-white font-bold uppercase tracking-wider">Applied</span>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                      {job.location}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
+                      {job.salary}
+                    </div>
+                    {job.deadline && (
+                      <div className="flex items-center gap-1.5 text-rh-red font-medium text-xs">
+                        Due: {job.deadline}
                       </div>
-                      <Button
-                        variant="outline"
-                        className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 cursor-pointer"
-                        onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
-                      >
-                        View Application
-                      </Button>
+                    )}
+                    <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
+                      {job.applicationsCount} applicant{job.applicationsCount === 1 ? '' : 's'}
                     </div>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
-                        onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="primary"
-                        className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
-                        onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
-                      >
-                        Apply Now
-                      </Button>
-                    </>
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Hover Line */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-rh-red scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" />
-            </motion.div>
-          ))}
+                {/* Right Side */}
+                <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
+                  <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
+                    <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                    {job.postedAt}
+                  </div>
+
+                  <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
+                    {appliedJobIds.has(job.id) ? (
+                      <div className="flex items-center gap-2">
+                        <div className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 bg-rh-red rounded-full shadow-sm shadow-rh-red/20">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                          <span className="text-[10px] text-white font-bold uppercase tracking-wider">Applied</span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 cursor-pointer"
+                          onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
+                        >
+                          View Application
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
+                          onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          variant="primary"
+                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
+                        >
+                          Apply Now
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Hover Line */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-rh-red scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" />
+              </motion.div>
+            ))
+          )}
         </div>
 
         <div className="mt-8 sm:hidden">

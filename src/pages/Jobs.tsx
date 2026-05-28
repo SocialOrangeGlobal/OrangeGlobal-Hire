@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';
@@ -26,11 +26,13 @@ export default function JobsPage() {
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
   const [jobsList, setJobsList] = useState<Job[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch from NestJS backend API
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setIsLoading(true);
         const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=100&published=true`;
         const res = await fetch(url);
         if (res.ok) {
@@ -66,6 +68,8 @@ export default function JobsPage() {
         }
       } catch (err) {
         console.error("Failed to load jobs:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -286,7 +290,14 @@ export default function JobsPage() {
               </div>
 
               <div className="space-y-6">
-                {currentJobs.length > 0 ? currentJobs.map((job, i) => (
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center py-32 bg-white/40 backdrop-blur-md rounded-[32px] border border-white/20 shadow-xl">
+                    <Loader2 className="w-12 h-12 text-rh-red animate-spin mb-4" />
+                    <p className="text-rh-teal/80 text-sm font-semibold tracking-wider animate-pulse">
+                      Curating the best career opportunities for you...
+                    </p>
+                  </div>
+                ) : currentJobs.length > 0 ? currentJobs.map((job, i) => (
                   <motion.div
                     key={job.id}
                     initial={{ opacity: 0, y: 20 }}

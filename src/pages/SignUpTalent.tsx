@@ -188,6 +188,9 @@ export default function SignUpTalent() {
         if (!formData.employerName.trim()) newErrors.employerName = 'Current Employer Name is required.';
         if (!formData.totalExp.trim()) newErrors.totalExp = 'Total Years of Experience is required.';
       }
+      if (formData.summary && formData.summary.length > 200) {
+        newErrors.summary = 'Professional Summary cannot exceed 200 characters.';
+      }
     }
     if (currentStep === 4) {
       if (!formData.highestQualification) newErrors.highestQualification = 'Please select your highest qualification.';
@@ -199,13 +202,27 @@ export default function SignUpTalent() {
     }
     if (currentStep === 6) {
       if (!formData.visaStatus.trim()) newErrors.visaStatus = 'Current Visa / Residency Status is required.';
-      if (!formData.legalWorkRights.trim()) newErrors.legalWorkRights = 'Legal Work Rights information is required.';
       if (!formData.openToRelocation) newErrors.openToRelocation = 'Please indicate if you are open to relocation.';
+      if (formData.visaRefusal === 'Yes' && formData.visaRefusalDetails && formData.visaRefusalDetails.length > 200) {
+        newErrors.visaRefusalDetails = 'Visa refusal details cannot exceed 200 characters.';
+      }
     }
     if (currentStep === 7) {
       if (!formData.validPassport) newErrors.validPassport = 'Please indicate if you hold a valid passport.';
-      if (formData.validPassport === 'Yes' && !formData.passportExpiry.trim()) {
-        newErrors.passportExpiry = 'Passport Expiry Date is required.';
+      if (formData.validPassport === 'Yes') {
+        if (!formData.passportExpiry.trim()) {
+          newErrors.passportExpiry = 'Passport Expiry Date is required.';
+        } else {
+          const expiryDate = new Date(formData.passportExpiry);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (expiryDate <= today) {
+            newErrors.passportExpiry = 'Passport Expiry Date must be a future date.';
+          }
+        }
+      }
+      if (formData.criminalConvictions === 'Yes' && formData.criminalDetails && formData.criminalDetails.length > 200) {
+        newErrors.criminalDetails = 'Conviction details cannot exceed 200 characters.';
       }
     }
     if (currentStep === 8) {
@@ -807,12 +824,38 @@ export default function SignUpTalent() {
                         )}
                       </div>
                       <div className="space-y-1 sm:space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Professional Summary / Key Achievements</label>
-                        <textarea rows={4} value={formData.summary} onChange={e => updateForm('summary', e.target.value)} placeholder="Briefly highlight your core expertise and major achievements..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                        <div className="flex justify-between items-center ml-1 mb-1 sm:mb-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
+                            Professional Summary / Key Achievements
+                          </label>
+                          <span className={`text-[10px] font-bold ${formData.summary.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                            {formData.summary.length}/200
+                          </span>
+                        </div>
+                        <textarea
+                          rows={4}
+                          maxLength={200}
+                          value={formData.summary}
+                          onChange={e => updateForm('summary', e.target.value)}
+                          placeholder="Briefly highlight your core expertise and major achievements..."
+                          className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none ${errors.summary ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+                        />
+                        {errors.summary && (
+                          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.summary}
+                          </motion.p>
+                        )}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                         {renderRadioGroup({ label: "Have you worked overseas before?", field: "workedOverseas", options: ["Yes", "No"] })}
-                        {formData.workedOverseas === "Yes" && renderInput({ label: "Which countries?", field: "overseasCountries", placeholder: "e.g. USA, UK, Germany" })}
+                        {formData.workedOverseas === "Yes" && renderCustomSelect({
+                          label: "Which countries?",
+                          field: "overseasCountries",
+                          options: countriesData.map(c => ({ label: c.name, value: c.name })),
+                          value: formData.overseasCountries,
+                          onChange: (val: string) => updateForm('overseasCountries', val),
+                          required: false
+                        })}
                       </div>
                     </div>
                   )}
@@ -834,8 +877,8 @@ export default function SignUpTalent() {
                   {/* SECTION 5 */}
                   {step === 5 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                      {renderSelect({ label: "Have you taken an English Language Proficiency Test?", field: "englishTest", options: ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], required: true })}
-                      {formData.englishTest && formData.englishTest !== "None / English is Native Language" && (
+                      {renderSelect({ label: "Have you taken an English Language Proficiency Test?", field: "englishTest", options: ["IELTS", "TOEFL", "PTE", "OET", "None"], required: true })}
+                      {formData.englishTest && formData.englishTest !== "None" && (
                         <>
                           {renderInput({ label: "Overall Score / Band", field: "overallScore", placeholder: "e.g. 7.5" })}
                           {renderInput({ label: "Test Date / Validity", field: "testDate", placeholder: "YYYY-MM-DD", type: "date" })}
@@ -849,7 +892,7 @@ export default function SignUpTalent() {
                     <div className="space-y-6 sm:space-y-8">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                         {renderInput({ label: "Current Visa / Residency Status", field: "visaStatus", placeholder: "e.g. Employment Pass / Citizen", required: true })}
-                        {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: true })}
+                        {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: false })}
                         {renderRadioGroup({ label: "Are you open to relocation?", field: "openToRelocation", options: ["Yes", "No"], required: true })}
                         {renderRadioGroup({ label: "Have you applied for an Australian Visa before?", field: "appliedAusVisa", options: ["Yes", "No"] })}
                         {formData.appliedAusVisa === "Yes" && renderInput({ label: "Which Visa Subclass?", field: "visaTypeApplied", placeholder: "e.g. Subclass 482, 189, 190" })}
@@ -857,8 +900,27 @@ export default function SignUpTalent() {
                       </div>
                       {formData.visaRefusal === "Yes" && (
                         <div className="space-y-1 sm:space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of the visa refusal/cancellation</label>
-                          <textarea rows={3} value={formData.visaRefusalDetails} onChange={e => updateForm('visaRefusalDetails', e.target.value)} placeholder="Explain the reasons and country..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                          <div className="flex justify-between items-center ml-1 mb-1 sm:mb-2">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
+                              Please provide details of the visa refusal/cancellation
+                            </label>
+                            <span className={`text-[10px] font-bold ${formData.visaRefusalDetails.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                              {formData.visaRefusalDetails.length}/200
+                            </span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            maxLength={200}
+                            value={formData.visaRefusalDetails}
+                            onChange={e => updateForm('visaRefusalDetails', e.target.value)}
+                            placeholder="Explain the reasons and country..."
+                            className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none ${errors.visaRefusalDetails ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+                          />
+                          {errors.visaRefusalDetails && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.visaRefusalDetails}
+                            </motion.p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -876,8 +938,27 @@ export default function SignUpTalent() {
                       </div>
                       {formData.criminalConvictions === "Yes" && (
                         <div className="space-y-1 sm:space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-2 block ml-1">Please provide details of convictions</label>
-                          <textarea rows={3} value={formData.criminalDetails} onChange={e => updateForm('criminalDetails', e.target.value)} placeholder="Provide details..." className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border border-transparent rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none" />
+                          <div className="flex justify-between items-center ml-1 mb-1 sm:mb-2">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
+                              Please provide details of convictions
+                            </label>
+                            <span className={`text-[10px] font-bold ${formData.criminalDetails.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                              {formData.criminalDetails.length}/200
+                            </span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            maxLength={200}
+                            value={formData.criminalDetails}
+                            onChange={e => updateForm('criminalDetails', e.target.value)}
+                            placeholder="Provide details..."
+                            className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none ${errors.criminalDetails ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+                          />
+                          {errors.criminalDetails && (
+                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.criminalDetails}
+                            </motion.p>
+                          )}
                         </div>
                       )}
                     </div>

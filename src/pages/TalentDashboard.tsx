@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -25,7 +25,8 @@ export default function TalentDashboard() {
   const [notification, setNotification] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const { unreadCount } = useSocket();
+  const { notifications, unreadCount } = useSocket();
+  const prevNotificationsLength = useRef(notifications.length);
 
   const [profileData, setProfileData] = useState({
     name: '',
@@ -41,120 +42,134 @@ export default function TalentDashboard() {
     avatarUrl: '',
   });
 
-  useEffect(() => {
-    if (isAuthenticated && accessToken) {
-      setIsLoading(true);
-      Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/talent/applications`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(res => res.json()),
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/users/me`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(res => res.json()),
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
-          .then(res => res.json())
-      ])
-        .then(([appsData, profileResp, jobsResp]) => {
-          // Process Applications
-          if (appsData.success) {
-            const apps = appsData.data.map((app: any) => {
-              const status = app.status;
-              let nextStep = "Awaiting Review";
-              if (status === 'UNDER_REVIEW') nextStep = "In Review";
-              else if (status === 'SHORTLISTED') nextStep = "Pending Interview Schedule";
-              else if (status === 'INTERVIEW_SCHEDULED') nextStep = `Interview on ${app.interviewDate ? new Date(app.interviewDate).toLocaleString('en-AU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'TBD'}`;
-              else if (status === 'INTERVIEW_COMPLETED') nextStep = "Pending Decision";
-              else if (status === 'OFFER_SENT') nextStep = "Review Offer";
-              else if (status === 'OFFER_ACCEPTED') nextStep = "Onboarding";
-              else if (status === 'REJECTED') nextStep = "Application Rejected";
-              else if (status === 'WITHDRAWN') nextStep = "Application Withdrawn";
-              else if (status === 'OFFER_REJECTED') nextStep = "Offer Declined";
+  const showNotification = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
-              const isClosed = ['REJECTED', 'WITHDRAWN', 'OFFER_REJECTED'].includes(status);
-
-              return {
-                id: app.id,
-                company: app.job?.company || "Unknown",
-                logo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
-                role: app.job?.title || "Unknown",
-                status: app.status,
-                date: new Date(app.appliedAt).toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }),
-                nextStep: nextStep,
-                atsScore: app.atsScore || null,
-                atsBreakdown: app.atsBreakdown?.breakdown || null,
-                coverLetter: app.coverLetter || '',
-                adminNotes: app.adminNotes || '',
-                interviewDate: app.interviewDate,
-                interviewType: app.interviewType,
-                interviewLink: app.interviewLink,
-                interviewNotes: app.interviewNotes,
-                offerDetails: app.offerDetails,
-                isBookmarked: false,
-                timeline: [
-                  { step: 'Applied', date: new Date(app.appliedAt).toLocaleDateString(), completed: true },
-                  { step: 'Review', date: isClosed ? 'Closed' : 'Pending', completed: !isClosed && status !== 'APPLIED', current: status === 'APPLIED' },
-                  { step: 'Interview', date: app.interviewDate ? new Date(app.interviewDate).toLocaleDateString() : (isClosed ? 'Closed' : 'TBD'), completed: ['INTERVIEW_COMPLETED', 'OFFER_SENT', 'OFFER_ACCEPTED'].includes(status), current: ['SHORTLISTED', 'INTERVIEW_SCHEDULED'].includes(status) },
-                  { step: 'Decision', date: isClosed ? 'Closed' : 'TBD', completed: status === 'OFFER_ACCEPTED', current: status === 'OFFER_SENT' || status === 'INTERVIEW_COMPLETED' || isClosed },
-                ]
-              };
-            });
-            setApplications(apps);
-          }
-
-          // Process Profile
-          if (profileResp.success) {
-            const p = profileResp.data.profile;
-            setProfileData({
-              name: profileResp.data.fullName || user?.fullName || "Talent User",
-              title: p?.jobTitle || p?.preferredRole || 'Job Seeker',
-              email: profileResp.data.email,
-              phone: p?.phone || '',
-              location: typeof p?.location === 'object' && p?.location ? [p.location.city, p.location.country].filter(Boolean).join(', ') : (p?.location || p?.city || ''),
-              about: p?.bio || p?.summary || '',
-              completion: p?.profileScore || 0,
-              skills: p?.skills || [],
-              experience: (p?.experiences as any[]) || [],
-              education: (p?.educations as any[]) || [],
-              avatarUrl: profileResp.data.avatarUrl || '',
-            });
-          }
-
-          // Process Recommended Jobs
-          if (jobsResp.success) {
-            const raw = jobsResp.data?.items || jobsResp.data;
-            const items = Array.isArray(raw) ? raw : [];
-            const jobs = items.map((job: any) => ({
-              id: job.id,
-              title: job.title,
-              company: job.company,
-              location: job.location,
-              salary: job.salary || 'Negotiable',
-              tags: job.skills?.slice(0, 3) || [],
-              match: `${Math.floor(Math.random() * 15 + 80)}%`,
-            }));
-            setRecommendedJobs(jobs);
-          }
-          // If core application data fails to load completely, we can keep the loader or show an error.
-          // For now, if appsData doesn't have success, it means the API failed.
-          if (appsData && appsData.success === false) {
-            console.error("API Error fetching applications:", appsData);
-            // We can optionally leave the loader running if the user requested it, or show an error notification
-            setNotification("Error fetching data. Retrying...");
-            setTimeout(() => window.location.reload(), 3000); // Simple auto-retry
-            return;
-          }
-
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error("Network or parsing error:", err);
-          // If the data does not come from the API, keep showing the loader as requested
-          // or auto-retry.
-        });
-    } else {
+  const loadData = useCallback((showLoader = true) => {
+    if (!isAuthenticated || !accessToken) {
       navigate('/signin');
+      return;
     }
-  }, [isAuthenticated, accessToken]);
+    if (showLoader) {
+      setIsLoading(true);
+    }
+    Promise.all([
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/talent/applications`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(res => res.json()),
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/users/me`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(res => res.json()),
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
+        .then(res => res.json())
+    ])
+      .then(([appsData, profileResp, jobsResp]) => {
+        // Process Applications
+        if (appsData.success) {
+          const apps = appsData.data.map((app: any) => {
+            const status = app.status;
+            let nextStep = "Awaiting Review";
+            if (status === 'UNDER_REVIEW') nextStep = "In Review";
+            else if (status === 'SHORTLISTED') nextStep = "Pending Interview Schedule";
+            else if (status === 'INTERVIEW_SCHEDULED') nextStep = `Interview on ${app.interviewDate ? new Date(app.interviewDate).toLocaleString('en-AU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'TBD'}`;
+            else if (status === 'INTERVIEW_COMPLETED') nextStep = "Pending Decision";
+            else if (status === 'OFFER_SENT') nextStep = "Review Offer";
+            else if (status === 'OFFER_ACCEPTED') nextStep = "Onboarding";
+            else if (status === 'REJECTED') nextStep = "Application Rejected";
+            else if (status === 'WITHDRAWN') nextStep = "Application Withdrawn";
+            else if (status === 'OFFER_REJECTED') nextStep = "Offer Declined";
+
+            const isClosed = ['REJECTED', 'WITHDRAWN', 'OFFER_REJECTED'].includes(status);
+
+            return {
+              id: app.id,
+              company: app.job?.company || "Unknown",
+              logo: "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+              role: app.job?.title || "Unknown",
+              status: app.status,
+              date: new Date(app.appliedAt).toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }),
+              nextStep: nextStep,
+              atsScore: app.atsScore || null,
+              atsBreakdown: app.atsBreakdown?.breakdown || null,
+              coverLetter: app.coverLetter || '',
+              adminNotes: app.adminNotes || '',
+              interviewDate: app.interviewDate,
+              interviewType: app.interviewType,
+              interviewLink: app.interviewLink,
+              interviewNotes: app.interviewNotes,
+              offerDetails: app.offerDetails,
+              isBookmarked: false,
+              timeline: [
+                { step: 'Applied', date: new Date(app.appliedAt).toLocaleDateString(), completed: true },
+                { step: 'Review', date: isClosed ? 'Closed' : 'Pending', completed: !isClosed && status !== 'APPLIED', current: status === 'APPLIED' },
+                { step: 'Interview', date: app.interviewDate ? new Date(app.interviewDate).toLocaleDateString() : (isClosed ? 'Closed' : 'TBD'), completed: ['INTERVIEW_COMPLETED', 'OFFER_SENT', 'OFFER_ACCEPTED'].includes(status), current: ['SHORTLISTED', 'INTERVIEW_SCHEDULED'].includes(status) },
+                { step: 'Decision', date: isClosed ? 'Closed' : 'TBD', completed: status === 'OFFER_ACCEPTED', current: status === 'OFFER_SENT' || status === 'INTERVIEW_COMPLETED' || isClosed },
+              ]
+            };
+          });
+          setApplications(apps);
+        }
+
+        // Process Profile
+        if (profileResp.success) {
+          const p = profileResp.data.profile;
+          setProfileData({
+            name: profileResp.data.fullName || user?.fullName || "Talent User",
+            title: p?.jobTitle || p?.preferredRole || 'Job Seeker',
+            email: profileResp.data.email,
+            phone: p?.phone || '',
+            location: typeof p?.location === 'object' && p?.location ? [p.location.city, p.location.country].filter(Boolean).join(', ') : (p?.location || p?.city || ''),
+            about: p?.bio || p?.summary || '',
+            completion: p?.profileScore || 0,
+            skills: p?.skills || [],
+            experience: (p?.experiences as any[]) || [],
+            education: (p?.educations as any[]) || [],
+            avatarUrl: profileResp.data.avatarUrl || '',
+          });
+        }
+
+        // Process Recommended Jobs
+        if (jobsResp.success) {
+          const raw = jobsResp.data?.items || jobsResp.data;
+          const items = Array.isArray(raw) ? raw : [];
+          const jobs = items.map((job: any) => ({
+            id: job.id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            salary: job.salary || 'Negotiable',
+            tags: job.skills?.slice(0, 3) || [],
+            match: `${Math.floor(Math.random() * 15 + 80)}%`,
+          }));
+          setRecommendedJobs(jobs);
+        }
+        if (appsData && appsData.success === false) {
+          console.error("API Error fetching applications:", appsData);
+          setNotification("Error fetching data. Retrying...");
+          setTimeout(() => window.location.reload(), 3000);
+          return;
+        }
+
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Network or parsing error:", err);
+      });
+  }, [isAuthenticated, accessToken, navigate, user]);
+
+  useEffect(() => {
+    loadData(true);
+  }, [loadData]);
+
+  useEffect(() => {
+    if (notifications.length > prevNotificationsLength.current) {
+      loadData(false);
+      showNotification('Dashboard updated in real-time');
+    }
+    prevNotificationsLength.current = notifications.length;
+  }, [notifications, loadData]);
 
   const stats = useMemo(() => {
     const interviewCount = applications.filter(a => ['INTERVIEW_SCHEDULED', 'SHORTLISTED'].includes(a.status)).length;
@@ -169,11 +184,6 @@ export default function TalentDashboard() {
       { label: 'Avg ATS Score', value: avgAts, icon: Target, color: 'text-rh-teal', bg: 'bg-rh-teal/5' },
     ];
   }, [applications, recommendedJobs]);
-
-  const showNotification = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
-  };
 
   const toggleBookmark = (id: string) => {
     setApplications(applications.map(app =>

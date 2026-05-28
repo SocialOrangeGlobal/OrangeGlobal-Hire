@@ -80,7 +80,7 @@ const talentUpdateSchema = z.object({
   employmentCountry: z.string().optional(),
   totalExp: z.string().optional(),
   relevantExp: z.string().optional(),
-  summary: z.string().optional(),
+  summary: z.string().max(200, 'Professional Summary cannot exceed 200 characters').optional(),
   isEmployed: z.string().min(1, 'Please indicate if you are currently employed'),
   workedOverseas: z.string().optional(),
   overseasCountries: z.string().optional(),
@@ -94,18 +94,18 @@ const talentUpdateSchema = z.object({
   overallScore: z.string().optional(),
   testDate: z.string().optional(),
   visaStatus: z.string().min(1, 'Current Visa / Residency Status is required'),
-  legalWorkRights: z.string().min(1, 'Legal Work Rights information is required'),
+  legalWorkRights: z.string().optional(),
   openToRelocation: z.string().min(1, 'Please indicate if you are open to relocation'),
   appliedAusVisa: z.string().optional(),
   visaTypeApplied: z.string().optional(),
   visaRefusal: z.string().optional(),
-  visaRefusalDetails: z.string().optional(),
+  visaRefusalDetails: z.string().max(200, 'Visa refusal details cannot exceed 200 characters').optional(),
   relocateAloneOrFamily: z.string().optional(),
   validPassport: z.string().min(1, 'Please indicate if you hold a valid passport'),
   passportExpiry: z.string().optional(),
   medicalBackgroundCheck: z.string().optional(),
   criminalConvictions: z.string().optional(),
-  criminalDetails: z.string().optional(),
+  criminalDetails: z.string().max(200, 'Conviction details cannot exceed 200 characters').optional(),
   passportUrl: z.string().min(1, 'Passport document is required'),
   visaUrl: z.string().min(1, 'Visa / Residency permit document is required'),
   eduCertUrl: z.string().optional(),
@@ -145,6 +145,17 @@ const talentUpdateSchema = z.object({
         message: 'Passport Expiry Date is required',
         path: ['passportExpiry'],
       });
+    } else {
+      const expiryDate = new Date(data.passportExpiry);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (expiryDate <= today) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Passport Expiry Date must be a future date',
+          path: ['passportExpiry'],
+        });
+      }
     }
   }
 });
@@ -361,7 +372,7 @@ export default function ManageProfile() {
     );
   };
 
-  const renderEditSelect = (label: string, name: string, options: string[], required: boolean = false) => {
+  const renderEditSelect = (label: string, name: string, options: string[], required: boolean = false, searchable: boolean = false) => {
     const error = (talentForm.formState.errors as any)[name];
     return (
       <div className="space-y-2">
@@ -375,6 +386,7 @@ export default function ManageProfile() {
                 options={options.map(o => ({ label: o, value: o }))}
                 value={field.value || ''}
                 onChange={field.onChange}
+                searchable={searchable}
                 className="border-transparent bg-[#F4F7FA] focus:bg-white"
               />
             )}
@@ -428,11 +440,18 @@ export default function ManageProfile() {
 
   const renderEditTextarea = (label: string, name: string, placeholder?: string, rows: number = 3, required: boolean = false) => {
     const error = (talentForm.formState.errors as any)[name];
+    const textVal = talentForm.watch(name as any) || '';
     return (
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
+        <div className="flex justify-between items-center ml-1">
+          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
+          <span className={`text-[10px] font-bold ${textVal.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+            {textVal.length}/200
+          </span>
+        </div>
         <textarea
           rows={rows}
+          maxLength={200}
           placeholder={placeholder}
           {...talentForm.register(name as any)}
           className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#F4F7FA] border ${error ? 'border-red-500 bg-red-50/10' : 'border-transparent'} rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal/20 transition-all font-medium resize-none`}
@@ -1503,7 +1522,7 @@ export default function ManageProfile() {
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">English Test Status</p>
                             <p className="text-base font-bold text-rh-teal">{profile?.englishTest || 'Not specified'}</p>
                           </div>
-                          {profile?.englishTest && profile.englishTest !== 'None / English is Native Language' && (
+                          {profile?.englishTest && profile.englishTest !== 'None' && (
                             <>
                               <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50">
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Overall Score / Band</p>
@@ -1796,7 +1815,7 @@ export default function ManageProfile() {
                       {/* Accordion Wrapper */}
                       <div className="space-y-6">
                         {/* 1. Personal & Contact Details */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'personal' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'personal' ? '' : 'personal')}
@@ -1996,7 +2015,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 2. Employment Preferences */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'preferences' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'preferences' ? '' : 'preferences')}
@@ -2023,7 +2042,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 3. Current Employment & History */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'current' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'current' ? '' : 'current')}
@@ -2053,7 +2072,7 @@ export default function ManageProfile() {
 
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditRadio("Have you worked overseas before?", "workedOverseas", ["Yes", "No"])}
-                                  {talentForm.watch('workedOverseas') === 'Yes' && renderEditInput("Which countries?", "overseasCountries", "e.g. USA, UK, Germany")}
+                                  {talentForm.watch('workedOverseas') === 'Yes' && renderEditSelect("Which countries?", "overseasCountries", Country.getAllCountries().map(c => c.name), false, true)}
                                 </div>
 
                                 {/* Work Experience List */}
@@ -2112,7 +2131,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 4. Expertise & Skills */}
-                        <div id="skills-accordion-section" className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div id="skills-accordion-section" className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'skills' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             id="skills-accordion-trigger"
                             type="button"
@@ -2154,7 +2173,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 5. Education & Qualifications */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'education' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'education' ? '' : 'education')}
@@ -2236,7 +2255,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 6. Language Proficiency */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'language' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'language' ? '' : 'language')}
@@ -2250,8 +2269,8 @@ export default function ManageProfile() {
                           {openSection === 'language' && (
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="grid md:grid-cols-2 gap-6">
-                                {renderEditSelect("English Test Status", "englishTest", ["IELTS", "TOEFL", "PTE", "OET", "None / English is Native Language"], true)}
-                                {talentForm.watch('englishTest') && talentForm.watch('englishTest') !== 'None / English is Native Language' && (
+                                {renderEditSelect("English Test Status", "englishTest", ["IELTS", "TOEFL", "PTE", "OET", "None"], true)}
+                                {talentForm.watch('englishTest') && talentForm.watch('englishTest') !== 'None' && (
                                   <>
                                     {renderEditInput("Overall Score / Band", "overallScore", "e.g. 7.5")}
                                     {renderEditInput("Test Date / Validity", "testDate", "YYYY-MM-DD", "date")}
@@ -2263,7 +2282,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 7. Visa & Work Rights */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'visa' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'visa' ? '' : 'visa')}
@@ -2279,7 +2298,7 @@ export default function ManageProfile() {
                               <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditInput("Current Visa / Residency Status", "visaStatus", "e.g. Employment Pass / Citizen", "text", true)}
-                                  {renderEditInput("Legal Work Rights in Target Country", "legalWorkRights", "e.g. Require Sponsorship / Permanent Resident", "text", true)}
+                                  {renderEditInput("Legal Work Rights in Target Country", "legalWorkRights", "e.g. Require Sponsorship / Permanent Resident", "text", false)}
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditRadio("Are you open to relocation?", "openToRelocation", ["Yes", "No"], true)}
@@ -2296,7 +2315,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 8. Relocation & Availability */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'relocation' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'relocation' ? '' : 'relocation')}
@@ -2326,7 +2345,7 @@ export default function ManageProfile() {
                         </div>
 
                         {/* 9. Uploaded Documents */}
-                        <div className="border border-gray-100 rounded-3xl overflow-hidden shadow-sm bg-white">
+                        <div className={`border border-gray-100 rounded-3xl shadow-sm bg-white transition-all ${openSection === 'documents' ? 'relative z-30 overflow-visible' : 'overflow-hidden'}`}>
                           <button
                             type="button"
                             onClick={() => setOpenSection(openSection === 'documents' ? '' : 'documents')}
