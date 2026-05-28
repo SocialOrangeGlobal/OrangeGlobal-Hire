@@ -70,7 +70,6 @@ export default function ApplyJobPage() {
     profile.phone?.trim() &&
     profile.workEmail?.trim() &&
     profile.skills?.length > 0 &&
-    profile.experiences?.length > 0 &&
     profile.educations?.length > 0;
 
   // Fetch job details
@@ -447,12 +446,8 @@ export default function ApplyJobPage() {
                           <span className={profile?.skills?.length > 0 ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Professional Skills</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
-                          {profile?.experiences?.length > 0 ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                          ) : (
-                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                          )}
-                          <span className={profile?.experiences?.length > 0 ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Work Experience</span>
+                          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          <span className="text-gray-700 font-semibold">Work Experience <span className="text-xs text-gray-400 font-normal">(Optional)</span></span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           {profile?.educations?.length > 0 ? (
