@@ -64,6 +64,15 @@ export default function ApplyJobPage() {
   // Step 6
   const [coverLetter, setCoverLetter] = useState('');
 
+  const isProfileComplete = 
+    profile &&
+    profile.fullName?.trim() &&
+    profile.phone?.trim() &&
+    profile.workEmail?.trim() &&
+    profile.skills?.length > 0 &&
+    profile.experiences?.length > 0 &&
+    profile.educations?.length > 0;
+
   // Fetch job details
   useEffect(() => {
     const fetchJob = async () => {
@@ -122,6 +131,7 @@ export default function ApplyJobPage() {
       setProfile(p);
       const userResumes = p?.resumes || [];
       setResumes(userResumes);
+      setApplyMode('easy');
 
       if (!selectedResumeId) {
         const defaultResume = userResumes.find((r: any) => r.isDefault);
@@ -232,7 +242,7 @@ export default function ApplyJobPage() {
     if (applyMode === 'easy' && currentStep === 7) {
       setCurrentStep(1);
     } else if (currentStep === 1) {
-      setApplyMode(null);
+      navigate('/jobs');
     } else {
       setCurrentStep((prev) => Math.max(prev - 1, 1));
     }
@@ -388,6 +398,82 @@ export default function ApplyJobPage() {
                   <div className="text-center py-20">
                     <h3 className="text-2xl font-bold text-rh-teal mb-4">Employer Accounts Cannot Apply</h3>
                     <p className="text-gray-500 mb-8">Please log in with a Talent account to apply for jobs.</p>
+                  </div>
+                ) : !isProfileComplete ? (
+                  <div className="text-center py-12 max-w-xl mx-auto space-y-8">
+                    <div className="w-20 h-20 bg-amber-50 text-amber-500 border border-amber-100 rounded-full flex items-center justify-center mx-auto shadow-inner animate-pulse">
+                      <AlertCircle className="w-10 h-10" />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-2xl sm:text-3xl font-extrabold text-rh-teal tracking-tight">Complete Your Profile First</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">
+                        To maintain high candidate match assurance, Orange Global requires you to complete your professional profile before applying.
+                      </p>
+                    </div>
+
+                    <div className="bg-amber-50/30 border border-amber-500/10 rounded-2xl p-6 text-left space-y-4">
+                      <h4 className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Required Fields Checklist</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.fullName?.trim() ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.fullName?.trim() ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Full Name</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.phone?.trim() ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.phone?.trim() ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Phone Number</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.workEmail?.trim() ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.workEmail?.trim() ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Email Address</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.skills?.length > 0 ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.skills?.length > 0 ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Professional Skills</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.experiences?.length > 0 ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.experiences?.length > 0 ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Work Experience</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {profile?.educations?.length > 0 ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                          )}
+                          <span className={profile?.educations?.length > 0 ? "text-gray-700 font-semibold" : "text-gray-400 line-through"}>Education Details</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        variant="primary"
+                        onClick={() => navigate('/manage-profile')}
+                        className="w-full py-4.5 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-brand-500/10 cursor-pointer"
+                      >
+                        Go to Manage Profile <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ) : applyMode === null ? (
                   <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-2xl mx-auto space-y-8 py-4 sm:py-8">
