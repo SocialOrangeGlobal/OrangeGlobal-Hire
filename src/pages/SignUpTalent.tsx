@@ -14,6 +14,7 @@ import { setError as setAuthError } from '../store/slices/authSlice';
 import { SignUpTalentDto } from '../types/auth';
 import { useGlobalLoader } from '../components/ui/GlobalLoader';
 import { Country, State, City } from 'country-state-city';
+import { nationalitiesList } from '../data';
 
 const experienceYears = [
   "Less than 1 Year",
@@ -690,7 +691,7 @@ export default function SignUpTalent() {
                           label: "Nationality",
                           field: "nationality",
                           options: [
-                            ...countriesData.map(c => ({ label: c.name, value: c.name })),
+                            ...nationalitiesList,
                             { label: "Other (Specify)", value: "Other" }
                           ],
                           value: formData.nationality,

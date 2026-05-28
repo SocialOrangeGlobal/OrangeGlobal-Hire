@@ -19,7 +19,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Dropdown from '../components/ui/Dropdown';
-import { signUpPositionType } from '../data';
+import { signUpPositionType, nationalitiesList } from '../data';
 import { Country, State, City } from 'country-state-city';
 
 const toDateInput = (raw: string): string => {
@@ -656,7 +656,7 @@ export default function ManageProfile() {
         }
 
         const nationalityName = p.nationality || '';
-        const nationalityExists = countriesList.some(c => c.name === nationalityName);
+        const nationalityExists = nationalitiesList.some(c => c.value === nationalityName);
         setIsCustomNationality(nationalityName ? !nationalityExists : false);
 
         talentForm.reset({
@@ -1822,9 +1822,8 @@ export default function ManageProfile() {
                                     name="nationality"
                                     control={talentForm.control}
                                     render={({ field }) => {
-                                      const countries = Country.getAllCountries();
                                       const options = [
-                                        ...countries.map(c => ({ label: c.name, value: c.name })),
+                                        ...nationalitiesList,
                                         { label: 'Other (Specify)', value: 'Other' }
                                       ];
                                       return (
