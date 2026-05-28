@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, CheckCheck, Briefcase, Zap, Calendar, CheckCircle2 } from 'lucide-react';
+import { Bell, X, CheckCheck, Briefcase, Zap, Calendar, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useSocket, Notification } from '../../../contexts/SocketContext';
 
 // ── Type → visual config ─────────────────────────────────────────────────────
@@ -190,13 +191,19 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
           </div>
 
           {/* ── Footer ────────────────────────────────────────────────── */}
-          {notifications.length > 0 && (
-            <div className="px-5 py-3 border-t border-gray-100 shrink-0 bg-gray-50/50">
-              <p className="text-[10px] text-center text-gray-400">
-                Showing latest {notifications.length} notifications
-              </p>
-            </div>
-          )}
+          <div className="px-5 py-3 border-t border-gray-100 shrink-0 bg-gray-50/50 flex items-center justify-between">
+            <span className="text-[10px] text-gray-400 font-medium">
+              {notifications.length > 0 ? `Latest ${notifications.length} notifications` : 'No notifications'}
+            </span>
+            <Link
+              to="/notifications"
+              onClick={onClose}
+              className="text-[10px] font-extrabold uppercase tracking-widest text-rh-red hover:underline flex items-center gap-1 group"
+            >
+              See all
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

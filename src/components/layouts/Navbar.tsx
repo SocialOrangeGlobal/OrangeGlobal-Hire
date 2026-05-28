@@ -55,7 +55,7 @@ export default function Navbar() {
   const isSubPage = [
     '/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email',
     '/jobs', '/hire-talent', '/consulting', '/insights', '/post-vacancy', '/contact',
-    '/employer-dashboard', '/talent-dashboard', '/apply-job', '/manage-profile'
+    '/employer-dashboard', '/talent-dashboard', '/apply-job', '/manage-profile', '/notifications'
   ].some(path => pathname.startsWith(path));
 
   const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
