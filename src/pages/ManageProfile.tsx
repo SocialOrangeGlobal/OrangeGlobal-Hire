@@ -86,7 +86,7 @@ const talentUpdateSchema = z.object({
   overseasCountries: z.string().optional(),
   highestQualification: z.string().min(1, 'Please select your highest qualification'),
   fieldOfStudy: z.string().min(1, 'Field of Study is required'),
-  institutionName: z.string().min(1, 'Institution Name is required'),
+  institutionName: z.string().optional(),
   graduationYear: z.string().optional(),
   hasLicences: z.string().optional(),
   licencesList: z.string().optional(),
@@ -100,8 +100,8 @@ const talentUpdateSchema = z.object({
   visaTypeApplied: z.string().optional(),
   visaRefusal: z.string().optional(),
   visaRefusalDetails: z.string().max(200, 'Visa refusal details cannot exceed 200 characters').optional(),
-  relocateAloneOrFamily: z.string().optional(),
-  validPassport: z.string().min(1, 'Please indicate if you hold a valid passport'),
+  relocateAloneOrFamily: z.string().min(1, 'Please indicate if you are relocating alone or with family'),
+  validPassport: z.string().optional(),
   passportExpiry: z.string().optional(),
   medicalBackgroundCheck: z.string().optional(),
   criminalConvictions: z.string().optional(),
@@ -2033,7 +2033,7 @@ export default function ManageProfile() {
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditInput("Preferred Industry / Sector", "preferredIndustry", "e.g. Healthcare, IT, Finance", "text", true)}
                                   {renderEditInput("Preferred Role / Job Title", "preferredRole", "e.g. Senior Software Engineer", "text", true)}
-                                  {renderEditInput("Preferred Salary Range & Currency", "preferredSalary", "e.g. $80,000 - $100,000 USD/year")}
+                                  {renderEditInput("Preferred Salary", "preferredSalary", "e.g. $80,000 - $100,000 USD/year")}
                                   {renderEditInput("Earliest Start Date / Notice Period", "startDate", "e.g. 30 Days / Immediate")}
                                 </div>
                               </div>
@@ -2302,9 +2302,13 @@ export default function ManageProfile() {
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                   {renderEditRadio("Are you open to relocation?", "openToRelocation", ["Yes", "No"], true)}
+                                </div>
+                                {/* Applied Australian Visa — conditional below */}
+                                <div className="space-y-4">
                                   {renderEditRadio("Have you applied for an Australian Visa before?", "appliedAusVisa", ["Yes", "No"])}
                                   {talentForm.watch('appliedAusVisa') === 'Yes' && renderEditInput("Which Visa Subclass?", "visaTypeApplied", "e.g. Subclass 482, 189, 190")}
                                 </div>
+                                {/* Visa refusal — conditional below */}
                                 <div className="space-y-4">
                                   {renderEditRadio("Have you ever had a visa refusal or cancellation for any country?", "visaRefusal", ["Yes", "No"])}
                                   {talentForm.watch('visaRefusal') === 'Yes' && renderEditTextarea("Please provide details of the visa refusal/cancellation", "visaRefusalDetails", "Explain the reasons and country...")}
@@ -2330,8 +2334,8 @@ export default function ManageProfile() {
                             <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white animate-fadeIn">
                               <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
-                                  {renderEditSelect("If relocating, will you relocate alone or with family?", "relocateAloneOrFamily", ["Alone", "With Partner", "With Family (Partner & Children)"])}
-                                  {renderEditRadio("Do you hold a valid passport?", "validPassport", ["Yes", "No"], true)}
+                                  {renderEditSelect("If relocating, will you relocate alone or with family?", "relocateAloneOrFamily", ["Alone", "With Partner", "With Family (Partner & Children)"], true)}
+                                  {renderEditRadio("Do you hold a valid passport?", "validPassport", ["Yes", "No"])}
                                   {talentForm.watch('validPassport') === 'Yes' && renderEditInput("Passport Expiry Date", "passportExpiry", "YYYY-MM-DD", "date", true)}
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">

@@ -195,7 +195,6 @@ export default function SignUpTalent() {
     if (currentStep === 4) {
       if (!formData.highestQualification) newErrors.highestQualification = 'Please select your highest qualification.';
       if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of Study is required.';
-      if (!formData.institutionName.trim()) newErrors.institutionName = 'Institution Name is required.';
     }
     if (currentStep === 5) {
       if (!formData.englishTest) newErrors.englishTest = 'Please select your English test status.';
@@ -208,7 +207,7 @@ export default function SignUpTalent() {
       }
     }
     if (currentStep === 7) {
-      if (!formData.validPassport) newErrors.validPassport = 'Please indicate if you hold a valid passport.';
+      if (!formData.relocateAloneOrFamily) newErrors.relocateAloneOrFamily = 'Please indicate if you are relocating alone or with family.';
       if (formData.validPassport === 'Yes') {
         if (!formData.passportExpiry.trim()) {
           newErrors.passportExpiry = 'Passport Expiry Date is required.';
@@ -796,7 +795,7 @@ export default function SignUpTalent() {
                       </div>
                       {renderInput({ label: "Preferred Industry / Sector", field: "preferredIndustry", placeholder: "e.g. Healthcare, IT, Finance", required: true })}
                       {renderInput({ label: "Preferred Role / Job Title", field: "preferredRole", placeholder: "e.g. Senior Software Engineer", required: true })}
-                      {renderInput({ label: "Preferred Salary Range & Currency", field: "preferredSalary", placeholder: "e.g. $80,000 - $100,000 USD/year" })}
+                      {renderInput({ label: "Preferred Salary", field: "preferredSalary", placeholder: "e.g. $80,000 - $100,000 USD/year" })}
                       {renderInput({ label: "Earliest Start Date / Notice Period", field: "startDate", placeholder: "e.g. 30 Days / Immediate" })}
                     </div>
                   )}
@@ -866,7 +865,7 @@ export default function SignUpTalent() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                         {renderSelect({ label: "Highest Qualification Achieved", field: "highestQualification", options: ["High School / Diploma", "Bachelor's Degree", "Master's Degree", "PhD / Doctorate", "Professional Certification"], required: true })}
                         {renderInput({ label: "Field of Study / Major", field: "fieldOfStudy", placeholder: "e.g. Computer Science", required: true })}
-                        {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: true })}
+                        {renderInput({ label: "Institution Name", field: "institutionName", placeholder: "e.g. Stanford University", required: false })}
                         {renderInput({ label: "Graduation Year", field: "graduationYear", placeholder: "e.g. 2021", type: "number" })}
                         {renderRadioGroup({ label: "Do you hold any professional licences or registrations?", field: "hasLicences", options: ["Yes", "No"] })}
                         {formData.hasLicences === "Yes" && renderInput({ label: "List Licences & Issuing Authorities", field: "licencesList", placeholder: "e.g. CPA (AICPA), PMP (PMI)" })}
@@ -894,35 +893,43 @@ export default function SignUpTalent() {
                         {renderInput({ label: "Current Visa / Residency Status", field: "visaStatus", placeholder: "e.g. Employment Pass / Citizen", required: true })}
                         {renderInput({ label: "Legal Work Rights in Target Country", field: "legalWorkRights", placeholder: "e.g. Require Sponsorship / Permanent Resident", required: false })}
                         {renderRadioGroup({ label: "Are you open to relocation?", field: "openToRelocation", options: ["Yes", "No"], required: true })}
+                      </div>
+
+                      {/* Australian Visa — conditional below */}
+                      <div className="space-y-4">
                         {renderRadioGroup({ label: "Have you applied for an Australian Visa before?", field: "appliedAusVisa", options: ["Yes", "No"] })}
                         {formData.appliedAusVisa === "Yes" && renderInput({ label: "Which Visa Subclass?", field: "visaTypeApplied", placeholder: "e.g. Subclass 482, 189, 190" })}
-                        {renderRadioGroup({ label: "Have you ever had a visa refusal or cancellation for any country?", field: "visaRefusal", options: ["Yes", "No"] })}
                       </div>
-                      {formData.visaRefusal === "Yes" && (
-                        <div className="space-y-1 sm:space-y-2">
-                          <div className="flex justify-between items-center ml-1 mb-1 sm:mb-2">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
-                              Please provide details of the visa refusal/cancellation
-                            </label>
-                            <span className={`text-[10px] font-bold ${formData.visaRefusalDetails.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
-                              {formData.visaRefusalDetails.length}/200
-                            </span>
+
+                      {/* Visa refusal — conditional below */}
+                      <div className="space-y-4">
+                        {renderRadioGroup({ label: "Have you ever had a visa refusal or cancellation for any country?", field: "visaRefusal", options: ["Yes", "No"] })}
+                        {formData.visaRefusal === "Yes" && (
+                          <div className="space-y-1 sm:space-y-2">
+                            <div className="flex justify-between items-center ml-1 mb-1 sm:mb-2">
+                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
+                                Please provide details of the visa refusal/cancellation
+                              </label>
+                              <span className={`text-[10px] font-bold ${formData.visaRefusalDetails.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {formData.visaRefusalDetails.length}/200
+                              </span>
+                            </div>
+                            <textarea
+                              rows={3}
+                              maxLength={200}
+                              value={formData.visaRefusalDetails}
+                              onChange={e => updateForm('visaRefusalDetails', e.target.value)}
+                              placeholder="Explain the reasons and country..."
+                              className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none ${errors.visaRefusalDetails ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
+                            />
+                            {errors.visaRefusalDetails && (
+                              <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
+                                <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.visaRefusalDetails}
+                              </motion.p>
+                            )}
                           </div>
-                          <textarea
-                            rows={3}
-                            maxLength={200}
-                            value={formData.visaRefusalDetails}
-                            onChange={e => updateForm('visaRefusalDetails', e.target.value)}
-                            placeholder="Explain the reasons and country..."
-                            className={`w-full px-4 py-3 sm:px-5 sm:py-4 bg-[#F4F7FA] border rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/10 transition-all text-gray-900 text-xs sm:text-sm font-medium placeholder:text-gray-300 resize-none ${errors.visaRefusalDetails ? 'border-red-500 focus:border-red-500 bg-red-50/10' : 'border-transparent focus:border-rh-teal/20'}`}
-                          />
-                          {errors.visaRefusalDetails && (
-                            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
-                              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.visaRefusalDetails}
-                            </motion.p>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -930,8 +937,8 @@ export default function SignUpTalent() {
                   {step === 7 && (
                     <div className="space-y-6 sm:space-y-8">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                        {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"] })}
-                        {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"], required: true })}
+                        {renderSelect({ label: "If relocating, will you relocate alone or with family?", field: "relocateAloneOrFamily", options: ["Alone", "With Partner", "With Family (Partner & Children)"], required: true })}
+                        {renderRadioGroup({ label: "Do you hold a valid passport?", field: "validPassport", options: ["Yes", "No"] })}
                         {formData.validPassport === "Yes" && renderInput({ label: "Passport Expiry Date", field: "passportExpiry", placeholder: "YYYY-MM-DD", type: "date", required: true })}
                         {renderRadioGroup({ label: "Are you willing to undergo a medical and background check?", field: "medicalBackgroundCheck", options: ["Yes", "No"] })}
                         {renderRadioGroup({ label: "Do you have any criminal convictions?", field: "criminalConvictions", options: ["Yes", "No"] })}

@@ -46,7 +46,16 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    label: 'Explore Consulting Solutions',
+    label: 'Migration',
+    href: '/migration',
+    children: [
+      { label: 'Business Transformation', href: '/migration' },
+      { label: 'Technology Solutions', href: '/migration' },
+      { label: 'Financial Management', href: '/migration' },
+    ],
+  },
+  {
+    label: 'Consulting',
     href: '/consulting',
     children: [
       { label: 'Business Transformation', href: '/consulting' },
@@ -55,7 +64,7 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    label: 'Discover Insights',
+    label: 'Insights',
     href: '/insights',
     children: [
       { label: 'Salary Guide', href: '/insights' },
