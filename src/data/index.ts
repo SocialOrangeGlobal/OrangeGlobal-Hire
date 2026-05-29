@@ -45,15 +45,15 @@ export const navItems: NavItem[] = [
       { label: 'Project Solutions', href: '/hire-talent' },
     ],
   },
-  {
-    label: 'Migration',
-    href: '/migration',
-    children: [
-      { label: 'Business Transformation', href: '/migration' },
-      { label: 'Technology Solutions', href: '/migration' },
-      { label: 'Financial Management', href: '/migration' },
-    ],
-  },
+  // {
+  //   label: 'Migration',
+  //   href: '/migration',
+  //   children: [
+  //     { label: 'Business Transformation', href: '/migration' },
+  //     { label: 'Technology Solutions', href: '/migration' },
+  //     { label: 'Financial Management', href: '/migration' },
+  //   ],
+  // },
   {
     label: 'Consulting',
     href: '/consulting',
