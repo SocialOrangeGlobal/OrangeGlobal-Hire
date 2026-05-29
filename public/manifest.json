@@ -1,14 +1,14 @@
 {
   "short_name": "Orange Global",
-  "name": "Orange Global | Find Jobs, Australia Visa & Staffing Solutions",
+  "name": "Orange Global | Jobs, Australia Visa & Staffing Solutions",
   "icons": [
     {
-      "src": "/images/logo-icon.png",
+      "src": "/images/brand-logo-dark.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/images/logo-icon.png",
+      "src": "/images/brand-logo-dark.png",
       "type": "image/png",
       "sizes": "512x512"
     }
