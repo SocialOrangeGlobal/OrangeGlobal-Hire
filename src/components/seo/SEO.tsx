@@ -17,8 +17,8 @@ export default function SEO({
   schema,
 }: SEOProps) {
   const siteUrl = 'https://www.orangeglobal.co';
-  const defaultTitle = 'Orange Global | Find Jobs, Australia Visa & Immigration, Staffing Solutions';
-  const defaultDescription = 'Orange Global — Search & apply for jobs worldwide, get expert Australia visa & immigration support, and hire top talent through staffing, recruitment & executive search solutions.';
+  const defaultTitle = 'Orange Global | Jobs, Australia Visa & Staffing Solutions';
+  const defaultDescription = 'Orange Global — Find global jobs, get expert Australia visa support, and hire top professionals through our premier staffing and recruitment solutions.';
   const defaultImage = `${siteUrl}/og-image.jpg`;
 
   const seo = {
