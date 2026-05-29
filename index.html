@@ -1,175 +1,216 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns# fb: https://ogp.me/ns/fb#">
 
 <head>
   <meta charset="UTF-8" />
-
-  <!-- ═══════════════════════════════════════════════════
-       FAVICONS — All platforms covered
-  ════════════════════════════════════════════════════ -->
-  <link rel="shortcut icon" href="/images/brand-logo-dark.png" type="image/png" />
-  <link rel="icon" href="/images/brand-logo-dark.png" type="image/png" />
-  <link rel="apple-touch-icon" href="/images/brand-logo-dark.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/brand-logo-dark.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/brand-logo-dark.png" />
-  <link rel="manifest" href="/manifest.json" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ═══════════════════════════════════════════════════
-       TITLE
-  ════════════════════════════════════════════════════ -->
-  <title>Orange Global | Jobs, Australia Visa & Staffing Solutions</title>
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  FAVICONS — Logo icon shown in browser tab, bookmarks,      ║
+       ║  search results, Windows tiles, Apple home screen           ║
+       ╚══════════════════════════════════════════════════════════════╝
+       NOTE: /images/brand-logo-dark.png must be:
+         • Square (e.g. 512×512px)
+         • Clearly readable at small sizes
+         • Accessible at the exact URL below (publicly crawlable)       -->
+  <link rel="shortcut icon" href="/images/brand-logo-dark.png" type="image/png" />
+  <link rel="icon" href="/images/brand-logo-dark.png" type="image/png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/images/brand-logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/brand-logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/images/brand-logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/images/brand-logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/brand-logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/brand-logo-dark.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/brand-logo-dark.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/brand-logo-dark.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/brand-logo-dark.png" />
+  <link rel="mask-icon" href="/images/brand-logo-dark.png" color="#f97316" />
+  <link rel="manifest" href="/manifest.json" />
 
-  <!-- ═══════════════════════════════════════════════════
-       META DESCRIPTION
-  ════════════════════════════════════════════════════ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  TITLE — Differentiates from orangeglobal.in (Noida SEO)   ║
+       ║  Targets: Orange Global brand + jobs + Australia visa       ║
+       ║  orangeglobal.in = Digital Marketing Agency Noida           ║
+       ║  orangeglobal.co = Jobs + Australia Visa + Staffing ← YOU  ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <title>Orange Global | Find Jobs, Australia Visa & Immigration, Staffing Solutions</title>
+
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  META DESCRIPTION — ~155 chars, action-oriented             ║
+       ║  Clearly different from .in to help search engines          ║
+       ║  understand this is a DIFFERENT brand / niche               ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta name="description"
-    content="Orange Global — Search jobs worldwide, get Australia visa & immigration support, and hire top talent through expert staffing & recruitment solutions." />
+    content="Orange Global — Search & apply for jobs worldwide, get expert Australia visa & immigration support, and hire top talent through staffing, recruitment & executive search solutions." />
 
-  <!-- ═══════════════════════════════════════════════════
-       ROBOTS
-  ════════════════════════════════════════════════════ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  ROBOTS — Maximum visibility on all search engines          ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  <meta name="bingbot" content="index, follow" />
+  <meta name="bingbot" content="index, follow, max-image-preview:large" />
+  <meta name="slurp" content="index, follow" /><!-- Yahoo/Oath -->
+  <meta name="duckduckbot" content="index, follow" />
+  <meta name="yandex" content="index, follow" /><!-- Yandex (Russia) -->
+  <meta name="baidu-site-verification" content="index, follow" /><!-- Baidu (global reach) -->
 
+  <!-- Core meta -->
   <meta name="author" content="Orange Global" />
   <meta name="application-name" content="Orange Global" />
+  <meta name="generator" content="Orange Global Web Platform" />
   <meta name="theme-color" content="#f97316" />
   <meta name="rating" content="general" />
   <meta name="revisit-after" content="3 days" />
   <meta name="language" content="English" />
+  <meta name="geo.region" content="IN-PB" /><!-- Punjab, India -->
+  <meta name="geo.placename" content="Chandigarh, India" />
+  <meta name="geo.position" content="30.7333;76.7794" />
+  <meta name="ICBM" content="30.7333, 76.7794" />
 
-  <!-- ═══════════════════════════════════════════════════
-       CANONICAL + HREFLANG
-  ════════════════════════════════════════════════════ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  CANONICAL + HREFLANG — Geo-targets IN, AU, global         ║
+       ║  Tells Google which language-country pair this page serves  ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <link rel="canonical" href="https://www.orangeglobal.co/" />
   <link rel="alternate" hreflang="en" href="https://www.orangeglobal.co/" />
   <link rel="alternate" hreflang="en-IN" href="https://www.orangeglobal.co/" />
   <link rel="alternate" hreflang="en-AU" href="https://www.orangeglobal.co/" />
+  <link rel="alternate" hreflang="en-GB" href="https://www.orangeglobal.co/" />
+  <link rel="alternate" hreflang="en-US" href="https://www.orangeglobal.co/" />
+  <link rel="alternate" hreflang="en-SG" href="https://www.orangeglobal.co/" />
   <link rel="alternate" hreflang="x-default" href="https://www.orangeglobal.co/" />
 
-  <!-- ╔═══════════════════════════════════════════════════╗
-       ║        SOCIAL MEDIA META TAGS — ALL PLATFORMS     ║
-       ╚═══════════════════════════════════════════════════╝
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  1. OPEN GRAPH (Facebook · WhatsApp · LinkedIn · Telegram)
-     Image must be 1200×630px for best display
-     WhatsApp uses og: tags — no separate tag needed
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  1. OPEN GRAPH — Facebook · WhatsApp · LinkedIn · Telegram  ║
+       ║                                                              ║
+       ║  Image rules for best previews:                             ║
+       ║  • Must be exactly 1200×630px                               ║
+       ║  • Must be publicly accessible (no login required)          ║
+       ║  • Use /og-image.jpg (branded, not just the logo)           ║
+       ║  • Logo alone = small, poor WhatsApp preview                ║
+       ║  ACTION: Create a 1200×630px branded image at /og-image.jpg ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.orangeglobal.co/" />
-  <meta property="og:title" content="Orange Global | Jobs, Australia Visa & Staffing Solutions" />
+  <meta property="og:title" content="Orange Global | Find Jobs, Australia Visa & Immigration, Staffing Solutions" />
   <meta property="og:description"
-    content="Orange Global — Search jobs worldwide, get Australia visa & immigration support, and hire top talent through expert staffing & recruitment solutions." />
-  <meta property="og:image" content="https://www.orangeglobal.co/images/brand-logo-dark.png" />
-  <meta property="og:image:secure_url" content="https://www.orangeglobal.co/images/brand-logo-dark.png" />
-  <meta property="og:image:type" content="image/png" />
+    content="Orange Global — Search & apply for jobs worldwide, get expert Australia visa & immigration support, and hire top talent through staffing, recruitment & executive search solutions." />
+  <meta property="og:image" content="https://www.orangeglobal.co/og-image.jpg" />
+  <meta property="og:image:secure_url" content="https://www.orangeglobal.co/og-image.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Orange Global — Find Jobs, Australia Visa & Staffing Solutions" />
+  <meta property="og:image:alt" content="Orange Global — Find Jobs, Australia Visa & Immigration, Staffing Solutions" />
   <meta property="og:site_name" content="Orange Global" />
   <meta property="og:locale" content="en_IN" />
   <meta property="og:locale:alternate" content="en_AU" />
   <meta property="og:locale:alternate" content="en_GB" />
   <meta property="og:locale:alternate" content="en_US" />
-
-  <!-- Facebook App ID (replace with your real App ID from developers.facebook.com) -->
+  <!-- Replace with your real Facebook App ID → developers.facebook.com -->
   <meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  2. TWITTER / X
-     summary_large_image = big image preview in feed
-     Replace @orangeglobalco with your real handle
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  2. TWITTER / X — Big image card in feed                    ║
+       ║  Replace @orangeglobalco with your real Twitter handle      ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@orangeglobalco" />
   <meta name="twitter:creator" content="@orangeglobalco" />
   <meta name="twitter:url" content="https://www.orangeglobal.co/" />
-  <meta name="twitter:title" content="Orange Global | Jobs, Australia Visa & Staffing Solutions" />
+  <meta name="twitter:title" content="Orange Global | Find Jobs, Australia Visa & Immigration, Staffing Solutions" />
   <meta name="twitter:description"
-    content="Orange Global — Search jobs worldwide, get Australia visa & immigration support, and hire top talent through expert staffing & recruitment solutions." />
-  <meta name="twitter:image" content="https://www.orangeglobal.co/images/brand-logo-dark.png" />
-  <meta name="twitter:image:alt" content="Orange Global — Find Jobs, Australia Visa & Staffing Solutions" />
+    content="Orange Global — Search & apply for jobs worldwide, get expert Australia visa & immigration support, and hire top talent through staffing, recruitment & executive search solutions." />
+  <meta name="twitter:image" content="https://www.orangeglobal.co/og-image.jpg" />
+  <meta name="twitter:image:alt"
+    content="Orange Global — Find Jobs, Australia Visa & Immigration, Staffing Solutions" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  3. LINKEDIN
-     LinkedIn reads og: tags, but these article: tags boost
-     sharing on LinkedIn specifically
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  3. LINKEDIN — article: tags boost company page sharing     ║
+       ║  Replace with your actual LinkedIn company page URL         ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta property="article:author" content="https://www.linkedin.com/company/orangeglobal" />
   <meta property="article:publisher" content="https://www.linkedin.com/company/orangeglobal" />
   <meta name="linkedin:owner" content="orangeglobal" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  4. PINTEREST
-     Prevents Pinterest from grabbing wrong images.
-     Rich Pin reads og: tags automatically.
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <meta name="pinterest" content="nopin" />
-  <!-- Remove the line above if you WANT Pinterest sharing,
-       and add your Pinterest verification instead: -->
-  <!-- <meta name="p:domain_verify" content="YOUR_PINTEREST_VERIFY_CODE" /> -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  4. PINTEREST — enable sharing & Rich Pins                  ║
+       ║  Replace YOUR_PINTEREST_CODE from pinterest.com/settings    ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <meta name="p:domain_verify" content="YOUR_PINTEREST_VERIFY_CODE" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  5. WHATSAPP
-     WhatsApp reads og:title, og:description, og:image above.
-     No separate tag needed. IMPORTANT: og:image must be
-     accessible publicly (not behind login) and ≥300×200px.
-     For best WhatsApp preview use exactly 1200×630px.
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <!-- WhatsApp uses og: tags — fully covered above ✓ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  5. WHATSAPP — uses og: tags above, no extra tags needed    ║
+       ║  KEY: og:image must be publicly reachable at the URL above  ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <!-- WhatsApp preview: fully handled by og: tags above ✓ -->
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  6. TELEGRAM
-     Telegram reads og: tags — fully covered above.
-     Additionally supports these for bots/channels:
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <!-- Telegram uses og: tags — fully covered above ✓ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  6. TELEGRAM — uses og: tags above                         ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <!-- Telegram preview: fully handled by og: tags above ✓ -->
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  7. GOOGLE DISCOVER / SEARCH
-     Large image required for Discover cards (1200px wide min)
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <meta name="thumbnail" content="https://www.orangeglobal.co/images/brand-logo-dark.png" />
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  7. GOOGLE DISCOVER — needs 1200px+ wide image              ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <meta name="thumbnail" content="https://www.orangeglobal.co/og-image.jpg" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  8. MICROSOFT / BING SOCIAL TAGS
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  8. MICROSOFT / BING — Windows tile + Edge sidebar          ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta name="msapplication-TileImage" content="https://www.orangeglobal.co/images/brand-logo-dark.png" />
   <meta name="msapplication-TileColor" content="#f97316" />
   <meta name="msapplication-tooltip" content="Orange Global — Jobs, Australia Visa & Staffing" />
   <meta name="msapplication-starturl" content="https://www.orangeglobal.co/" />
+  <meta name="msapplication-navbutton-color" content="#f97316" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  9. APPLE / iOS — For "Add to Home Screen" web app
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  9. APPLE / iOS — Web app + home screen icon                ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Orange Global" />
   <link rel="apple-touch-startup-image" href="/images/brand-logo-dark.png" />
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  10. GOOGLE SITE VERIFICATION
-      (Replace with your real code from Google Search Console)
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_CODE" />
-  <meta name="msvalidate.01" content="YOUR_BING_WEBMASTER_CODE" />
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  10. ANDROID / CHROME                                       ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- ╔═══════════════════════════════════════════════════╗
-       ║              SCHEMA.ORG JSON-LD                   ║
-       ║   @graph: Organization · WebSite · WebPage · FAQ  ║
-       ╚═══════════════════════════════════════════════════╝ -->
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  11. SEARCH ENGINE VERIFICATION CODES                       ║
+       ║  Get these from your respective webmaster tools             ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
+  <!-- Google Search Console → search.google.com/search-console → Add Property → HTML tag -->
+  <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_CODE" />
+  <!-- Bing Webmaster Tools → bing.com/webmasters → Add Site → Meta tag -->
+  <meta name="msvalidate.01" content="YOUR_BING_WEBMASTER_CODE" />
+  <!-- Yandex Webmaster → webmaster.yandex.com -->
+  <meta name="yandex-verification" content="YOUR_YANDEX_CODE" />
+
+  <!-- Google Search Console -->
+  <meta name="google-site-verification" content="WbanmpGuo5BadJomZaIqaXUBFCVhQ0feSLlF7DtgwzM" />
+
+  <!-- ╔══════════════════════════════════════════════════════════════╗
+       ║  SCHEMA.ORG JSON-LD — 5-entity @graph                      ║
+       ║                                                              ║
+       ║  Entities:                                                   ║
+       ║  1. EmploymentAgency + ImmigrationOrganization (brand)      ║
+       ║  2. WebSite (with SearchAction sitelinks box)               ║
+       ║  3. WebPage (homepage identity)                             ║
+       ║  4. FAQPage (targets People Also Ask on Google & Bing)      ║
+       ║  5. BreadcrumbList (sitelinks in search results)            ║
+       ╚══════════════════════════════════════════════════════════════╝ -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
+
       {
         "@type": ["EmploymentAgency", "ImmigrationOrganization"],
         "@id": "https://www.orangeglobal.co/#organization",
         "name": "Orange Global",
-        "alternateName": ["Orange Global India", "OrangeGlobal"],
+        "alternateName": ["Orange Global India", "Orange Global Co", "OrangeGlobal Staffing"],
         "url": "https://www.orangeglobal.co/",
         "logo": {
           "@type": "ImageObject",
@@ -178,15 +219,16 @@
           "contentUrl": "https://www.orangeglobal.co/images/brand-logo-dark.png",
           "width": 512,
           "height": 512,
-          "caption": "Orange Global Logo"
+          "caption": "Orange Global — Jobs, Australia Visa & Staffing Solutions"
         },
         "image": {
           "@type": "ImageObject",
-          "url": "https://www.orangeglobal.co/images/brand-logo-dark.png",
+          "url": "https://www.orangeglobal.co/og-image.jpg",
           "width": 1200,
-          "height": 630
+          "height": 630,
+          "caption": "Orange Global — Find Jobs, Australia Visa & Immigration, Staffing Solutions"
         },
-        "description": "Orange Global is a leading platform to search jobs worldwide, obtain Australia visa and immigration support, and access staffing, recruitment, and executive search solutions.",
+        "description": "Orange Global is a leading platform to search and apply for jobs worldwide, get Australia visa and immigration support, and access staffing, recruitment, and executive search solutions.",
         "slogan": "Find Jobs. Get Visas. Hire Talent.",
         "foundingDate": "2020",
         "address": {
@@ -207,8 +249,9 @@
           {
             "@type": "ContactPoint",
             "contactType": "immigration support",
-            "areaServed": "AU",
-            "availableLanguage": "English"
+            "contactOption": "TollFree",
+            "areaServed": ["IN", "AU"],
+            "availableLanguage": ["English", "Hindi"]
           }
         ],
         "areaServed": [
@@ -217,33 +260,72 @@
           { "@type": "Country", "name": "United Kingdom" },
           { "@type": "Country", "name": "United States" },
           { "@type": "Country", "name": "Singapore" },
-          { "@type": "Country", "name": "United Arab Emirates" }
+          { "@type": "Country", "name": "United Arab Emirates" },
+          { "@type": "Country", "name": "Canada" }
         ],
         "hasOfferCatalog": {
           "@type": "OfferCatalog",
           "name": "Orange Global Services",
           "itemListElement": [
-            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Job Search Platform", "description": "Search and apply for jobs across India, Australia, UK, US and global markets." } },
-            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Australia Visa & Immigration", "description": "Expert guidance for Australia visa applications including skilled migration, employer-sponsored visas, student visas and PR pathways." } },
-            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recruitment & Staffing", "description": "End-to-end recruitment, permanent and contract staffing solutions for companies worldwide." } },
-            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Executive Search", "description": "Senior leadership and C-suite talent acquisition across industries." } },
-            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Technology Talent Solutions", "description": "Hire developers, IT professionals and tech talent globally." } }
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Job Search Platform",
+                "description": "Search and apply for jobs across India, Australia, UK, US and global markets. Find IT, engineering, finance, healthcare, and management jobs."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Australia Visa & Immigration Consultancy",
+                "description": "Expert guidance for Australia visa applications: skilled migration (189/190), employer-sponsored visas (482/186), student visas, partner visas, and permanent residency (PR) pathways."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Global Recruitment & Staffing",
+                "description": "End-to-end permanent recruitment, contract staffing, bulk hiring, and RPO solutions for companies worldwide."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Executive Search",
+                "description": "Senior leadership and C-suite talent acquisition across technology, finance, healthcare, and engineering sectors."
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "IT & Technology Talent Solutions",
+                "description": "Hire developers, engineers, data scientists, and tech professionals globally."
+              }
+            }
           ]
         },
         "knowsAbout": [
-          "Job Search", "Find a Job", "Job Portal India",
+          "Job Search", "Find a Job Online", "Job Portal India", "Jobs in Australia",
           "Australia Immigration", "Australia Visa", "Australian Skilled Migration",
-          "Employer Sponsored Visa Australia", "Student Visa Australia", "Australia PR",
-          "Schengen Visa", "Global Staffing", "Recruitment Agency",
-          "Executive Search", "Contract Staffing", "IT Staffing",
-          "Technology Talent", "Hire Developers", "Talent Acquisition"
+          "Employer Sponsored Visa Australia 482", "Employer Sponsored Visa Australia 186",
+          "Student Visa Australia", "Australia PR", "Australia Permanent Residency",
+          "Schengen Visa", "Immigration Consultancy India", "MARA Agent",
+          "Global Staffing", "Recruitment Agency India", "Executive Search",
+          "Contract Staffing", "IT Staffing", "Technology Talent", "Hire Developers",
+          "Talent Acquisition", "RPO Services", "Bulk Hiring"
         ],
         "sameAs": [
           "https://www.facebook.com/orangeglobal.corp",
           "https://www.linkedin.com/company/orangeglobal",
           "https://twitter.com/orangeglobalco",
           "https://www.instagram.com/orangeglobalco",
-          "https://t.me/orangeglobalco"
+          "https://t.me/orangeglobalco",
+          "https://www.youtube.com/@orangeglobalco"
         ]
       },
 
@@ -252,10 +334,10 @@
         "@id": "https://www.orangeglobal.co/#website",
         "url": "https://www.orangeglobal.co/",
         "name": "Orange Global",
-        "alternateName": "OrangeGlobal",
-        "description": "Find jobs worldwide, Australia visa & immigration support, and staffing solutions.",
+        "alternateName": "OrangeGlobal Jobs & Visa",
+        "description": "Find jobs worldwide, get Australia visa & immigration support, and access staffing & recruitment solutions.",
         "publisher": { "@id": "https://www.orangeglobal.co/#organization" },
-        "inLanguage": "en",
+        "inLanguage": ["en", "en-IN", "en-AU"],
         "potentialAction": {
           "@type": "SearchAction",
           "target": {
@@ -271,16 +353,17 @@
         "@id": "https://www.orangeglobal.co/#webpage",
         "url": "https://www.orangeglobal.co/",
         "name": "Orange Global | Find Jobs, Australia Visa & Immigration, Staffing Solutions",
-        "description": "Orange Global — Search jobs worldwide, get Australia visa & immigration support, and hire top talent through expert staffing, recruitment & executive search solutions.",
+        "description": "Orange Global — Search & apply for jobs worldwide, get expert Australia visa & immigration support, and hire top talent through staffing, recruitment & executive search solutions.",
         "isPartOf": { "@id": "https://www.orangeglobal.co/#website" },
         "about": { "@id": "https://www.orangeglobal.co/#organization" },
         "inLanguage": "en",
         "primaryImageOfPage": {
           "@type": "ImageObject",
-          "url": "https://www.orangeglobal.co/images/brand-logo-dark.png",
+          "url": "https://www.orangeglobal.co/og-image.jpg",
           "width": 1200,
           "height": 630
         },
+        "breadcrumb": { "@id": "https://www.orangeglobal.co/#breadcrumb" },
         "potentialAction": {
           "@type": "ReadAction",
           "target": "https://www.orangeglobal.co/"
@@ -296,7 +379,7 @@
             "name": "Who is Orange Global?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Orange Global is a leading platform based in India that helps individuals search for jobs globally, apply for Australia visa and immigration, and connects companies with top talent through staffing, recruitment, and executive search services."
+              "text": "Orange Global (orangeglobal.co) is a leading jobs and immigration platform based in Chandigarh, India. It helps individuals search for jobs globally, apply for Australia visa and immigration, and connects companies with top talent through staffing, recruitment, and executive search services."
             }
           },
           {
@@ -304,7 +387,7 @@
             "name": "Why should you choose Orange Global?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Orange Global offers end-to-end support for job seekers and employers — from finding the best jobs in India, Australia and globally, to navigating Australia visa immigration with expert consultants, to staffing and hiring top professionals. No advance fee. Pay only when approved."
+              "text": "Orange Global offers end-to-end support for job seekers and employers — search for jobs in India, Australia and globally, navigate Australia visa and immigration with certified consultants, and hire top professionals through expert staffing and recruitment. No advance fee. Pay only when approved."
             }
           },
           {
@@ -312,7 +395,7 @@
             "name": "Does Orange Global help with Australia visa and immigration?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Orange Global provides expert Australia visa and immigration consultancy including skilled migration visas, employer-sponsored visas (482/186), student visas, partner visas, and permanent residency pathways."
+              "text": "Yes. Orange Global provides expert Australia visa and immigration consultancy including skilled migration (subclass 189/190), employer-sponsored visas (482 and 186), student visas, partner visas, and permanent residency (PR) pathways. Based in Chandigarh, India."
             }
           },
           {
@@ -320,66 +403,158 @@
             "name": "How can I find a job through Orange Global?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "You can search and apply for jobs directly on orangeglobal.co. Orange Global lists opportunities across IT, engineering, healthcare, finance and more in India, Australia, UK, US and globally."
+              "text": "Search and apply for jobs directly on orangeglobal.co. Orange Global lists jobs across IT, engineering, healthcare, finance, management and more in India, Australia, UK, US, Singapore and UAE. Create a free profile and apply instantly."
             }
           },
           {
             "@type": "Question",
-            "name": "What staffing services does Orange Global provide?",
+            "name": "What staffing and recruitment services does Orange Global provide?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Orange Global provides permanent recruitment, contract staffing, executive search, IT talent solutions, and bulk hiring for companies globally. They specialise in technology, finance, healthcare and engineering sectors."
+              "text": "Orange Global provides permanent recruitment, contract staffing, executive search, IT talent solutions, RPO (Recruitment Process Outsourcing), and bulk hiring for companies globally. Specialising in technology, finance, healthcare and engineering sectors."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Orange Global the same as orangeglobal.in?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Orangeglobal.co is Orange Global's jobs, staffing and Australia visa immigration platform based in Chandigarh. Orangeglobal.in is a separate digital marketing agency in Noida. They are two different companies."
             }
           }
         ]
+      },
+
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://www.orangeglobal.co/#breadcrumb",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home",                       "item": "https://www.orangeglobal.co/" },
+          { "@type": "ListItem", "position": 2, "name": "Find Jobs",                   "item": "https://www.orangeglobal.co/jobs" },
+          { "@type": "ListItem", "position": 3, "name": "Australia Visa & Immigration", "item": "https://www.orangeglobal.co/australia-visa" },
+          { "@type": "ListItem", "position": 4, "name": "Staffing & Recruitment",       "item": "https://www.orangeglobal.co/staffing" },
+          { "@type": "ListItem", "position": 5, "name": "Executive Search",             "item": "https://www.orangeglobal.co/executive-search" },
+          { "@type": "ListItem", "position": 6, "name": "Contact Us",                   "item": "https://www.orangeglobal.co/contact" }
+        ]
       }
+
     ]
   }
   </script>
 
-  <!-- BREADCRUMB SCHEMA -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home",                      "item": "https://www.orangeglobal.co/" },
-      { "@type": "ListItem", "position": 2, "name": "Find Jobs",                  "item": "https://www.orangeglobal.co/jobs" },
-      { "@type": "ListItem", "position": 3, "name": "Australia Visa & Immigration","item": "https://www.orangeglobal.co/australia-visa" },
-      { "@type": "ListItem", "position": 4, "name": "Staffing & Recruitment",      "item": "https://www.orangeglobal.co/staffing" }
-    ]
-  }
-  </script>
 </head>
 
 <body>
-  <!-- NOSCRIPT: Raw HTML fallback for crawlers that don't run JS -->
+  <!--
+  ══════════════════════════════════════════════════════════════
+  ⚠️  SSR / SSG STRONGLY RECOMMENDED FOR RANKING
+  ══════════════════════════════════════════════════════════════
+  This is a React SPA — all H1/H2/body content is JS-rendered.
+  Googlebot sees an empty <div id="root"> on first crawl.
+  Fix with ONE of:
+    1. Next.js (best option — built-in SSR/SSG + React)
+    2. Vite SSG via vite-plugin-ssg
+    3. react-snap (pre-renders to static HTML at build time)
+  ══════════════════════════════════════════════════════════════
+  -->
+
+  <!-- NOSCRIPT: Full keyword-rich HTML fallback for crawlers -->
   <noscript>
-    <div style="font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 2rem;">
-      <h1>Orange Global — Find Jobs, Australia Visa &amp; Immigration, Staffing Solutions</h1>
-      <p>Orange Global is India's leading platform to <strong>search jobs worldwide</strong>, get <strong>Australia visa
-          and immigration</strong> support, and connect companies with top talent through expert <strong>staffing,
-          recruitment, and executive search</strong> solutions.</p>
-      <h2>Find a Job</h2>
-      <p>Search thousands of jobs across India, Australia, UK, US, Singapore and the UAE. Apply directly. No advance fee
-        required.</p>
-      <h2>Australia Visa &amp; Immigration</h2>
-      <p>Expert guidance for <strong>Australia immigration</strong> — skilled migration, employer-sponsored visas
-        (482/186), student visas, partner visas, and permanent residency (PR). Pay only when approved.</p>
-      <h2>Staffing &amp; Recruitment</h2>
-      <p>Permanent recruitment, contract staffing, executive search, and IT talent solutions for companies globally.</p>
-      <h2>Services</h2>
-      <ul>
-        <li>Job Search Platform — Search &amp; apply for global jobs</li>
-        <li>Australia Visa &amp; PR Immigration Consultancy</li>
-        <li>Global Staffing &amp; Recruitment Agency</li>
-        <li>Executive Search &amp; Leadership Hiring</li>
-        <li>IT &amp; Technology Talent Solutions</li>
-        <li>Contract &amp; Permanent Staffing</li>
-        <li>Schengen &amp; International Visa Support</li>
-      </ul>
-      <p>Contact: <a href="mailto:info@orangeglobal.co">info@orangeglobal.co</a> | <a
-          href="https://www.orangeglobal.co">www.orangeglobal.co</a></p>
+    <div style="font-family:Arial,sans-serif;max-width:960px;margin:auto;padding:2rem;line-height:1.7;">
+
+      <header>
+        <img src="/images/brand-logo-dark.png" alt="Orange Global Logo" width="180" />
+        <h1>Orange Global — Find Jobs, Australia Visa &amp; Immigration, Staffing Solutions</h1>
+        <p><strong>orangeglobal.co</strong> | Chandigarh, India | <a
+            href="mailto:info@orangeglobal.co">info@orangeglobal.co</a></p>
+      </header>
+
+      <main>
+        <p>
+          <strong>Orange Global</strong> is India's leading platform to <strong>search and apply for jobs
+            worldwide</strong>,
+          get expert <strong>Australia visa and immigration</strong> support, and connect companies with top talent
+          through
+          expert <strong>global staffing, recruitment, and executive search</strong> solutions. No advance fee — pay
+          only when approved.
+        </p>
+
+        <section>
+          <h2>Find a Job</h2>
+          <p>
+            Search thousands of jobs across <strong>India, Australia, UK, US, Singapore and the UAE</strong>.
+            Apply directly through our platform. Browse IT jobs, engineering jobs, healthcare jobs, finance jobs,
+            management roles and more. Free job search — no advance fee required.
+          </p>
+        </section>
+
+        <section>
+          <h2>Australia Visa &amp; Immigration</h2>
+          <p>
+            Expert guidance for <strong>Australia immigration</strong> from Chandigarh, India. Services include:
+          </p>
+          <ul>
+            <li><strong>Skilled Migration Visa</strong> — Subclass 189 and 190</li>
+            <li><strong>Employer Sponsored Visa</strong> — Subclass 482 (TSS) and 186 (ENS)</li>
+            <li><strong>Student Visa Australia</strong> — Subclass 500</li>
+            <li><strong>Partner Visa Australia</strong> — Subclass 820/801</li>
+            <li><strong>Australia Permanent Residency (PR)</strong> pathways</li>
+            <li>Schengen Visa and International Visa Support</li>
+          </ul>
+          <p>Based in Chandigarh. Pay only when your visa is approved.</p>
+        </section>
+
+        <section>
+          <h2>Staffing &amp; Recruitment</h2>
+          <p>
+            Orange Global provides <strong>permanent recruitment</strong>, <strong>contract staffing</strong>,
+            <strong>executive search</strong>, IT talent solutions, RPO services, and bulk hiring for companies
+            globally.
+            Specialising in technology, finance, healthcare and engineering sectors across India, Australia, UK and the
+            US.
+          </p>
+        </section>
+
+        <section>
+          <h2>Our Services</h2>
+          <ul>
+            <li>Job Search Platform — Search &amp; apply for jobs worldwide</li>
+            <li>Australia Visa &amp; PR Immigration Consultancy</li>
+            <li>Global Staffing &amp; Recruitment Agency</li>
+            <li>Executive Search &amp; C-Suite Leadership Hiring</li>
+            <li>IT &amp; Technology Talent Solutions</li>
+            <li>Contract &amp; Permanent Staffing</li>
+            <li>RPO — Recruitment Process Outsourcing</li>
+            <li>Bulk Hiring Solutions</li>
+            <li>Schengen &amp; International Visa Support</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Why Choose Orange Global?</h2>
+          <p>
+            Trusted by thousands of job seekers and companies across India, Australia, UK, US, Singapore and UAE.
+            Certified immigration consultants. No advance fee — pay only when approved.
+            Offices serving Chandigarh, Punjab and all major Indian cities.
+          </p>
+        </section>
+
+        <section>
+          <h2>Contact Orange Global</h2>
+          <p>
+            Email: <a href="mailto:info@orangeglobal.co">info@orangeglobal.co</a><br />
+            Website: <a href="https://www.orangeglobal.co">www.orangeglobal.co</a><br />
+            Location: Chandigarh, Punjab, India
+          </p>
+          <nav aria-label="Quick links">
+            <a href="https://www.orangeglobal.co/jobs">Find Jobs</a> |
+            <a href="https://www.orangeglobal.co/australia-visa">Australia Visa</a> |
+            <a href="https://www.orangeglobal.co/staffing">Staffing</a> |
+            <a href="https://www.orangeglobal.co/contact">Contact Us</a>
+          </nav>
+        </section>
+      </main>
+
     </div>
   </noscript>
 
