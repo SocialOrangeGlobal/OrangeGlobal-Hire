@@ -228,6 +228,8 @@ export default function SignUpTalent() {
       if (!formData.resumeFile) newErrors.resumeFile = 'Please upload your Resume / CV.';
       if (!formData.passportFile) newErrors.passportFile = 'Please upload your Passport Copy.';
       if (!formData.visaFile) newErrors.visaFile = 'Please upload your Current Visa / Residency Permit.';
+      if (!formData.eduCertFile) newErrors.eduCertFile = 'Please upload your Educational Certificates.';
+      if (!formData.empCertFile) newErrors.empCertFile = 'Please upload your Employment Certificates / Experience Letters.';
     }
     if (currentStep === 9) {
       if (!formData.declarationTrue) newErrors.declarationTrue = 'You must confirm the accuracy of your information.';
@@ -977,8 +979,8 @@ export default function SignUpTalent() {
                       {renderFileUpload({ label: "Resume / CV", field: "resumeFile", required: true })}
                       {renderFileUpload({ label: "Passport Copy (Bio-Data Page)", field: "passportFile", required: true })}
                       {renderFileUpload({ label: "Current Visa / Residency Permit / Work Permit", field: "visaFile", required: true })}
-                      {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: false })}
-                      {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: false })}
+                      {renderFileUpload({ label: "Educational Certificates", field: "eduCertFile", required: true })}
+                      {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
                       {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: false })}
                       {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: false })}
                     </div>
