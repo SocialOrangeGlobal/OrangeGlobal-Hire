@@ -5,6 +5,7 @@ import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowL
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';
+import SEO from '../components/seo/SEO';
 import { fadeUp } from '../utils/animations';
 import type { Job } from '../types';
 import { useAppSelector } from '../store';
@@ -153,6 +154,10 @@ export default function JobsPage() {
 
   return (
     <div className="bg-white min-h-screen">
+      <SEO 
+        title="Find Jobs Worldwide | IT, Engineering, Finance | Orange Global"
+        description="Search and apply for thousands of jobs across India, Australia, UK, US, Singapore and the UAE. Browse jobs in tech, healthcare, and more."
+      />
       {/* Header */}
       <section className="bg-rh-dark pt-32 pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />

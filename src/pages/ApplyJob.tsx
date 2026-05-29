@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { uploadFile } from '../lib/storage';
 import { authApi } from '../lib/auth';
 import PageLoader from '../components/ui/PageLoader';
+import SEO from '../components/seo/SEO';
 
 const STEPS = [
   { id: 1, title: 'Resume', icon: FileText },
@@ -336,8 +337,37 @@ export default function ApplyJobPage() {
     );
   }
 
+  const jobSchema = selectedJob ? JSON.stringify({
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": selectedJob.title,
+    "description": selectedJob.description || `Apply for the ${selectedJob.title} position at ${selectedJob.company}`,
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": selectedJob.company,
+      "logo": selectedJob.companyLogo
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": selectedJob.location
+      }
+    },
+    "employmentType": selectedJob.type?.includes("Full-time") ? "FULL_TIME" : selectedJob.type?.includes("Part-time") ? "PART_TIME" : "CONTRACTOR",
+    "datePosted": selectedJob.postedAt ? new Date(selectedJob.postedAt).toISOString() : new Date().toISOString(),
+    "validThrough": new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+  }) : undefined;
+
   return (
     <div className="min-h-screen bg-white">
+      {selectedJob && (
+        <SEO 
+          title={`Apply for ${selectedJob.title} at ${selectedJob.company}`}
+          description={`Apply for the ${selectedJob.title} role at ${selectedJob.company} in ${selectedJob.location}.`}
+          schema={jobSchema}
+        />
+      )}
       {/* Dynamic Header */}
       <section className="bg-rh-dark pt-24 md:pt-32 pb-16 md:pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
