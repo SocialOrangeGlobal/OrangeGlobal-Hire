@@ -2498,8 +2498,8 @@ export default function ManageProfile() {
                               <div className="space-y-6 pt-4">
                                 {renderEditDocUpload("Passport Copy (Bio-Data Page)", "passportUrl", "talent-documents", true)}
                                 {renderEditDocUpload("Current Visa / Residency Permit / Work Permit", "visaUrl", "talent-documents", true)}
-                                {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents", false)}
-                                {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents", false)}
+                                {renderEditDocUpload("Educational Certificates", "eduCertUrl", "talent-documents", true)}
+                                {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents", true)}
                                 {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents", false)}
                                 {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents", false)}
                               </div>
