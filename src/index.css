@@ -49,6 +49,11 @@
     background: #D1D5DB;
     background-clip: content-box;
   }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #E5E7EB transparent;
+  }
 }
 
 @layer utilities {

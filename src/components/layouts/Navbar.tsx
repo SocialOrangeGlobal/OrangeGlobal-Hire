@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
-import { ChevronDown, Menu, X, Search, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Menu, X, Search, ArrowLeft, Loader2, Briefcase, Globe, FileText, ChevronRight } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { navItems } from '../../data';
 import Button from '../ui/Button';
@@ -15,6 +15,7 @@ export default function Navbar() {
   const scrolled = useScrolled(60);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const location = useLocation();
@@ -23,6 +24,116 @@ export default function Navbar() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const pathname = location.pathname;
   const { executeWithLoader } = useGlobalLoader();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{
+    jobs: any[];
+    pages: { label: string; href: string; type: string }[];
+  }>({ jobs: [], pages: [] });
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Debounced search logic querying both local pages/visas and backend jobs
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults({ jobs: [], pages: [] });
+      setIsSearching(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        // 1. Local pages/visas filter
+        const flatPages: { label: string; href: string; type: string }[] = [];
+        const traverse = (itemList: any[], categoryLabel: string) => {
+          itemList.forEach((item) => {
+            const currentCategory = item.label.includes('Subclass') || item.label.toLowerCase().includes('visa')
+              ? 'Visa & Migration'
+              : categoryLabel;
+            if (item.href && item.href !== '#') {
+              flatPages.push({
+                label: item.label,
+                href: item.href,
+                type: currentCategory,
+              });
+            }
+            if (item.children) {
+              traverse(item.children, currentCategory);
+            }
+          });
+        };
+        traverse(navItems, 'Page');
+
+        const queryLower = searchQuery.toLowerCase();
+        const matchedPages = flatPages.filter(
+          (page) =>
+            page.label.toLowerCase().includes(queryLower) ||
+            page.href.toLowerCase().includes(queryLower)
+        );
+
+        // 2. Fetch jobs from backend using public jobs search endpoint
+        let jobs: any[] = [];
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=5&published=true&search=${encodeURIComponent(searchQuery)}`);
+          if (res.ok) {
+            const data = await res.json();
+            const rawJobs = data?.data?.items || data?.payload?.data?.data || data?.payload?.data || data?.data || [];
+            jobs = Array.isArray(rawJobs) ? rawJobs : [];
+          }
+        } catch (err) {
+          console.error('Error fetching jobs during search:', err);
+        }
+
+        setSearchResults({
+          jobs: jobs.slice(0, 5),
+          pages: matchedPages.slice(0, 8),
+        });
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  // Reset search when path changes or panel closes
+  useEffect(() => {
+    if (!searchOpen) {
+      setSearchQuery('');
+      setSearchResults({ jobs: [], pages: [] });
+    }
+  }, [searchOpen]);
+
+
+  const isNavItemActive = (item: any) => {
+    if (item.label === 'Migration') {
+      return pathname.startsWith('/migration');
+    }
+    if (item.href === '/') {
+      return pathname === '/';
+    }
+    if (item.href && item.href !== '/' && pathname.startsWith(item.href)) {
+      return true;
+    }
+    const checkChildren = (childrenList: any[]): boolean => {
+      return childrenList.some((child: any) => {
+        if (child.href && child.href !== '/' && pathname.startsWith(child.href)) {
+          return true;
+        }
+        if (child.children) {
+          return checkChildren(child.children);
+        }
+        return false;
+      });
+    };
+    if (item.children) {
+      return checkChildren(item.children);
+    }
+    return false;
+  };
+
 
   const handleSignOut = async () => {
     try {
@@ -50,12 +161,13 @@ export default function Navbar() {
     setMobileOpen(false);
     setSearchOpen(false);
     setOpenDropdown(null);
+    setMobileDropdownOpen(null);
   }, [pathname]);
 
   const isSubPage = [
     '/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email',
     '/jobs', '/hire-talent', '/consulting', '/insights', '/post-vacancy', '/contact',
-    '/employer-dashboard', '/talent-dashboard', '/apply-job', '/manage-profile', '/notifications'
+    '/employer-dashboard', '/talent-dashboard', '/apply-job', '/manage-profile', '/notifications', '/migration'
   ].some(path => pathname.startsWith(path));
 
   const isAuthPage = ['/signin', '/signup-employer', '/signup-talent', '/signup-choice', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
@@ -75,7 +187,10 @@ export default function Navbar() {
   const activePanel = searchOpen ? '__search__' : openDropdown;
 
   const handleNavEnter = (label: string, hasChildren: boolean) => {
-    if (!hasChildren) return;
+    if (!hasChildren || label !== 'Migration') {
+      setOpenDropdown(null);
+      return;
+    }
     setSearchOpen(false);
     setOpenDropdown(label);
   };
@@ -145,13 +260,18 @@ export default function Navbar() {
                   >
                     <Link
                       to={item.href}
-                      className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${scrolled || isAuthPage || isSubPage
-                        ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
-                        : 'text-white hover:text-rh-red hover:bg-white/10'
+                      className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${
+                        isNavItemActive(item)
+                          ? scrolled || isAuthPage || isSubPage
+                            ? 'text-rh-red bg-rh-light font-bold'
+                            : 'text-rh-red bg-white/10 font-bold'
+                          : scrolled || isAuthPage || isSubPage
+                            ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
+                            : 'text-white hover:text-rh-red hover:bg-white/10'
                         } ${openDropdown === item.label ? 'text-rh-red' : ''}`}
                     >
                       {item.label}
-                      {item.children && (
+                      {item.children && item.label === 'Migration' && (
                         <ChevronDown
                           className={`w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 ${openDropdown === item.label ? 'rotate-180' : ''
                             }`}
@@ -289,7 +409,11 @@ export default function Navbar() {
                   <button
                     className={`p-2 rounded-full transition-colors ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'
                       }`}
-                    onClick={() => setMobileOpen(!mobileOpen)}
+                    onClick={() => {
+                      setMobileOpen(!mobileOpen);
+                      setMobileDropdownOpen(null);
+                      setOpenDropdown(null);
+                    }}
                     aria-label="Toggle menu"
                   >
                     {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -321,51 +445,206 @@ export default function Navbar() {
                 if (activePanel !== '__search__') setOpenDropdown(null);
               }}
             >
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+              <div className="max-h-[calc(100vh-70px)] overflow-y-auto custom-scrollbar">
+                <div className={`${activePanel === '__search__' ? 'max-w-4xl' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12`}>
                 {/* ── Search panel ── */}
                 {activePanel === '__search__' && (
                   <>
-                    <div className="relative">
-                      <Search
-                        className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-gray-400"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Search jobs, talent, or insights..."
-                        className={`w-full pl-12 md:pl-16 pr-6 py-4 md:py-6 rounded-2xl md:rounded-[2.5rem] border outline-none text-base md:text-xl transition-all ${scrolled || isSubPage || isAuthPage
-                          ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-teal focus:bg-white'
-                          : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10'
-                          }`}
-                        autoFocus
-                      />
-                    </div>
-                    <div className="mt-8 md:mt-12">
-                      <h4
-                        className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500"
-                      >
-                        Quick Links
-                      </h4>
-                      <div className="flex flex-wrap gap-3 md:gap-4">
-                        {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
-                          (link) => (
-                            <Link
-                              key={link}
-                              to={link === 'Browse jobs' ? '/jobs' : '/'}
-                              onClick={() => {
-                                setOpenDropdown(null);
-                                setSearchOpen(false);
-                              }}
-                              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
-                                ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                                : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
-                                }`}
-                            >
-                              {link}
-                            </Link>
-                          )
+                    <div className={`sticky top-0 z-30 pt-2 pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b transition-colors ${scrolled || isSubPage || isAuthPage ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
+                      }`}>
+                      <div className="relative">
+                        <Search
+                          className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-gray-400"
+                        />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search jobs, visas, or site pages..."
+                          className={`w-full pl-12 md:pl-16 pr-12 md:pr-16 py-3.5 md:py-4.5 rounded-xl border outline-none text-base md:text-lg transition-all duration-300 ${scrolled || isSubPage || isAuthPage
+                            ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-red focus:bg-white focus:ring-4 focus:ring-rh-red/10'
+                            : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/20 focus:bg-white/10 focus:ring-4 focus:ring-white/5'
+                            }`}
+                          autoFocus
+                        />
+                        {isSearching && (
+                          <div className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2">
+                            <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-rh-red animate-spin" />
+                          </div>
                         )}
                       </div>
                     </div>
+
+                    {/* Results / Navigation Section */}
+                    {!searchQuery ? (
+                      <div className="mt-8 md:mt-12">
+                        <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
+                          Quick Links
+                        </h4>
+                        <div className="flex flex-wrap gap-3 md:gap-4">
+                          {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
+                            (link) => (
+                              <Link
+                                key={link}
+                                to={link === 'Browse jobs' ? '/jobs' : '/'}
+                                onClick={() => {
+                                  setOpenDropdown(null);
+                                  setSearchOpen(false);
+                                }}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
+                                  ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                  : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
+                                  }`}
+                              >
+                                {link}
+                              </Link>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-8 md:mt-12">
+                        {isSearching && searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
+                          <div className="flex items-center justify-center py-12 gap-3">
+                            <Loader2 className="w-6 h-6 text-rh-red animate-spin" />
+                            <span className={`text-sm ${scrolled || isSubPage || isAuthPage ? 'text-gray-500' : 'text-gray-400'}`}>
+                              Searching listings and pathways...
+                            </span>
+                          </div>
+                        ) : searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
+                          <div className="text-center py-12">
+                            <h5 className={`text-lg font-bold ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal' : 'text-white'} mb-2`}>
+                              No results found
+                            </h5>
+                            <p className="text-sm text-gray-400">
+                              We couldn't find anything matching "{searchQuery}"
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+                            {/* Pages / Visa subclass pathways */}
+                            <div className="lg:col-span-5 space-y-6">
+                              <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500 border-b pb-2 border-gray-100 dark:border-white/10">
+                                Migration & Pages ({searchResults.pages.length})
+                              </h4>
+                              {searchResults.pages.length === 0 ? (
+                                <p className="text-sm text-gray-400 py-2">No matching pages found.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {searchResults.pages.map((page, idx) => (
+                                    <Link
+                                      key={idx}
+                                      to={page.href}
+                                      onClick={() => {
+                                        setSearchOpen(false);
+                                        setOpenDropdown(null);
+                                      }}
+                                      className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
+                                        ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
+                                        : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
+                                        }`}
+                                    >
+                                      <div className="flex items-start gap-3 min-w-0">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${scrolled || isSubPage || isAuthPage
+                                          ? 'bg-gray-50 group-hover:bg-rh-red/10'
+                                          : 'bg-white/5 group-hover:bg-white/10'
+                                          }`}>
+                                          {page.type === 'Visa & Migration' ? (
+                                            <Globe className="w-4 h-4 text-rh-red group-hover:scale-110 transition-transform shrink-0" />
+                                          ) : (
+                                            <FileText className="w-4 h-4 text-rh-teal group-hover:scale-110 transition-transform shrink-0" />
+                                          )}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <span className={`block text-[13px] md:text-sm font-semibold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-gray-700 group-hover:text-rh-teal' : 'text-gray-200 group-hover:text-white'
+                                            }`}>
+                                            {page.label}
+                                          </span>
+                                          <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">
+                                            {page.type}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0 mt-2" />
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Job Openings from database */}
+                            <div className="lg:col-span-7 space-y-6">
+                              <div className="flex items-center justify-between border-b pb-2 border-gray-100 dark:border-white/10">
+                                <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500">
+                                  Job Openings ({searchResults.jobs.length})
+                                </h4>
+                                {searchResults.jobs.length > 0 && (
+                                  <Link
+                                    to={`/jobs?search=${encodeURIComponent(searchQuery)}`}
+                                    onClick={() => {
+                                      setSearchOpen(false);
+                                      setOpenDropdown(null);
+                                    }}
+                                    className="text-[11px] font-bold text-rh-red hover:underline uppercase tracking-widest"
+                                  >
+                                    View All
+                                  </Link>
+                                )}
+                              </div>
+                              {searchResults.jobs.length === 0 ? (
+                                <p className="text-sm text-gray-400 py-2">No matching jobs found in our database.</p>
+                              ) : (
+                                <div className="space-y-3">
+                                  {searchResults.jobs.map((job) => (
+                                    <Link
+                                      key={job.id}
+                                      to={`/jobs?search=${encodeURIComponent(job.title)}`}
+                                      onClick={() => {
+                                        setSearchOpen(false);
+                                        setOpenDropdown(null);
+                                      }}
+                                      className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
+                                        ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
+                                        : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
+                                        }`}
+                                    >
+                                      <div className="flex gap-4 items-start min-w-0">
+                                        <div className="h-10 w-10 shrink-0 rounded-lg border border-gray-100/10 bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                                          <img
+                                            src={job.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=100"}
+                                            alt={job.company}
+                                            className="h-full w-full object-contain p-1"
+                                          />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <span className={`block text-[14px] md:text-[15px] font-bold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D] group-hover:text-rh-red' : 'text-white group-hover:text-rh-red'
+                                            }`}>
+                                            {job.title}
+                                          </span>
+                                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[11px] text-gray-400 font-medium">
+                                            <span className="truncate">{job.company}</span>
+                                            <span>•</span>
+                                            <span className="truncate">{job.location}</span>
+                                            <span>•</span>
+                                            <span className="text-rh-red font-semibold">{job.salary || 'Negotiable'}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0 ml-2 mt-2">
+                                        <span className="hidden xs:inline-block text-[10px] font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 border border-rh-teal/10 px-2 py-0.5 rounded">
+                                          {job.mode}
+                                        </span>
+                                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                                      </div>
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -373,6 +652,80 @@ export default function Navbar() {
                 {activePanel !== '__search__' && (() => {
                   const item = navItems.find((n) => n.label === activePanel);
                   if (!item?.children) return null;
+                  
+                  if (item.megaMenu) {
+                    return (
+                      <div className="flex flex-col w-full">
+                        <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
+                          {item.label}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                          {item.children.map((category) => (
+                            <div key={category.label} className="flex flex-col">
+                              <h4 className="text-xs font-bold tracking-widest uppercase mb-4 text-rh-red border-b border-gray-100 pb-2">
+                                {category.label}
+                              </h4>
+                              <div className="flex flex-col gap-2">
+                                {category.children?.map((child) => (
+                                  <div key={child.label} className="flex flex-col gap-1 group/subitem relative">
+                                    {child.href !== '#' ? (
+                                      <Link
+                                        to={child.href}
+                                        onClick={() => setOpenDropdown(null)}
+                                        className={`text-sm transition-all flex items-center justify-between ${scrolled || isSubPage || isAuthPage
+                                          ? 'text-gray-600 hover:text-rh-teal font-medium'
+                                          : 'text-gray-300 hover:text-white font-medium'
+                                        }`}
+                                      >
+                                        <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
+                                        {child.children && (
+                                          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
+                                        )}
+                                      </Link>
+                                    ) : (
+                                      <div className={`flex items-center justify-between text-sm cursor-default transition-all ${scrolled || isSubPage || isAuthPage
+                                        ? 'text-gray-600 hover:text-rh-teal font-medium'
+                                        : 'text-gray-300 hover:text-white font-medium'
+                                      }`}>
+                                        <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
+                                        {child.children && (
+                                          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
+                                        )}
+                                      </div>
+                                    )}
+                                    
+                                    {/* Render 4th level children if they exist, expand on hover */}
+                                    {child.children && (
+                                      <div className="grid grid-rows-[0fr] group-hover/subitem:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-in-out">
+                                        <div className="overflow-hidden">
+                                          <div className="flex flex-col gap-1.5 pl-3 border-l-2 border-rh-teal/10 ml-1 mt-1 mb-1">
+                                            {child.children.map(subChild => (
+                                              <Link
+                                                key={subChild.label}
+                                                to={subChild.href}
+                                                onClick={() => setOpenDropdown(null)}
+                                                className={`text-[12px] leading-tight py-1 transition-all hover:-translate-y-0.5 ${scrolled || isSubPage || isAuthPage
+                                                  ? 'text-gray-500 hover:text-rh-red'
+                                                  : 'text-gray-400 hover:text-white'
+                                                }`}
+                                              >
+                                                {subChild.label}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <>
                       <h4
@@ -398,6 +751,7 @@ export default function Navbar() {
                     </>
                   );
                 })()}
+                </div>
               </div>
             </motion.div>
           )
@@ -422,7 +776,13 @@ export default function Navbar() {
                     <Link
                       to="/"
                       onClick={() => setMobileOpen(false)}
-                      className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
+                      className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${
+                        pathname === '/'
+                          ? 'text-rh-red font-bold'
+                          : scrolled || isAuthPage || isSubPage
+                            ? 'text-rh-teal'
+                            : 'text-white'
+                      } active:text-rh-red`}
                     >
                       Home
                     </Link>
@@ -436,43 +796,88 @@ export default function Navbar() {
                         <Link
                           to={item.href}
                           onClick={() => setMobileOpen(false)}
-                          className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal' : 'text-white'} active:text-rh-red`}
+                          className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${
+                            isNavItemActive(item)
+                              ? 'text-rh-red font-bold'
+                              : scrolled || isAuthPage || isSubPage
+                                ? 'text-rh-teal'
+                                : 'text-white'
+                          } active:text-rh-red`}
                         >
                           {item.label}
                         </Link>
 
-                        {item.children && (
+                        {item.children && item.label === 'Migration' && (
                           <button
-                            onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                            onClick={() => setMobileDropdownOpen(mobileDropdownOpen === item.label ? null : item.label)}
                             className={`p-2 -mr-2 rounded-lg transition-colors ${scrolled || isAuthPage || isSubPage ? 'hover:bg-gray-100' : 'hover:bg-white/5'}`}
                           >
                             <ChevronDown
-                              className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${openDropdown === item.label ? 'rotate-180 text-rh-red' : scrolled || isAuthPage || isSubPage ? 'text-gray-400' : 'text-white/40'}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${mobileDropdownOpen === item.label ? 'rotate-180 text-rh-red' : scrolled || isAuthPage || isSubPage ? 'text-gray-400' : 'text-white/40'}`}
                             />
                           </button>
                         )}
                       </div>
                       <AnimatePresence>
-                        {item.children && openDropdown === item.label && (
+                        {item.children && mobileDropdownOpen === item.label && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden mb-4"
                           >
-                            <div className="flex flex-wrap gap-3 pb-2">
-                              {item.children.map((child) => (
-                                <Link
-                                  key={child.label}
-                                  to={child.href}
-                                  onClick={() => setMobileOpen(false)}
-                                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isAuthPage || isSubPage
-                                    ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                                    : 'bg-white/5 text-gray-300 hover:bg-white/20 hover:text-white'
-                                    }`}
-                                >
-                                  {child.label}
-                                </Link>
+                            <div className="flex flex-col gap-6 pb-4">
+                              {item.children.map((category) => (
+                                <div key={category.label} className="flex flex-col pl-3 border-l border-rh-teal/20">
+                                  <span className="text-xs font-bold uppercase tracking-wider text-rh-red block mb-3">
+                                    {category.label}
+                                  </span>
+                                  <div className="flex flex-col gap-3.5 pl-1">
+                                    {category.children?.map((child) => (
+                                      <div key={child.label} className="flex flex-col gap-2">
+                                        {child.href !== '#' ? (
+                                          <Link
+                                            to={child.href}
+                                            onClick={() => setMobileOpen(false)}
+                                            className={`text-sm font-semibold transition-colors ${
+                                              scrolled || isAuthPage || isSubPage
+                                                ? 'text-gray-700 hover:text-rh-red'
+                                                : 'text-gray-200 hover:text-rh-red'
+                                            }`}
+                                          >
+                                            {child.label}
+                                          </Link>
+                                        ) : (
+                                          <span className={`text-sm font-semibold ${
+                                            scrolled || isAuthPage || isSubPage ? 'text-gray-700' : 'text-gray-200'
+                                          }`}>
+                                            {child.label}
+                                          </span>
+                                        )}
+
+                                        {/* Sub-sub items (Indented) */}
+                                        {child.children && (
+                                          <div className="flex flex-col gap-2 pl-3.5 border-l border-gray-300/40 dark:border-white/10 mt-1 mb-1">
+                                            {child.children.map((subChild) => (
+                                              <Link
+                                                key={subChild.label}
+                                                to={subChild.href}
+                                                onClick={() => setMobileOpen(false)}
+                                                className={`text-xs font-medium transition-colors ${
+                                                  scrolled || isAuthPage || isSubPage
+                                                    ? 'text-gray-500 hover:text-rh-red'
+                                                    : 'text-gray-400 hover:text-rh-red'
+                                                }`}
+                                              >
+                                                {subChild.label}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
                               ))}
                             </div>
                           </motion.div>
@@ -515,7 +920,7 @@ export default function Navbar() {
                           onClick={() => setMobileOpen(false)}
                           className="block w-full"
                         >
-                          <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-gray-200 text-gray-700 hover:bg-gray-100' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
+                          <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
                             <Settings className="w-5 h-5" /> Manage Profile
                           </Button>
                         </Link>

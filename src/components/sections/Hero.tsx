@@ -27,13 +27,13 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full px-8 sm:px-6 lg:px-8 py-12 md:py-20 lg:py-0">
-        <div className="flex flex-col lg:grid lg:grid-cols-5 gap-12 lg:gap-12 items-center min-h-[calc(100vh-80px)] lg:min-h-screen">
+        <div className="flex flex-col justify-center lg:grid lg:grid-cols-5 gap-12 lg:gap-12 items-center min-h-[calc(100vh-80px)] lg:min-h-screen">
           {/* Left Content */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-3 text-center lg:text-left pt-10 md:pt-0"
+            className="lg:col-span-3 text-center lg:text-left"
           >
             <motion.h1
               variants={fadeUp}

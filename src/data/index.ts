@@ -45,15 +45,369 @@ export const navItems: NavItem[] = [
       { label: 'Project Solutions', href: '/hire-talent' },
     ],
   },
-  // {
-  //   label: 'Migration',
-  //   href: '/migration',
-  //   children: [
-  //     { label: 'Business Transformation', href: '/migration' },
-  //     { label: 'Technology Solutions', href: '/migration' },
-  //     { label: 'Financial Management', href: '/migration' },
-  //   ],
-  // },
+  {
+    label: 'Migration',
+    href: '/migration',
+    megaMenu: true,
+    children: [
+      {
+        label: 'Skilled Visa',
+        href: '/migration/skilled-visa',
+        children: [
+          {
+            label: 'Graduate Temporary visa (Subclass 485)',
+                href: '/migration/skilled-visa/graduate-temporary-485-visa',
+                children: [
+                  {
+                    label: 'Post Study Work visa (Subclass 485)',
+                    href: '/migration/skilled-visa/graduate-temporary-485-visa/485-post-study-work-stream-visa'
+                  },
+                  {
+                    label: 'Graduate Work Stream visa (Subclass 485)',
+                    href: '/migration/skilled-visa/graduate-temporary-485-visa/485-graduate-work-stream-visa'
+                  },
+                  {
+                    label: 'English Requirements (Subclass 485)',
+                    href: '/migration/skilled-visa/graduate-temporary-485-visa/485-visa-english-requirements'
+                  },
+                  {
+                    label: 'FAQ – Graduate Temporary visa (Subclass 485)',
+                    href: '/migration/skilled-visa/graduate-temporary-485-visa/485-faq'
+                  }
+                ]
+              },
+              {
+                label: 'Recognised Graduate visa (Subclass 476)',
+                href: '/migration/skilled-visa/recognised-graduate-476-visa'
+              },
+              {
+                label: 'Skilled Independent visa (Subclass 189)',
+                href: '/migration/skilled-visa/skilled-independent-visa-189'
+              },
+              {
+                label: 'Skilled Nominated visa (subclass 190)',
+                href: '/migration/skilled-visa/skilled-nominated-visa190',
+                children: [
+                  {
+                    label: 'State Requirements (Subclass 190)',
+                    href: '/migration/skilled-visa/skilled-nominated-visa190/190-state-requirements'
+                  }
+                ]
+              },
+              {
+                label: 'Skilled Regional visa (Subclass 887)',
+                href: '/migration/skilled-visa/skilled-regional-887-visa'
+              },
+              {
+                label: 'Global Talent visa (GTI)',
+                href: '/migration/skilled-visa/global-talent-visa-gti'
+              },
+              {
+                label: 'Distinguished Talent visa (Subclass 124)',
+                href: '/migration/skilled-visa/distinguished-talent-visa-subclass-124'
+              },
+              {
+                label: 'Regional visa (Subclass 491)',
+                href: '/migration/skilled-visa/regional-visas-491-visa',
+                children: [
+                  {
+                    label: 'Regional Occupation List (ROL)',
+                    href: '/migration/skilled-visa/regional-visas-491-visa/491-visa-occupation-list'
+                  },
+                  {
+                    label: 'Skilled Work Regional visa (Subclass 491)',
+                    href: '/migration/skilled-visa/regional-visas-491-visa/state-requirement-for-491-visa'
+                  },
+                  {
+                    label: 'Designated Regional Areas',
+                    href: '/migration/skilled-visa/regional-visas-491-visa/designated-regional-areas'
+                  }
+                ]
+              },
+              {
+                label: 'Skilled Regional Visa (Subclass 191)',
+                href: '/migration/skilled-visa/regional-visas-191-visa'
+              },
+              {
+                label: 'Related',
+                href: '#',
+                children: [
+                  {
+                    label: 'Skilled Occupation List',
+                    href: '/migration/skilled-visa/skilled-occupation-list'
+                  },
+                  {
+                    label: 'Skiiled Visa Application Processing times',
+                    href: '/migration/skilled-visa/skilled-visa-application-processing-times'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            label: 'Employer Sponsored',
+            href: '/migration/employer-sponsored',
+            children: [
+              {
+                label: 'Temporary Skill Shortage visa (subclass 482)',
+                href: '#',
+                children: [
+                  {
+                    label: 'TSS visa (Subclass 482)',
+                    href: '/migration/employer-sponsored/tss-482-visa'
+                  },
+                  {
+                    label: 'Medium Term List for TSS visa (Subclass 482)',
+                    href: '/migration/employer-sponsored/medium-term-list-for-tss-visa'
+                  },
+                  {
+                    label: 'Short Term List for TSS visa (Subclass 482)',
+                    href: '/migration/employer-sponsored/short-term-list-for-tss-visa'
+                  },
+                  {
+                    label: 'Regional Occupation list for Tss Visa',
+                    href: '/migration/employer-sponsored/regional-occupation-list-for-tss-visa'
+                  },
+                  {
+                    label: 'Tss 482 Visa to Permanent Residency',
+                    href: '/migration/employer-sponsored/tss-482-visa-to-permanent-residency'
+                  },
+                  {
+                    label: 'Tss Visa – English Language Requirements',
+                    href: '/migration/employer-sponsored/tss-visa-english-language-requirements'
+                  },
+                  {
+                    label: 'Skilling Australians Fund (Saf Levy)',
+                    href: '/migration/employer-sponsored/skilling-australians-fund-saf-levy'
+                  },
+                  {
+                    label: 'Tss Visa Fees',
+                    href: '/migration/employer-sponsored/tss-visa-fees'
+                  }
+                ]
+              },
+              {
+                label: 'Temporary Activity Visa',
+                href: '/migration/employer-sponsored/temporary-activity-visas',
+                children: [
+                  {
+                    label: 'Short Stay Activity visa (Subclass 400 )',
+                    href: '/migration/employer-sponsored/temporary-activity-visas/short-stay-activity-400-visa'
+                  },
+                  {
+                    label: 'Temporary Activity visa (Subclass 408)',
+                    href: '/migration/employer-sponsored/temporary-activity-visas/temporary-activity-408-visa',
+                    children: [
+                      {
+                        label: '408 visa for COVID-19',
+                        href: '/migration/employer-sponsored/temporary-activity-visas/temporary-activity-408-visa/408-visa-for-covid-19'
+                      }
+                    ]
+                  },
+                  {
+                    label: 'Training visa (Subclass 407)',
+                    href: '/migration/employer-sponsored/temporary-activity-visas/training-visa-407-visa',
+                    children: [
+                      {
+                        label: '407 Occupations list',
+                        href: '/migration/employer-sponsored/temporary-activity-visas/training-visa-407-visa/407-occupations-list'
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                label: 'Employer Nomination Scheme Visa (Subclass 186)',
+                href: '#',
+                children: [
+                  {
+                    label: 'Skill Requirements (Subclass 186)',
+                    href: '/migration/employer-sponsored/186-visa-skill-requirements'
+                  },
+                  {
+                    label: '186 Visa Occupations List',
+                    href: '/migration/employer-sponsored/186-visa-occupations-list'
+                  },
+                  {
+                    label: 'Global Talent Visa (GTES)',
+                    href: '/migration/employer-sponsored/global-talent-visa-gtes'
+                  }
+                ]
+              },
+              {
+                label: 'Regional Employer Sponsored Visa (Subclass 494)',
+                href: '#',
+                children: [
+                  {
+                    label: '494 visa',
+                    href: '/migration/employer-sponsored/494-visa'
+                  },
+                  {
+                    label: '494 Occupations',
+                    href: '/migration/employer-sponsored/494-occupations'
+                  },
+                  {
+                    label: 'Employer Visa Application Processing Times',
+                    href: '/migration/employer-sponsored/employer-visas-application-processing-times'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            label: 'Family visa',
+            href: '/migration/family-visa',
+            children: [
+              {
+                label: 'Partner visa Australia',
+                href: '/migration/family-visa/partner-visa-australia',
+                children: [
+                  {
+                    label: 'Partner visa: Important points & requirements',
+                    href: '/migration/family-visa/partner-visa-australia/partner-visa-important-points-requirements'
+                  },
+                  {
+                    label: 'Partner visa (onshore 820 and 801)',
+                    href: '/migration/family-visa/partner-visa-australia/partner-visa-onshore-820-and-801'
+                  },
+                  {
+                    label: 'Partner visa (offshore 309 & 100)',
+                    href: '/migration/family-visa/partner-visa-australia/partner-visa-offshore-309-100'
+                  },
+                  {
+                    label: 'Fiancé (Prospective Spouse Subclass 300)',
+                    href: '/migration/family-visa/partner-visa-australia/fiance-prospective-spouse-subclass-300'
+                  },
+                  {
+                    label: 'Partner visa costs',
+                    href: '/migration/family-visa/partner-visa-australia/partner-visa-costs'
+                  }
+                ]
+              },
+              {
+                label: 'Parent visa Australia',
+                href: '/migration/family-visa/parent-visa-australia',
+                children: [
+                  {
+                    label: 'Contributory Parent visa (Subclass 143)',
+                    href: '/migration/family-visa/parent-visa-australia/contributory-parent-visa-subclass-143'
+                  },
+                  {
+                    label: 'Contributory Parent (Temporary) visa (Subclass 173)',
+                    href: '/migration/family-visa/parent-visa-australia/contributory-parent-temporary-visa-subclass-173'
+                  },
+                  {
+                    label: 'Contributory Aged Parent visa- Temporary (Subclass 884)',
+                    href: '/migration/family-visa/parent-visa-australia/contributory-aged-parent-visa-temporary-subclass-884'
+                  },
+                  {
+                    label: 'Aged Parent visa (Subclass 804)',
+                    href: '/migration/family-visa/parent-visa-australia/aged-parent-visa-subclass-804'
+                  },
+                  {
+                    label: 'Parent visa (Subclass 103)',
+                    href: '/migration/family-visa/parent-visa-australia/parent-visa-subclass-103'
+                  },
+                  {
+                    label: 'Sponsored Parent 870 visa',
+                    href: '/migration/family-visa/parent-visa-australia/sponsored-parent-870-visa'
+                  },
+                  {
+                    label: 'Parent visa costs',
+                    href: '/migration/family-visa/parent-visa-australia/parent-visa-costs'
+                  }
+                ]
+              },
+              {
+                label: 'Child visa Australia',
+                href: '/migration/family-visa/child-visa-australia',
+                children: [
+                  {
+                    label: 'Adoption visa (Subclass 102)',
+                    href: '/migration/family-visa/child-visa-australia/adoption-visa-subclass-102'
+                  },
+                  {
+                    label: 'Child visa (Subclass 101)',
+                    href: '/migration/family-visa/child-visa-australia/child-visa-subclass-101'
+                  },
+                  {
+                    label: 'Child Onshore visa (Subclass 802)',
+                    href: '/migration/family-visa/child-visa-australia/child-onshore-visa-subclass-802'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            label: 'Appeal & Review',
+            href: '/migration/appeal-review',
+            children: [
+              {
+                label: 'Visa Cancellation',
+                href: '/migration/appeal-review/add-visa-cancellation'
+              },
+              {
+                label: 'Visa Refusal Appeal',
+                href: '/migration/appeal-review/visa-refusal-appeal',
+                children: [
+                  {
+                    label: 'AAT Review',
+                    href: '/migration/appeal-review/visa-refusal-appeal/aat-review'
+                  },
+                  {
+                    label: 'AAT fees',
+                    href: '/migration/appeal-review/visa-refusal-appeal/aat-fees'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            label: 'Other Visas',
+            href: '/migration/other-visas',
+            children: [
+              {
+                label: 'Tourist Visa',
+                href: '#',
+                children: [
+                  {
+                    label: 'Visitor visa (Subclass 600)',
+                    href: "/migration/other-visas/visitor-visa-subclass-600"
+                  },
+                  {
+                    label: 'Working Holiday visa (Subclass 417)',
+                    href: "/migration/other-visas/working-holiday-visa-subclass-417"
+                  },
+                  {
+                    label: 'Work and Holiday visa (Subclass 462)',
+                    href: "/migration/other-visas/work-and-holiday-visa-subclass-462"
+                  }
+                ]
+              },
+              {
+                label: 'Bridging Visas',
+                href: '#',
+                children: [
+                  {
+                    label: 'Bridging visas',
+                    href: "/migration/other-visas/bridging-visas"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            label: 'Evaluation & Tools',
+            href: '#',
+            children: [
+              {
+                label: 'Points Calculator',
+                href: '/migration/points-calculator'
+              }
+            ]
+          }
+    ],
+  },
   {
     label: 'Consulting',
     href: '/consulting',

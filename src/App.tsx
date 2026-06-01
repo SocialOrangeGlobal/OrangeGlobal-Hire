@@ -49,6 +49,12 @@ import { AuthProvider } from './hooks/useAuth';
 
 import ManageProfile from './pages/ManageProfile';
 
+import MigrationLayout from './pages/Migration/MigrationLayout';
+import VisaPage from './pages/Migration/VisaPage';
+import ProfileEvaluationForm from './pages/Migration/ProfileEvaluationForm';
+import PointsCalculator from './pages/Migration/PointsCalculator';
+import { Navigate } from 'react-router-dom';
+
 function App() {
   const { pathname } = useLocation();
 
@@ -92,6 +98,12 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/migration/profile-evaluation" element={<ProfileEvaluationForm />} />
+                <Route path="/migration/points-calculator" element={<PointsCalculator />} />
+                <Route path="/migration" element={<MigrationLayout />}>
+                  <Route index element={<Navigate to="/migration/skilled-visa/graduate-temporary-485-visa" replace />} />
+                  <Route path="*" element={<VisaPage />} />
+                </Route>
               </Routes>
             </main>
             <Footer />

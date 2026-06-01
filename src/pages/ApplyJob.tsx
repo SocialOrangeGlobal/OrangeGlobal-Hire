@@ -950,11 +950,11 @@ export default function ApplyJobPage() {
                           <div className="bg-[#F9FBFF] rounded-3xl p-6 md:p-8 border border-gray-100 space-y-8">
                             <div>
                               <h4 className="text-xs font-bold text-rh-red uppercase tracking-widest mb-3 border-b border-gray-200 pb-2">Personal Details</h4>
-                              <div className="grid grid-cols-2 gap-4 text-sm font-medium">
-                                <div><span className="text-gray-400 block text-[10px] uppercase">Name</span>{manualDetails.fullName || '-'}</div>
-                                <div><span className="text-gray-400 block text-[10px] uppercase">Email</span>{manualDetails.email || '-'}</div>
-                                <div><span className="text-gray-400 block text-[10px] uppercase">Phone</span>{manualDetails.phone || '-'}</div>
-                                <div><span className="text-gray-400 block text-[10px] uppercase">Total Experience</span>{manualDetails.experienceSummary || '-'}</div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
+                                <div className="break-words"><span className="text-gray-400 block text-[10px] uppercase">Name</span>{manualDetails.fullName || '-'}</div>
+                                <div className="break-words"><span className="text-gray-400 block text-[10px] uppercase">Email</span>{manualDetails.email || '-'}</div>
+                                <div className="break-words"><span className="text-gray-400 block text-[10px] uppercase">Phone</span>{manualDetails.phone || '-'}</div>
+                                <div className="break-words"><span className="text-gray-400 block text-[10px] uppercase">Total Experience</span>{manualDetails.experienceSummary || '-'}</div>
                               </div>
                             </div>
 
