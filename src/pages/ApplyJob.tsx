@@ -59,7 +59,6 @@ export default function ApplyJobPage() {
     educations: [] as any[],
     hobbies: ''
   });
-  const [hasEditedDetails, setHasEditedDetails] = useState(false);
   const [skillInput, setSkillInput] = useState('');
 
   // Step 6

@@ -18,7 +18,7 @@ export default function ContactPage() {
   const typeParam = searchParams.get('type');
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [enquiryType, setEnquiryType] = useState(() => {
     if (typeParam === 'consultation' || typeParam === 'CONSULTATION') {
       return 'CONSULTATION';
@@ -190,13 +190,13 @@ export default function ContactPage() {
         type: enquiryType,
         userId: user?.id,
       });
-      
+
       toast.success(
-        enquiryType === 'CONSULTATION' 
+        enquiryType === 'CONSULTATION'
           ? 'Your consultation booking request has been submitted successfully!'
           : 'Your enquiry message has been submitted successfully!'
       );
-      
+
       setFormData({
         fullName: user?.fullName || '',
         email: user?.email || '',
@@ -204,7 +204,7 @@ export default function ContactPage() {
         message: '',
       });
       setValidationErrors({});
-      
+
       if (user) {
         fetchUserMessages();
       }
@@ -280,7 +280,7 @@ export default function ContactPage() {
                 <h4 className="text-xl sm:text-2xl font-bold mb-4 relative z-10">Global Presence</h4>
                 <p className="text-white/60 text-sm leading-relaxed mb-8 relative z-10">We operate across 12 countries with dedicated teams in each region ensuring local expertise with global reach.</p>
                 <div className="flex flex-wrap gap-3 relative z-10">
-                  {['Australia', 'India', 'Singapore', 'UAE', 'UK', 'USA'].map(country => (
+                  {['Australia', 'India'].map(country => (
                     <span key={country} className="px-3 py-1.5 bg-white/10 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-white/10">{country}</span>
                   ))}
                 </div>
@@ -313,11 +313,10 @@ export default function ContactPage() {
                       <button
                         type="button"
                         onClick={() => setEnquiryType('GENERAL_QUERY')}
-                        className={`py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all duration-300 border flex items-center justify-center gap-2 ${
-                          enquiryType === 'GENERAL_QUERY'
-                            ? 'border-rh-teal bg-rh-teal/5 text-rh-teal shadow-md shadow-rh-teal/5 font-bold'
-                            : 'border-gray-100 bg-rh-light text-gray-500 hover:border-gray-200 hover:bg-gray-50'
-                        }`}
+                        className={`py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all duration-300 border flex items-center justify-center gap-2 ${enquiryType === 'GENERAL_QUERY'
+                          ? 'border-rh-teal bg-rh-teal/5 text-rh-teal shadow-md shadow-rh-teal/5 font-bold'
+                          : 'border-gray-100 bg-rh-light text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                          }`}
                       >
                         <MessageSquare className="w-4 h-4" />
                         General Query
@@ -325,11 +324,10 @@ export default function ContactPage() {
                       <button
                         type="button"
                         onClick={() => setEnquiryType('CONSULTATION')}
-                        className={`py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all duration-300 border flex items-center justify-center gap-2 ${
-                          enquiryType === 'CONSULTATION'
-                            ? 'border-rh-red bg-rh-red/5 text-rh-red shadow-md shadow-rh-red/5 font-bold'
-                            : 'border-gray-100 bg-rh-light text-gray-500 hover:border-gray-200 hover:bg-gray-50'
-                        }`}
+                        className={`py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all duration-300 border flex items-center justify-center gap-2 ${enquiryType === 'CONSULTATION'
+                          ? 'border-rh-red bg-rh-red/5 text-rh-red shadow-md shadow-rh-red/5 font-bold'
+                          : 'border-gray-100 bg-rh-light text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                          }`}
                       >
                         <Mail className="w-4 h-4" />
                         Book Consultation
@@ -347,11 +345,10 @@ export default function ContactPage() {
                         value={formData.fullName}
                         onChange={handleInputChange}
                         placeholder="e.g. John Doe"
-                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${
-                          validationErrors.fullName
-                            ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
-                            : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
-                        }`}
+                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${validationErrors.fullName
+                          ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                          : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                          }`}
                       />
                       {validationErrors.fullName && (
                         <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
@@ -369,11 +366,10 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="john@company.com"
-                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${
-                          validationErrors.email
-                            ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
-                            : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
-                        }`}
+                        className={`w-full px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium border ${validationErrors.email
+                          ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                          : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                          }`}
                       />
                       {validationErrors.email && (
                         <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
@@ -404,11 +400,10 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleInputChange}
                       placeholder={enquiryType === 'CONSULTATION' ? "Please describe your case, visa preferences, or desired migration support..." : "How can we help you?"}
-                      className={`w-full h-32 sm:h-48 px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium resize-none border ${
-                        validationErrors.message
-                          ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
-                          : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
-                      }`}
+                      className={`w-full h-32 sm:h-48 px-6 py-4 rounded-2xl outline-none transition-all text-sm font-medium resize-none border ${validationErrors.message
+                        ? 'border-red-500 bg-red-50/10 focus:ring-2 focus:ring-red-500/10 focus:border-red-500'
+                        : 'border-transparent bg-rh-light focus:bg-white focus:ring-2 focus:ring-rh-red/10 focus:border-rh-red/20'
+                        }`}
                     />
                     {validationErrors.message && (
                       <span className="text-xs text-red-500 flex items-center gap-1 mt-1 ml-1">
@@ -422,11 +417,10 @@ export default function ContactPage() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className={`w-full py-4.5 rounded-2xl shadow-xl font-bold flex items-center justify-center gap-3 group transition-all duration-300 ${
-                        enquiryType === 'CONSULTATION'
-                          ? 'bg-rh-red hover:bg-rh-red/90 shadow-rh-red/20'
-                          : 'bg-rh-teal hover:bg-rh-teal/90 shadow-rh-teal/20'
-                      }`}
+                      className={`w-full py-4.5 rounded-2xl shadow-xl font-bold flex items-center justify-center gap-3 group transition-all duration-300 ${enquiryType === 'CONSULTATION'
+                        ? 'bg-rh-red hover:bg-rh-red/90 shadow-rh-red/20'
+                        : 'bg-rh-teal hover:bg-rh-teal/90 shadow-rh-teal/20'
+                        }`}
                     >
                       {isSubmitting ? (
                         <>
@@ -477,11 +471,10 @@ export default function ContactPage() {
                   return (
                     <div
                       key={msg.id}
-                      className={`bg-white rounded-[24px] border transition-all duration-300 overflow-hidden ${
-                        isActive 
-                          ? 'border-rh-teal shadow-xl ring-1 ring-rh-teal/10' 
-                          : 'border-gray-100 shadow-sm hover:border-gray-200'
-                      }`}
+                      className={`bg-white rounded-[24px] border transition-all duration-300 overflow-hidden ${isActive
+                        ? 'border-rh-teal shadow-xl ring-1 ring-rh-teal/10'
+                        : 'border-gray-100 shadow-sm hover:border-gray-200'
+                        }`}
                     >
                       {/* Thread Header Row */}
                       <div
@@ -493,26 +486,24 @@ export default function ContactPage() {
                       >
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-2.5">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                              msg.type === 'CONSULTATION'
-                                ? 'bg-rh-red/10 border-rh-red/20 text-rh-red'
-                                : 'bg-rh-teal/10 border-rh-teal/20 text-rh-teal'
-                            }`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${msg.type === 'CONSULTATION'
+                              ? 'bg-rh-red/10 border-rh-red/20 text-rh-red'
+                              : 'bg-rh-teal/10 border-rh-teal/20 text-rh-teal'
+                              }`}>
                               {msg.type === 'CONSULTATION' ? 'Consultation' : 'General Query'}
                             </span>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                              msg.status === 'RESOLVED'
-                                ? 'bg-green-50 border-green-200 text-green-600'
-                                : msg.status === 'IN_PROGRESS'
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${msg.status === 'RESOLVED'
+                              ? 'bg-green-50 border-green-200 text-green-600'
+                              : msg.status === 'IN_PROGRESS'
                                 ? 'bg-amber-50 border-amber-200 text-amber-600'
                                 : 'bg-blue-50 border-blue-200 text-blue-600'
-                            }`}>
+                              }`}>
                               {msg.status}
                             </span>
                             <span className="text-[10px] text-gray-400 font-medium">
-                              {new Date(msg.createdAt).toLocaleDateString(undefined, { 
-                                year: 'numeric', 
-                                month: 'short', 
+                              {new Date(msg.createdAt).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'
@@ -561,44 +552,40 @@ export default function ContactPage() {
                                   <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
                                     {msg.replies.map((reply) => {
                                       const isAdmin = reply.senderRole === 'ADMIN';
-                                      const senderName = isAdmin 
+                                      const senderName = isAdmin
                                         ? `${reply.sender?.adminProfile?.firstName || 'Orange'} ${reply.sender?.adminProfile?.lastName || 'Global'}`
                                         : (reply.sender?.talentProfile?.fullName || 'You');
 
                                       return (
                                         <div
                                           key={reply.id}
-                                          className={`flex gap-3 max-w-[85%] ${
-                                            isAdmin ? 'mr-auto text-left' : 'ml-auto flex-row-reverse text-right'
-                                          }`}
+                                          className={`flex gap-3 max-w-[85%] ${isAdmin ? 'mr-auto text-left' : 'ml-auto flex-row-reverse text-right'
+                                            }`}
                                         >
                                           {/* Mini avatar */}
-                                          <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold border shadow-sm select-none ${
-                                            isAdmin 
-                                              ? 'bg-rh-teal text-white border-rh-teal/10' 
-                                              : 'bg-rh-red text-white border-rh-red/10'
-                                          }`}>
+                                          <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold border shadow-sm select-none ${isAdmin
+                                            ? 'bg-rh-teal text-white border-rh-teal/10'
+                                            : 'bg-rh-red text-white border-rh-red/10'
+                                            }`}>
                                             {senderName.charAt(0)}
                                           </div>
-                                          
+
                                           <div className="max-w-[calc(100%-2.5rem)]">
-                                            <div className={`flex items-center gap-2 mb-1 text-[10px] font-bold ${
-                                              isAdmin ? 'justify-start text-rh-teal' : 'justify-end text-rh-red'
-                                            }`}>
+                                            <div className={`flex items-center gap-2 mb-1 text-[10px] font-bold ${isAdmin ? 'justify-start text-rh-teal' : 'justify-end text-rh-red'
+                                              }`}>
                                               <span>{senderName}</span>
                                               <span className="text-gray-300 font-light">•</span>
                                               <span className="text-gray-400 font-medium">
-                                                {new Date(reply.createdAt).toLocaleTimeString(undefined, { 
-                                                  hour: '2-digit', 
-                                                  minute: '2-digit' 
+                                                {new Date(reply.createdAt).toLocaleTimeString(undefined, {
+                                                  hour: '2-digit',
+                                                  minute: '2-digit'
                                                 })}
                                               </span>
                                             </div>
-                                            <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm border text-left whitespace-pre-wrap break-words ${
-                                              isAdmin 
-                                                ? 'bg-gray-100 border-gray-200 text-gray-800 rounded-tl-none' 
-                                                : 'bg-rh-teal text-white border-rh-teal/10 rounded-tr-none'
-                                            }`}>
+                                            <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm border text-left whitespace-pre-wrap break-words ${isAdmin
+                                              ? 'bg-gray-100 border-gray-200 text-gray-800 rounded-tl-none'
+                                              : 'bg-rh-teal text-white border-rh-teal/10 rounded-tr-none'
+                                              }`}>
                                               {reply.message}
                                             </div>
                                           </div>
