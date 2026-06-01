@@ -204,28 +204,28 @@ export default function FeaturedJobs() {
                       {job.title}
                     </h3>
 
-                  <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                      {job.company}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                      {job.location}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
-                      {job.salary}
-                    </div>
-                    {job.deadline && (
-                      <div className="flex items-center gap-1.5 text-rh-red font-medium text-xs">
-                        Due: {job.deadline}
+                    <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                        {job.company}
                       </div>
-                    )}
-                    <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                        {job.location}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
+                        {job.salary}
+                      </div>
+                      {job.deadline && (
+                        <div className="flex items-center gap-1.5 text-rh-red font-medium text-xs">
+                          Due: {job.deadline}
+                        </div>
+                      )}
+                      {/* <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
                       {job.applicationsCount} applicant{job.applicationsCount === 1 ? '' : 's'}
+                    </div> */}
                     </div>
                   </div>
-                </div>
                 </div>
 
                 {/* Right Side */}
