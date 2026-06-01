@@ -60,11 +60,12 @@ export default function ApplyJobPage() {
     hobbies: ''
   });
   const [skillInput, setSkillInput] = useState('');
+  const [hasEditedDetails, setHasEditedDetails] = useState(false);
 
   // Step 6
   const [coverLetter, setCoverLetter] = useState('');
 
-  const isProfileComplete = 
+  const isProfileComplete =
     profile &&
     profile.fullName?.trim() &&
     profile.phone?.trim() &&
@@ -361,7 +362,7 @@ export default function ApplyJobPage() {
   return (
     <div className="min-h-screen bg-white">
       {selectedJob && (
-        <SEO 
+        <SEO
           title={`Apply for ${selectedJob.title} at ${selectedJob.company}`}
           description={`Apply for the ${selectedJob.title} role at ${selectedJob.company} in ${selectedJob.location}.`}
           schema={jobSchema}
@@ -569,34 +570,31 @@ export default function ApplyJobPage() {
                   <>
                     <div className="mb-10">
                       {/* Scrollable steps indicator with responsive wrapping on larger screens */}
-                      <div ref={stepperRef} className="flex items-center overflow-x-auto lg:overflow-x-visible lg:flex-wrap pb-4 hide-scrollbar gap-2 lg:gap-3 snap-x w-full">
+                      <div ref={stepperRef} className="flex p-3 items-center overflow-x-auto lg:overflow-x-visible pb-4 hide-scrollbar gap-3 sm:gap-4 snap-x max-w-full">
                         {(applyMode === 'easy' ? STEPS.filter(s => s.id === 1 || s.id === 7) : STEPS).map((step, idx, arr) => (
                           <div
                             key={step.id}
                             className={`flex items-center shrink-0 snap-center ${currentStep === step.id ? 'active-step' : ''} cursor-pointer`}
                             onClick={() => {
                               if (applyMode === 'easy') {
-                                  if (step.id === 1) setCurrentStep(1);
-                                  if (step.id === 7 && selectedResumeId) easyApply();
+                                if (step.id === 1) setCurrentStep(1);
+                                if (step.id === 7 && selectedResumeId) easyApply();
                               } else {
-                                  setCurrentStep(step.id);
+                                setCurrentStep(step.id);
                               }
                             }}
                           >
-                            <div className={`flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all ${currentStep === step.id
-                                ? 'bg-rh-red text-white shadow-md shadow-rh-red/20 scale-105'
-                                : currentStep > step.id
-                                  ? 'text-rh-teal bg-rh-light hover:bg-rh-teal/10'
-                                  : 'text-gray-400 hover:text-gray-600'
+                            <div className={`flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-bold transition-all border ${currentStep === step.id
+                              ? 'bg-rh-red text-white border-rh-red shadow-md shadow-rh-red/20 scale-105'
+                              : currentStep > step.id
+                                ? 'text-rh-teal bg-rh-light border-rh-light hover:bg-rh-teal/10'
+                                : 'text-gray-400 bg-gray-50 border-gray-100 hover:text-gray-600 hover:bg-gray-100/50'
                               }`}>
                               <step.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${currentStep === step.id ? 'text-white' : ''}`} />
                               <span>{step.title}</span>
                             </div>
                             {idx < arr.length - 1 && (
-                              <div className={`w-4 sm:w-8 h-[2px] ml-2 sm:ml-4 rounded-full transition-colors ${currentStep > step.id ? 'bg-rh-red' : 'bg-gray-100'} lg:hidden`} />
-                            )}
-                            {idx < arr.length - 1 && (
-                              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mx-2 hidden lg:block" />
+                              <div className={`w-8 sm:w-16 h-[2px] ml-3 sm:ml-4 rounded-full transition-colors ${currentStep > step.id ? 'bg-rh-red' : 'bg-gray-200'}`} />
                             )}
                           </div>
                         ))}

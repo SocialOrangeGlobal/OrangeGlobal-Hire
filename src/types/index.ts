@@ -36,6 +36,7 @@ export interface Job {
   deadline?: string;
   skills?: string[];
   vacancies?: number;
+  industry?: string;
 }
 
 // Employer Dashboard Applicant Types
