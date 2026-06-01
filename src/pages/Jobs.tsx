@@ -51,6 +51,7 @@ export default function JobsPage() {
             type: item.type,
             mode: item.mode,
             category: item.category,
+            industry: item.industry || "",
             postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
               day: "2-digit",
               month: "short",

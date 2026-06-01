@@ -96,6 +96,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
                   {[
                     { label: 'Employment', val: job.type, icon: Briefcase },
                     { label: 'Work Mode', val: job.mode, icon: Globe },
+                    { label: 'Industry', val: job.industry || 'N/A', icon: Building2 },
                     { label: 'Posted', val: job.postedAt, icon: Clock },
                     { label: 'Salary', val: job.salary, icon: Bookmark, highlight: true }
                   ].map((item, idx) => (
@@ -338,6 +339,11 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
               <div className="mb-8 md:mb-12">
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
                   <span className="px-2.5 py-1 bg-rh-teal/5 text-rh-teal text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider">{job.category}</span>
+                  {job.industry && (
+                    <span className="px-2.5 py-1 bg-blue-500/5 text-blue-600 text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider">
+                      {job.industry}
+                    </span>
+                  )}
                   <span className="px-2.5 py-1 bg-rh-red/5 text-rh-red text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider">{job.mode}</span>
                   {isApplied && (
                     <span className="px-2.5 py-1 bg-green-50 text-green-600 text-[9px] md:text-xs font-bold rounded-lg uppercase tracking-wider flex items-center gap-1 border border-green-200/50">
@@ -347,11 +353,12 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
                 </div>
                 <h2 className="text-xl md:text-3xl font-bold text-rh-teal mb-8 md:mb-10 leading-tight">{job.title}</h2>
 
-                <div className="grid grid-cols-2 gap-3 md:gap-6 mb-10 md:mb-16">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-10 md:mb-16">
                   {[
                     { label: 'Employment', val: job.type },
                     { label: 'Salary', val: job.salary, highlight: true },
                     { label: 'Work Mode', val: job.mode },
+                    { label: 'Industry', val: job.industry || 'N/A' },
                     { label: 'Posted', val: job.postedAt }
                   ].map((item, idx) => (
                     <div key={idx} className={`p-4 md:p-6 rounded-2xl border transition-all ${item.highlight ? 'bg-rh-red/5 border-rh-red/10' : 'bg-rh-light/50 border-gray-50'}`}>
