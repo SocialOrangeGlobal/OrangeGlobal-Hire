@@ -158,7 +158,7 @@ export default function PointsCalculator() {
     let score = 0;
     score += AGE_SECTION.options[selections.age]?.points || 0;
     score += ENGLISH_SECTION.options[selections.english]?.points || 0;
-    
+
     // CAPPED: Department of Home Affairs caps combined work experience (overseas + AU) at 20 points maximum.
     const overseasPts = OVERSEAS_WORK_SECTION.options[selections.overseasWork]?.points || 0;
     const australianPts = AUSTRALIAN_WORK_SECTION.options[selections.australianWork]?.points || 0;
@@ -178,19 +178,19 @@ export default function PointsCalculator() {
     if (totalPoints < 65) {
       return {
         label: 'Ineligible / Below Threshold',
-        colorClass: 'text-rh-red bg-rh-red/5 border-rh-red/20',
+        colorClass: 'text-red-300 bg-red-500/10 border-red-500/20',
         desc: 'You require at least 65 points to log an Expression of Interest (EOI). Consider improving English scores, acquiring experience, or gaining state nomination (+5 or +15 points).'
       };
     } else if (totalPoints < 80) {
       return {
         label: 'Eligible & Good Potential',
-        colorClass: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+        colorClass: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
         desc: 'You meet the minimum threshold of 65 points. Depending on your occupation, state nomination, and the current pool, you have a solid foundation to receive invitations.'
       };
     } else {
       return {
         label: 'Highly Competitive Profile',
-        colorClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+        colorClass: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
         desc: 'With 80+ points, you have an exceptionally competitive score that makes you highly attractive for subclasses 189 and 190. Excellent profile!'
       };
     }
@@ -209,7 +209,7 @@ export default function PointsCalculator() {
 
       <main className="pt-24 pb-20 lg:pt-32 bg-gray-50/50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* Header */}
           <div className="text-center mb-12 space-y-4">
             <span className="inline-block px-3 py-1.5 rounded-lg bg-rh-red/10 text-rh-red text-xs font-bold uppercase tracking-widest">
@@ -224,7 +224,7 @@ export default function PointsCalculator() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            
+
             {/* Left Calculator Panel */}
             <div className="flex-1 space-y-6">
               {[
@@ -256,18 +256,16 @@ export default function PointsCalculator() {
                           key={key}
                           type="button"
                           onClick={() => handleSelectOption(section.id, key)}
-                          className={`w-full flex items-center justify-between text-left p-4 rounded-xl border transition-all text-sm leading-relaxed ${
-                            isSelected
-                              ? 'bg-rh-teal/5 border-rh-teal text-rh-teal font-bold shadow-sm shadow-rh-teal/5'
-                              : 'bg-white hover:bg-gray-50 border-gray-150 text-gray-600'
-                          }`}
+                          className={`w-full flex items-center justify-between text-left p-4 rounded-xl border transition-all text-sm leading-relaxed ${isSelected
+                            ? 'bg-rh-teal/5 border-rh-teal text-rh-teal font-bold shadow-sm shadow-rh-teal/5'
+                            : 'bg-white hover:bg-gray-50 border-gray-150 text-gray-600'
+                            }`}
                         >
                           <span className="pr-4">{opt.label}</span>
-                          <span className={`px-3 py-1 rounded-lg text-xs font-bold shrink-0 ${
-                            isSelected
-                              ? 'bg-rh-teal text-white'
-                              : 'bg-gray-100 text-gray-500'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-lg text-xs font-bold shrink-0 ${isSelected
+                            ? 'bg-rh-teal text-white'
+                            : 'bg-gray-100 text-gray-500'
+                            }`}>
                             +{opt.points} pts
                           </span>
                         </button>
@@ -280,9 +278,9 @@ export default function PointsCalculator() {
 
             {/* Right Summary Column (Sticky) */}
             <aside className="w-full lg:w-96 shrink-0 sticky top-32 space-y-6">
-              
+
               {/* Total Score Panel */}
-              <div className="bg-[#081B2D] text-white rounded-[2rem] p-8 border border-white/10 shadow-lg relative overflow-hidden group">
+              <div className="bg-rh-teal text-white rounded-[2rem] p-8 border border-white/10 shadow-lg relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-rh-red/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
