@@ -259,7 +259,7 @@ export default function TalentDashboard() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4"
             >
-              <div className="relative z-50">
+              <div className="relative z-30">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className={`notification-bell-btn p-3.5 sm:p-4 rounded-xl sm:rounded-2xl transition-all relative ${showNotifications ? 'bg-rh-red text-white' : 'bg-rh-light text-rh-teal hover:bg-rh-red/10'}`}
@@ -325,13 +325,13 @@ export default function TalentDashboard() {
 
             <div className="xl:col-span-8 space-y-10">
               <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-10 border-b border-gray-50 flex items-center justify-between">
+                <div className="p-5 sm:p-10 border-b border-gray-50 flex items-center justify-between">
                   <h2 className="text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-4">
                     <FileText className="w-6 h-6 text-rh-red" /> My Applications
                   </h2>
                 </div>
 
-                <div className="p-10 space-y-16">
+                <div className="p-5 sm:p-10 space-y-10 sm:space-y-16">
                   {applications.length > 0 ? applications.map((app) => (
                     <div key={app.id} className="relative group">
                       {/* App Header */}
@@ -339,7 +339,14 @@ export default function TalentDashboard() {
                         <div className="flex items-center gap-4 sm:gap-6">
                           <img src={app.logo} alt={app.company} className="w-12 h-12 sm:w-16 sm:h-16 rounded-[16px] sm:rounded-[20px] object-cover" />
                           <div>
-                            <h3 className="text-md md:text-lg sm:text-xl font-bold text-rh-teal group-hover:text-rh-red transition-colors cursor-pointer">{app.role}</h3>
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="text-md md:text-lg sm:text-xl font-bold text-rh-teal group-hover:text-rh-red transition-colors cursor-pointer">{app.role}</h3>
+                              {app.atsScore !== null && (
+                                <span className="shrink-0 px-2 py-0.5 bg-green-50 text-green-600 border border-green-200 rounded-md text-[10px] sm:text-xs font-bold">
+                                  {app.atsScore}% Match
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs sm:text-sm font-medium text-gray-400">{app.company} • {app.date}</p>
                           </div>
                         </div>
@@ -354,16 +361,11 @@ export default function TalentDashboard() {
                             {app.status.replace(/_/g, ' ')}
                           </div>
                         </div>
-                        {app.atsScore !== null && (
-                          <div className="absolute top-4 right-4 sm:static flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-lg text-xs font-bold">
-                            <span>{app.atsScore}% Match</span>
-                          </div>
-                        )}
                       </div>
 
                       {/* Interactive Visual Timeline */}
                       <div className="relative px-0 sm:px-10">
-                        <div className="absolute top-[20px] left-[40px] right-[40px] sm:left-[60px] sm:right-[60px] h-[2px] bg-gray-100" />
+                        <div className="absolute top-[16px] sm:top-[20px] left-[12.5%] right-[12.5%] h-[2px] bg-gray-100" />
                         <div className="flex justify-between gap-2">
                           {app.timeline.map((step: any, idx: number) => (
                             <div key={idx} className="relative flex flex-col items-center z-10 flex-1">
@@ -410,9 +412,9 @@ export default function TalentDashboard() {
                           >
                             View Details
                           </button>
-                          <button className="p-3 bg-rh-teal text-white rounded-xl hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10">
+                          {/* <button className="p-3 bg-rh-teal text-white rounded-xl hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10">
                             <MessageCircle className="w-4 h-4" />
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     </div>

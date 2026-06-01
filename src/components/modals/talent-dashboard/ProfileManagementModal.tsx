@@ -41,6 +41,14 @@ function ProfileManagementModal({ setShowProfile, profileData }: { setShowProfil
                 transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                 className="relative bg-white w-full max-w-4xl lg:max-w-5xl rounded-[32px] md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85vh] md:max-h-[90vh] mx-auto my-auto"
             >
+                {/* Modal Close Button */}
+                <button
+                    onClick={() => setShowProfile(false)}
+                    className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all shadow-xl z-50 border border-gray-150"
+                >
+                    <X className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+
                 {/* Profile Header */}
                 <div className="px-6 md:px-12 py-6 md:py-10 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between shrink-0 bg-rh-light/20 relative overflow-hidden gap-4">
                     <div className="absolute top-0 right-0 w-48 md:w-64 h-48 md:h-64 bg-rh-red/5 rounded-full -mr-24 md:-mr-32 -mt-24 md:-mt-32 blur-3xl" />
@@ -71,7 +79,6 @@ function ProfileManagementModal({ setShowProfile, profileData }: { setShowProfil
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setShowProfile(false)} className="absolute sm:static top-4 right-4 sm:top-auto sm:right-auto w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all shadow-xl relative z-10"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
@@ -150,13 +157,9 @@ function ProfileManagementModal({ setShowProfile, profileData }: { setShowProfil
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform"><Shield className="w-16 md:w-24 h-16 md:h-24" /></div>
                                 <h4 className="text-lg md:text-xl font-bold mb-6 md:mb-8">Score</h4>
                                 <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 md:mb-8">
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        <circle cx="64" cy="64" r="56" fill="none" stroke="currentColor" strokeWidth="8" className="text-white/10 md:hidden" />
-                                        <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="10" className="text-white/10 hidden md:block" />
-
-                                        <circle cx="64" cy="64" r="56" fill="none" stroke="currentColor" strokeWidth="8" className="text-rh-red md:hidden"
-                                            strokeDasharray={351.8} strokeDashoffset={351.8 * (1 - profileData.completion / 100)} strokeLinecap="round" />
-                                        <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="10" className="text-rh-red hidden md:block"
+                                    <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="10" className="text-white/10" />
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="10" className="text-rh-red"
                                             strokeDasharray={439.8} strokeDashoffset={439.8 * (1 - profileData.completion / 100)} strokeLinecap="round" />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">

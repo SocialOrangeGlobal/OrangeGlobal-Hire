@@ -88,7 +88,7 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.97 }}
           transition={{ type: 'spring', damping: 24, stiffness: 360 }}
-          className="notifications-panel absolute right-0 mt-3 w-[335px] sm:w-[400px] bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden flex flex-col max-h-[520px] origin-top-right"
+          className="notifications-panel fixed top-[88px] right-4 left-4 sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:w-[400px] sm:mt-3 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden flex flex-col max-h-[520px] origin-top-right"
         >
           {/* ── Header ────────────────────────────────────────────────── */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0 bg-gradient-to-r from-rh-teal/5 to-transparent">
