@@ -155,7 +155,7 @@ export default function JobsPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <SEO 
+      <SEO
         title="Find Jobs Worldwide | IT, Engineering, Finance | Orange Global"
         description="Search and apply for thousands of jobs across India, Australia, UK, US, Singapore and the UAE. Browse jobs in tech, healthcare, and more."
       />
@@ -339,21 +339,21 @@ export default function JobsPage() {
                           {job.title}
                         </h3>
 
-                      <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
-                        <div className="flex items-center gap-1.5">
-                          <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                          {job.company}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
-                          {job.location}
-                        </div>
-                        <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
-                          {job.salary}
+                        <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
+                          <div className="flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                            {job.company}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                            {job.location}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
+                            {job.salary}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
                     <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
                       <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
