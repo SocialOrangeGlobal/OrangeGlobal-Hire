@@ -60,6 +60,7 @@ export default function ApplyJobPage() {
     hobbies: ''
   });
   const [skillInput, setSkillInput] = useState('');
+  const [hasEditedDetails, setHasEditedDetails] = useState(false);
 
   // Step 6
   const [coverLetter, setCoverLetter] = useState('');
