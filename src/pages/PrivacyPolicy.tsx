@@ -21,6 +21,32 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Printable Area - Hidden on screen, designed to fit exactly on one page */}
       <div className="hidden print:block bg-white text-slate-900 p-8 max-w-4xl mx-auto space-y-6 text-xs leading-relaxed">
+        <style dangerouslySetInnerHTML={{__html: `
+          @media print {
+            @page {
+              size: portrait;
+              margin: 15mm;
+            }
+            html, body {
+              height: 100%;
+              overflow: hidden;
+              background: #fff !important;
+            }
+            body * {
+              visibility: hidden;
+            }
+            .print-only-content, .print-only-content * {
+              visibility: visible;
+            }
+            .print-only-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+          }
+        `}} />
+        <div className="print-only-content space-y-6">
         {/* Letterhead */}
         <div className="flex justify-between items-center border-b pb-4 border-slate-200">
           <div>
@@ -68,6 +94,7 @@ export default function PrivacyPolicyPage() {
         {/* Footer info */}
         <div className="border-t pt-4 text-center text-[9px] text-slate-400">
           <p>© 2026 Orange Global. This official statement is generated for offline record-keeping. All rights reserved.</p>
+        </div>
         </div>
       </div>
 
