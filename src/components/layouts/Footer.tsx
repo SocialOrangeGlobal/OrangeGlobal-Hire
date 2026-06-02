@@ -93,10 +93,34 @@ export default function Footer() {
               <ul className="space-y-4">
                 {links.map((link) => {
                   let href = "/";
-                  if (link === 'Permanent Staffing' || link === 'Managed Staffing' || link === 'Executive Search') href = "/hire-talent";
-                  if (link === 'Project Solutions') href = "/consulting";
-                  if (link === 'Careers at Orange Global') href = "/jobs";
-                  if (link === 'Hiring Insights' || link === 'Blog' || link === 'Job Market Report' || link === 'Salary Guide') href = "/insights";
+                  // Services
+                  if (link === 'Find Jobs') {
+                    href = "/jobs";
+                  } else if (link === 'Permanent Staffing' || link === 'Contract Staffing' || link === 'Executive Search' || link === 'Managed Staffing') {
+                    href = "/jobs";
+                  } else if (link === 'Project Solutions' || link === 'Consulting') {
+                    href = "/consulting";
+                  } else if (link === 'Insights') {
+                    href = "/insights";
+                  }
+                  // Migration
+                  else if (link === 'Skilled Migration') {
+                    href = "/migration";
+                  } else if (link === 'Points Calculator') {
+                    href = "/migration/points-calculator";
+                  } else if (link === 'Profile Evaluation') {
+                    href = "/migration/profile-evaluation";
+                  } else if (link === 'AAT Review') {
+                    href = "/migration/appeal-review/visa-refusal-appeal/aat-review";
+                  }
+                  // Industries
+                  else if (link === 'Banking & Finance' || link === 'Technology' || link === 'Healthcare' || link === 'Legal' || link === 'Manufacturing' || link === 'Retail') {
+                    href = "/jobs";
+                  }
+                  // Resources
+                  else if (link === 'Salary Guide' || link === 'Job Market Report' || link === 'Hiring Insights' || link === 'Career Advice' || link === 'Blog' || link === 'Webinars') {
+                    href = "/insights";
+                  }
 
                   return (
                     <li key={link}>
@@ -160,11 +184,12 @@ export default function Footer() {
             </div>
           </div>
           <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-8 gap-y-4">
-            {['Privacy Policy', 'Terms of Use', 'Accessibility', 'Sitemap'].map((item) => (
-              <a key={item} href="#" className="text-[12px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                {item}
-              </a>
-            ))}
+            <Link to="/privacy-policy" className="text-[12px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-conditions" className="text-[12px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
+              Terms & Conditions
+            </Link>
           </div>
         </div>
       </div>
