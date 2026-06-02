@@ -23,6 +23,8 @@ import ApplyJob from './pages/ApplyJob';
 import PostVacancy from './pages/PostVacancy';
 import ForgotPassword from './pages/ForgotPassword';
 import Contact from './pages/Contact';
+import PrivacyPolicyPage from './pages/PrivacyPolicy';
+import TermsConditionsPage from './pages/TermsConditions';
 import { GlobalLoaderProvider } from './components/ui/GlobalLoader';
 import EmployerDashboard from './pages/EmployerDashboard';
 import TalentDashboard from './pages/TalentDashboard';
@@ -98,6 +100,8 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms-conditions" element={<TermsConditionsPage />} />
                 <Route path="/migration/profile-evaluation" element={<ProfileEvaluationForm />} />
                 <Route path="/migration/points-calculator" element={<PointsCalculator />} />
                 <Route path="/migration" element={<MigrationLayout />}>

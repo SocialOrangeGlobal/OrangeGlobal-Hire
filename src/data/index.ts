@@ -39,10 +39,10 @@ export const navItems: NavItem[] = [
     label: 'Hire Talent',
     href: '/hire-talent',
     children: [
-      { label: 'Permanent Staffing', href: '/hire-talent' },
-      { label: 'Contract Staffing', href: '/hire-talent' },
-      { label: 'Executive Search', href: '/hire-talent' },
-      { label: 'Project Solutions', href: '/hire-talent' },
+      { label: 'Permanent Staffing', href: '/jobs' },
+      { label: 'Contract Staffing', href: '/jobs' },
+      { label: 'Executive Search', href: '/jobs' },
+      { label: 'Project Solutions', href: '/jobs' },
     ],
   },
   {
@@ -432,11 +432,10 @@ export const navItems: NavItem[] = [
   },
 ];
 
-// Footer Data
 export const footerLinks: Record<string, string[]> = {
-  Services: ['Permanent Staffing', 'Contract Staffing', 'Executive Search', 'Project Solutions', 'Managed Staffing'],
+  Services: ['Find Jobs', 'Permanent Staffing', 'Contract Staffing', 'Executive Search', 'Project Solutions', 'Managed Staffing', 'Consulting', 'Insights'],
+  Migration: ['Skilled Migration', 'Points Calculator', 'Profile Evaluation', 'AAT Review'],
   Industries: ['Banking & Finance', 'Technology', 'Healthcare', 'Legal', 'Manufacturing', 'Retail'],
-  Company: ['About Orange Global', 'Our Approach', 'Leadership', 'Press Room', 'Careers at Orange Global', 'Social Responsibility'],
   Resources: ['Salary Guide', 'Job Market Report', 'Hiring Insights', 'Career Advice', 'Blog', 'Webinars'],
 };
 
@@ -801,7 +800,7 @@ export const services: Service[] = [
     title: 'Finance & Accounting',
     description: 'From CFOs to staff accountants, we connect organizations with financial professionals who drive fiscal performance.',
     image: '/images/services/finance.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
   {
     id: 2,
@@ -809,7 +808,7 @@ export const services: Service[] = [
     title: 'Technology',
     description: 'Source elite engineers, architects, and IT leaders who can scale your technical infrastructure.',
     image: '/images/services/tech.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
   {
     id: 3,
@@ -817,7 +816,7 @@ export const services: Service[] = [
     title: 'Legal',
     description: 'Place attorneys, paralegals, and compliance officers from in-house counsel to major law firms.',
     image: '/images/services/legal.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
   {
     id: 4,
@@ -825,7 +824,7 @@ export const services: Service[] = [
     title: 'Marketing & Creative',
     description: 'Build brand-defining teams with strategists, designers, and content professionals who deliver results.',
     image: '/images/services/marketing.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
   {
     id: 5,
@@ -833,7 +832,7 @@ export const services: Service[] = [
     title: 'Administrative Support',
     description: 'Match your organization with executive assistants, office managers, and operations professionals.',
     image: '/images/services/admin.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
   {
     id: 6,
@@ -841,7 +840,7 @@ export const services: Service[] = [
     title: 'Executive Search',
     description: 'Our retained executive search practice identifies and secures transformational C-suite and VP-level leaders.',
     image: '/images/services/executive.png',
-    link: '/hire-talent',
+    link: '/jobs',
   },
 ];
 
