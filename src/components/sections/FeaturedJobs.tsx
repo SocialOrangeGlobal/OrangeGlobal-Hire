@@ -11,7 +11,7 @@ import { useAppSelector } from '../../store';
 
 export default function FeaturedJobs() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, accessToken } = useAppSelector((state) => state.auth);
   const [jobsList, setJobsList] = useState<Job[]>(jobs);
   const [activeCategory, setActiveCategory] = useState(jobCategories[0]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -73,9 +73,7 @@ export default function FeaturedJobs() {
     };
 
     const fetchApplications = async () => {
-      if (!isAuthenticated || !user) return;
-      const accessToken = localStorage.getItem('access_token');
-      if (!accessToken) return;
+      if (!isAuthenticated || !accessToken) return;
       try {
         const url = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/talent/applications`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
@@ -91,7 +89,7 @@ export default function FeaturedJobs() {
 
     fetchJobs();
     fetchApplications();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, accessToken]);
 
   if (isAuthenticated && user?.role === 'EMPLOYER') return null;
 
@@ -110,7 +108,7 @@ export default function FeaturedJobs() {
             viewport={{ once: true, amount: 0.2 }}
             className="max-w-2xl"
           >
-            <motion.h2 variants={fadeUp} className="text-3xl xs:text-4xl sm:text-5xl font-light text-rh-teal mt-2 md:mt-4 leading-tight">
+            <motion.h2 variants={fadeUp} className="text-2xl xs:text-3xl sm:text-5xl font-light text-rh-teal mt-2 md:mt-4 leading-tight">
               Featured jobs from <span className="text-rh-red font-[300] tracking-tight">top employers</span>
             </motion.h2>
           </motion.div>
@@ -124,6 +122,7 @@ export default function FeaturedJobs() {
             <Button
               onClick={() => navigate('/jobs')}
               variant="outline"
+              className="text-xs sm:text-sm font-bold"
             >
               View All Openings
             </Button>
@@ -131,13 +130,13 @@ export default function FeaturedJobs() {
         </div>
 
         {/* Filters */}
-        <div className="mb-8 md:mb-10 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="mb-6 md:mb-10 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="flex gap-2 min-w-max">
             {jobCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`relative px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-bold rounded-full transition-all ${activeCategory === category
+                className={`relative px-3.5 py-2 md:px-5 md:py-2.5 text-[10px] md:text-sm font-bold rounded-full transition-all ${activeCategory === category
                   ? 'text-rh-teal bg-white shadow-sm'
                   : 'text-gray-500 hover:text-rh-teal hover:bg-white/50'
                   }`}
@@ -175,76 +174,73 @@ export default function FeaturedJobs() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
-                className="group bg-white rounded-[20px] md:rounded-[24px] border border-gray-100 p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
+                className="group bg-white rounded-[16px] sm:rounded-[20px] md:rounded-[24px] border border-gray-100 p-4 sm:p-5 md:p-8 hover:shadow-xl hover:border-rh-teal/20 transition-all cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden"
               >
                 {/* Left Side */}
-                <div className="flex-1 flex gap-4 md:gap-5 items-start">
-                  <div className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-2xl border border-gray-100 bg-white flex items-center justify-center shadow-sm overflow-hidden mt-1">
+                <div className="flex-1 flex gap-3 sm:gap-5 items-start">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 shrink-0 rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 bg-white flex items-center justify-center shadow-sm overflow-hidden mt-1">
                     <img
                       src={job.companyLogo}
                       alt={`${job.company} Logo`}
-                      className="h-full w-full object-contain p-1.5 md:p-2"
+                      className="h-full w-full object-contain p-1 md:p-2"
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2 md:mb-3">
-                      <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2.5 py-1 rounded-full">
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-3">
+                      <span className="text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">
                         {job.category}
                       </span>
-                      <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
+                      <span className="text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider text-rh-red flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-rh-red" /> {job.mode}
                       </span>
                       {appliedJobIds.has(job.id) && (
-                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Applied
+                        <span className="text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Applied
                         </span>
                       )}
                     </div>
-                    <h3 className="text-base md:text-xl font-bold text-rh-teal mb-2 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
+                    <h3 className="text-sm sm:text-base md:text-xl font-bold text-rh-teal mb-1.5 md:mb-4 group-hover:text-rh-red transition-colors leading-tight">
                       {job.title}
                     </h3>
 
-                    <div className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-2 text-[11px] md:text-sm text-gray-500 font-medium">
-                      <div className="flex items-center gap-1.5">
-                        <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                    <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-8 gap-y-1.5 text-[9px] sm:text-xs md:text-sm text-gray-500 font-medium">
+                      <div className="flex items-center gap-1">
+                        <Building className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-gray-400" />
                         {job.company}
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-gray-400" />
                         {job.location}
                       </div>
-                      <div className="flex items-center gap-1.5 text-rh-teal font-bold bg-rh-teal/5 px-2 py-0.5 rounded-md lg:bg-transparent lg:px-0">
+                      <div className="flex items-center gap-1 text-rh-teal font-bold bg-rh-teal/5 px-1.5 py-0.5 rounded-md lg:bg-transparent lg:px-0">
                         {job.salary}
                       </div>
                       {job.deadline && (
-                        <div className="flex items-center gap-1.5 text-rh-red font-medium text-xs">
+                        <div className="flex items-center gap-1 text-rh-red font-medium">
                           Due: {job.deadline}
                         </div>
                       )}
-                      {/* <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
-                      {job.applicationsCount} applicant{job.applicationsCount === 1 ? '' : 's'}
-                    </div> */}
                     </div>
                   </div>
                 </div>
 
                 {/* Right Side */}
                 <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
-                  <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
+                  <div className="flex items-center gap-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
                     <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
                     {job.postedAt}
                   </div>
 
                   <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
                     {appliedJobIds.has(job.id) ? (
-                      <div className="flex items-center gap-2">
-                        <div className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 bg-rh-red rounded-full shadow-sm shadow-rh-red/20">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                          <span className="text-[10px] text-white font-bold uppercase tracking-wider">Applied</span>
+                      <div className="flex items-center gap-2 w-full xs:w-auto">
+                        <div className="hidden xs:flex items-center gap-1 px-2.5 py-1 bg-rh-red rounded-full shadow-sm shadow-rh-red/20">
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                          <span className="text-[8px] sm:text-[10px] text-white font-bold uppercase tracking-wider">Applied</span>
                         </div>
                         <Button
                           variant="outline"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 cursor-pointer"
+                          className="flex-1 xs:flex-none px-3.5 py-1.5 text-[9px] sm:text-xs !rounded-full font-bold whitespace-nowrap !border-rh-teal !text-rh-teal hover:!bg-rh-teal/10 cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); navigate('/talent-dashboard'); }}
                         >
                           View Application
@@ -254,14 +250,14 @@ export default function FeaturedJobs() {
                       <>
                         <Button
                           variant="outline"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
+                          className="flex-1 xs:flex-none px-3.5 py-1.5 text-[9px] sm:text-xs !rounded-full border-gray-200 hover:border-gray-300 hover:text-rh-red font-bold"
                           onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
                         >
                           View
                         </Button>
                         <Button
                           variant="primary"
-                          className="flex-1 xs:flex-none px-4 md:px-4 py-2 text-[10px] md:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
+                          className="flex-1 xs:flex-none px-3.5 py-1.5 text-[9px] sm:text-xs !rounded-full font-bold whitespace-nowrap shadow-lg shadow-rh-red/10 cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); navigate(`/apply-job?id=${job.id}`); }}
                         >
                           Apply Now
@@ -282,7 +278,7 @@ export default function FeaturedJobs() {
           <Button
             onClick={() => navigate('/jobs')}
             variant="outline"
-            className="w-full py-4"
+            className="w-full !h-auto !py-3.5 text-xs xs:text-sm font-bold"
           >
             View All Openings
           </Button>

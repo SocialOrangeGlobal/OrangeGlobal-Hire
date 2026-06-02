@@ -1,7 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { CheckCircle2, X, Clock, Calendar, TrendingUp, Download, MessageCircle, Target, Award, FileText, Link as LinkIcon } from 'lucide-react';
-import Button from '../../ui/Button';
+import { CheckCircle2, X, Clock, Calendar, TrendingUp, MessageCircle, Target, Award, FileText, Link as LinkIcon } from 'lucide-react';
 
 interface ApplicationDetail {
     id: string;
@@ -227,21 +226,6 @@ function ViewApplicationDetailModal({ selectedApp, setSelectedApp }: Props) {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Footer */}
-                <div className="p-6 md:p-10 border-t border-gray-100 bg-white shrink-0 flex flex-col md:flex-row gap-4">
-                    {selectedApp.interviewLink && selectedApp.status === 'INTERVIEW_SCHEDULED' ? (
-                        <a href={selectedApp.interviewLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                            <Button variant="primary" className="w-full !py-4 md:!py-6 rounded-2xl md:rounded-full text-xs sm:text-sm md:text-md font-bold shadow-2xl shadow-rh-red/20 flex items-center justify-center gap-2 md:gap-3">
-                                <LinkIcon className="w-5 h-5 md:w-6 md:h-6" /> Join Interview
-                            </Button>
-                        </a>
-                    ) : (
-                        <Button variant="outline" onClick={() => setSelectedApp(null)} className="flex-1 !py-4 md:!py-6 rounded-2xl md:rounded-full text-xs sm:text-sm md:text-md font-bold flex items-center justify-center gap-2 md:gap-3 border-gray-200 hover:bg-gray-50 text-gray-700">
-                            Close Window
-                        </Button>
-                    )}
                 </div>
             </motion.div>
         </div>

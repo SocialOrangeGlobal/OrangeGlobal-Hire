@@ -116,7 +116,7 @@ export default function TalentDashboard() {
         if (profileResp.success) {
           const p = profileResp.data.profile;
           setProfileData({
-            name: profileResp.data.fullName || user?.fullName || "Talent User",
+            name: profileResp.data.fullName || "Talent User",
             title: p?.jobTitle || p?.preferredRole || 'Job Seeker',
             email: profileResp.data.email,
             phone: p?.phone || '',
@@ -157,7 +157,7 @@ export default function TalentDashboard() {
       .catch((err) => {
         console.error("Network or parsing error:", err);
       });
-  }, [isAuthenticated, accessToken, navigate, user]);
+  }, [isAuthenticated, accessToken, navigate]);
 
   useEffect(() => {
     loadData(true);
@@ -240,18 +240,26 @@ export default function TalentDashboard() {
         <main className="flex-1 px-4 sm:px-8 lg:px-12 pt-24 md:pt-32 pb-20 w-full">
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
-            <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-              <button
-                onClick={() => navigate('/jobs')}
-                className="flex items-center gap-2 text-gray-400 hover:text-rh-red transition-colors mb-4 group text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]"
-              >
-                <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" /> Back to Find Jobs
-              </button>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-rh-teal tracking-tight leading-tight">
-                Talent <span className="text-rh-red font-[300]">Dashboard</span>
-              </h1>
-              <p className="text-gray-500 mt-3 font-medium text-xs sm:text-base">Welcome back, <span className="text-rh-teal font-bold">{profileData.name || user?.fullName || 'Talent'}</span></p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8 sm:mb-16">
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="w-full">
+              <div className="flex items-center gap-3 mb-2 sm:mb-0 sm:flex-col sm:items-start">
+                <button
+                  onClick={() => navigate('/jobs')}
+                  className="sm:hidden flex items-center justify-center text-gray-400 hover:text-rh-red transition-colors"
+                >
+                  <ArrowRight className="w-5 h-5 rotate-180" />
+                </button>
+                <button
+                  onClick={() => navigate('/jobs')}
+                  className="hidden sm:flex items-center gap-2 text-gray-400 hover:text-rh-red transition-colors mb-4 group text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]"
+                >
+                  <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" /> Back to Find Jobs
+                </button>
+                <h1 className="text-3xl xs:text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-rh-teal tracking-tight leading-tight">
+                  Talent <span className="text-rh-red font-[300]">Dashboard</span>
+                </h1>
+              </div>
+              <p className="text-gray-500 mt-2 sm:mt-3 font-medium text-xs sm:text-base">Welcome back, <span className="text-rh-teal font-bold">{profileData.name || user?.fullName || 'Talent'}</span></p>
             </motion.div>
 
             <motion.div
@@ -299,23 +307,23 @@ export default function TalentDashboard() {
           </div>
 
           {/* User Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-16">
             {stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-rh-light/30 rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 border border-rh-teal/5 group hover:bg-white hover:shadow-2xl hover:shadow-rh-teal/5 transition-all duration-500"
+                className="bg-rh-light/30 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-rh-teal/5 group hover:bg-white hover:shadow-2xl hover:shadow-rh-teal/5 transition-all duration-500"
               >
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <div className={`w-10 h-10 sm:w-14 sm:h-14 ${stat.bg} ${stat.color} rounded-xl sm:rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12`}>
-                    <stat.icon className="w-5 h-5 sm:w-7 sm:h-7" />
+                <div className="flex items-center justify-between mb-3 sm:mb-6">
+                  <div className={`w-9 h-9 sm:w-14 sm:h-14 ${stat.bg} ${stat.color} rounded-xl sm:rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12`}>
+                    <stat.icon className="w-4.5 h-4.5 sm:w-7 sm:h-7" />
                   </div>
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rh-teal mb-1 tracking-tight">{stat.value}{stat.label === 'Avg ATS Score' ? '%' : ''}</h3>
-                <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest">{stat.label}</p>
+                <h3 className="text-lg sm:text-3xl md:text-4xl font-bold text-rh-teal mb-0.5 sm:mb-1 tracking-tight">{stat.value}{stat.label === 'Avg ATS Score' ? '%' : ''}</h3>
+                <p className="text-[8px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -324,40 +332,40 @@ export default function TalentDashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
 
             <div className="xl:col-span-8 space-y-10">
-              <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-5 sm:p-10 border-b border-gray-50 flex items-center justify-between">
-                  <h2 className="text-xl md:text-2xl font-bold text-rh-teal flex items-center gap-4">
-                    <FileText className="w-6 h-6 text-rh-red" /> My Applications
+              <div className="bg-white rounded-[24px] sm:rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-10 border-b border-gray-50 flex items-center justify-between">
+                  <h2 className="text-lg md:text-2xl font-bold text-rh-teal flex items-center gap-4">
+                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-rh-red" /> My Applications
                   </h2>
                 </div>
 
-                <div className="p-5 sm:p-10 space-y-10 sm:space-y-16">
+                <div className="p-4 sm:p-10 space-y-6 sm:space-y-16">
                   {applications.length > 0 ? applications.map((app) => (
                     <div key={app.id} className="relative group">
                       {/* App Header */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-                        <div className="flex items-center gap-4 sm:gap-6">
-                          <img src={app.logo} alt={app.company} className="w-12 h-12 sm:w-16 sm:h-16 rounded-[16px] sm:rounded-[20px] object-cover" />
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-10">
+                        <div className="flex items-center gap-3 sm:gap-6">
+                          <img src={app.logo} alt={app.company} className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[20px] object-cover" />
                           <div>
-                            <div className="flex flex-wrap items-center gap-2 mb-1">
-                              <h3 className="text-md md:text-lg sm:text-xl font-bold text-rh-teal group-hover:text-rh-red transition-colors cursor-pointer">{app.role}</h3>
+                            <div className="flex flex-wrap items-center gap-1.5 mb-0.5 sm:mb-1">
+                              <h3 className="text-xs xs:text-sm sm:text-xl font-bold text-rh-teal group-hover:text-rh-red transition-colors cursor-pointer">{app.role}</h3>
                               {app.atsScore !== null && (
-                                <span className="shrink-0 px-2 py-0.5 bg-green-50 text-green-600 border border-green-200 rounded-md text-[10px] sm:text-xs font-bold">
+                                <span className="shrink-0 px-1.5 py-0.5 bg-green-50 text-green-600 border border-green-200 rounded-md text-[8px] sm:text-xs font-bold">
                                   {app.atsScore}% Match
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs sm:text-sm font-medium text-gray-400">{app.company} • {app.date}</p>
+                            <p className="text-[9px] sm:text-sm font-medium text-gray-400">{app.company} • {app.date}</p>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-none pt-4 sm:pt-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-none pt-3 sm:pt-0">
                           <button
                             onClick={() => toggleBookmark(app.id)}
-                            className={`p-2.5 sm:p-3 rounded-xl transition-all ${app.isBookmarked ? 'bg-rh-red/10 text-rh-red' : 'bg-rh-light text-gray-300 hover:text-rh-red'}`}
+                            className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${app.isBookmarked ? 'bg-rh-red/10 text-rh-red' : 'bg-rh-light text-gray-300 hover:text-rh-red'}`}
                           >
-                            <Bookmark className={`w-4 h-4 sm:w-5 h-5 ${app.isBookmarked ? 'fill-current' : ''}`} />
+                            <Bookmark className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${app.isBookmarked ? 'fill-current' : ''}`} />
                           </button>
-                          <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest ${getStatusStyle(app.status)}`}>
+                          <div className={`px-2.5 py-1 sm:px-4 sm:py-2 rounded-md sm:rounded-xl text-[8px] sm:text-xs font-bold uppercase tracking-widest ${getStatusStyle(app.status)}`}>
                             {app.status.replace(/_/g, ' ')}
                           </div>
                         </div>
@@ -365,17 +373,17 @@ export default function TalentDashboard() {
 
                       {/* Interactive Visual Timeline */}
                       <div className="relative px-0 sm:px-10">
-                        <div className="absolute top-[16px] sm:top-[20px] left-[12.5%] right-[12.5%] h-[2px] bg-gray-100" />
-                        <div className="flex justify-between gap-2">
+                        <div className="absolute top-[9px] sm:top-[20px] left-[12.5%] right-[12.5%] h-[1.5px] sm:h-[2px] bg-gray-100" />
+                        <div className="flex justify-between gap-1">
                           {app.timeline.map((step: any, idx: number) => (
                             <div key={idx} className="relative flex flex-col items-center z-10 flex-1">
-                              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-sm transition-all duration-500 ${step.completed ? 'bg-emerald-500 text-white' :
+                              <div className={`w-5 h-5 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border sm:border-4 border-white shadow-sm transition-all duration-500 ${step.completed ? 'bg-emerald-500 text-white' :
                                 step.current ? 'bg-rh-red text-white scale-110 shadow-lg shadow-rh-red/20' :
                                   'bg-gray-200 text-gray-400'
                                 }`}>
-                                {step.completed ? <CheckCircle2 className="w-4 h-4 sm:w-5 h-5" /> : <span className="text-[10px] sm:text-xs font-bold">{idx + 1}</span>}
+                                {step.completed ? <CheckCircle2 className="w-2.5 h-2.5 sm:w-5 sm:h-5" /> : <span className="text-[7px] sm:text-xs font-bold">{idx + 1}</span>}
                               </div>
-                              <p className={`mt-3 sm:mt-4 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest sm:tracking-[0.2em] text-center ${step.current ? 'text-rh-red' : 'text-gray-400'
+                              <p className={`mt-1.5 sm:mt-4 text-[6px] sm:text-[10px] font-bold uppercase tracking-widest sm:tracking-[0.2em] text-center ${step.current ? 'text-rh-red' : 'text-gray-400'
                                 }`}>
                                 {step.step}
                               </p>
@@ -385,19 +393,19 @@ export default function TalentDashboard() {
                       </div>
 
                       {/* Next Step Interaction */}
-                      <div className="mt-10 p-4 md:p-6 bg-rh-light/30 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-6 border border-rh-teal/5 group-hover:border-rh-red/20 transition-all duration-500">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rh-red shadow-sm">
-                            <Star className="w-5 h-5" />
+                      <div className="mt-6 p-3 sm:p-6 bg-rh-light/30 rounded-[16px] sm:rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-rh-teal/5 group-hover:border-rh-red/20 transition-all duration-500">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg sm:rounded-xl flex items-center justify-center text-rh-red shadow-sm">
+                            <Star className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Upcoming Updates</p>
-                            <p className="text-sm font-bold text-rh-teal">{app.nextStep}</p>
+                            <p className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Upcoming Updates</p>
+                            <p className="text-[10px] sm:text-sm font-bold text-rh-teal">{app.nextStep}</p>
                             {app.status === 'INTERVIEW_SCHEDULED' && (
-                              <div className="mt-1 flex flex-col gap-1">
-                                {app.interviewType && <p className="text-xs font-medium text-gray-500">Type: <span className="text-gray-800">{app.interviewType}</span></p>}
+                              <div className="mt-0.5 flex flex-col gap-0.5">
+                                {app.interviewType && <p className="text-[8px] sm:text-xs font-medium text-gray-500">Type: <span className="text-gray-800">{app.interviewType}</span></p>}
                                 {app.interviewLink && (
-                                  <a href={app.interviewLink} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-rh-red hover:underline flex items-center gap-1">
+                                  <a href={app.interviewLink} target="_blank" rel="noopener noreferrer" className="text-[8px] sm:text-xs font-bold text-rh-red hover:underline flex items-center gap-1">
                                     Join Interview Link
                                   </a>
                                 )}
@@ -408,13 +416,10 @@ export default function TalentDashboard() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setSelectedApp(app)}
-                            className="px-6 py-3 bg-white text-rh-teal rounded-xl text-xs font-bold hover:bg-rh-teal hover:text-white transition-all shadow-sm"
+                            className="w-full sm:w-auto px-4 py-2 bg-white text-rh-teal rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-bold hover:bg-rh-teal hover:text-white transition-all shadow-sm border border-gray-100"
                           >
                             View Details
                           </button>
-                          {/* <button className="p-3 bg-rh-teal text-white rounded-xl hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10">
-                            <MessageCircle className="w-4 h-4" />
-                          </button> */}
                         </div>
                       </div>
                     </div>
@@ -431,26 +436,26 @@ export default function TalentDashboard() {
             </div>
 
             {/* Functional Sidebar */}
-            <div className="xl:col-span-4 space-y-10">
+            <div className="xl:col-span-4 space-y-6 sm:space-y-10">
               {/* Interactive Profile Score */}
-              <div className="bg-rh-teal rounded-[40px] p-10 text-white relative overflow-hidden group">
+              <div className="bg-rh-teal rounded-[20px] sm:rounded-[40px] p-5 sm:p-10 text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-                <h3 className="text-2xl font-bold mb-6">Resume Analytics</h3>
-                <div className="relative w-36 h-36 mx-auto mb-10">
-                  <svg className="w-full h-full transform -rotate-90">
+                <h3 className="text-base sm:text-2xl font-bold mb-4 sm:mb-6">Resume Analytics</h3>
+                <div className="relative w-24 h-24 sm:w-36 sm:h-36 mx-auto mb-4 sm:mb-10">
+                  <svg viewBox="0 0 144 144" className="w-full h-full transform -rotate-90">
                     <circle cx="72" cy="72" r="64" fill="none" stroke="currentColor" strokeWidth="8" className="text-white/10" />
                     <circle cx="72" cy="72" r="64" fill="none" stroke="currentColor" strokeWidth="8" className="text-rh-red"
                       strokeDasharray={402.12} strokeDashoffset={402.12 * (1 - profileScore / 100)} strokeLinecap="round" />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold">{profileScore}</span>
-                    <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Pro Score</span>
+                    <span className="text-2xl sm:text-4xl font-bold">{profileScore}</span>
+                    <span className="text-[8px] sm:text-[10px] font-bold text-white/60 uppercase tracking-widest">Pro Score</span>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 mb-4">
-                    <TrendingUp className="w-5 h-5 text-rh-red" />
-                    <p className="text-[11px] font-bold leading-relaxed">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10 mb-3 sm:mb-4">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-rh-red shrink-0" />
+                    <p className="text-[8.5px] sm:text-[11px] font-bold leading-relaxed">
                       {profileScore >= 80
                         ? `Top 15% of candidates in ${applications[0]?.role || 'your field'}`
                         : 'Complete your profile to improve visibility'}
@@ -459,7 +464,7 @@ export default function TalentDashboard() {
 
                   <Button
                     onClick={() => navigate('/manage-profile')}
-                    variant="primary" className="w-full !bg-white !text-rh-teal hover:!bg-rh-red hover:!text-white !py-4 rounded-2xl text-xs font-bold transition-all duration-500 shadow-xl shadow-black/10"
+                    variant="primary" className="w-full !bg-white !text-rh-teal hover:!bg-rh-red hover:!text-white !py-2.5 sm:!py-4 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-bold transition-all duration-500 shadow-xl shadow-black/10"
                   >
                     {profileScore >= 100 ? 'View Profile' : 'Complete Profile'}
                   </Button>
@@ -467,31 +472,31 @@ export default function TalentDashboard() {
               </div>
 
               {/* Functional Job Matches */}
-              <div className="bg-rh-light/20 rounded-[40px] border border-rh-teal/5 p-10">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-bold text-rh-teal">Top Matches</h3>
-                  <Zap className="w-5 h-5 text-rh-red animate-pulse" />
+              <div className="bg-rh-light/20 rounded-[20px] sm:rounded-[40px] p-5 sm:p-10">
+                <div className="flex items-center justify-between mb-6 sm:mb-8">
+                  <h3 className="text-base sm:text-xl font-bold text-rh-teal">Top Matches</h3>
+                  <Zap className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-rh-red animate-pulse" />
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {recommendedJobs.length > 0 ? recommendedJobs.map((job) => (
-                    <div key={job.id} className="bg-white p-6 rounded-[28px] border border-gray-100 hover:border-rh-red/20 transition-all duration-300 group shadow-sm hover:shadow-xl hover:shadow-rh-teal/5">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-widest">{job.match} Match</span>
+                    <div key={job.id} className="bg-white p-4 sm:p-6 rounded-[20px] sm:rounded-[28px] border border-gray-100 hover:border-rh-red/20 transition-all duration-300 group shadow-sm hover:shadow-xl hover:shadow-rh-teal/5">
+                      <div className="flex items-center justify-between mb-3 sm:mb-4">
+                        <span className="text-[8px] sm:text-[9px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg uppercase tracking-widest">{job.match} Match</span>
                         <div className="flex gap-2">
-                          <button className="text-gray-300 hover:text-rh-red transition-colors"><Bookmark className="w-4 h-4" /></button>
+                          <button className="text-gray-300 hover:text-rh-red transition-colors"><Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
                         </div>
                       </div>
-                      <h4 className="font-bold text-rh-teal mb-1 group-hover:text-rh-red transition-colors">{job.title}</h4>
-                      <p className="text-[11px] font-bold text-gray-400 mb-6">{job.company}</p>
+                      <h4 className="text-xs sm:text-base font-bold text-rh-teal mb-0.5 sm:mb-1 group-hover:text-rh-red transition-colors">{job.title}</h4>
+                      <p className="text-[9px] sm:text-[11px] font-bold text-gray-400 mb-4 sm:mb-6">{job.company}</p>
 
-                      <div className="grid grid-cols-2 gap-2 mb-8">
-                        <div className="flex items-center gap-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-rh-light px-3 py-2 rounded-xl"><MapPin className="w-3 h-3" /> {job.location}</div>
-                        <div className="flex items-center gap-2 text-[9px] font-bold text-rh-teal uppercase tracking-widest bg-rh-teal/5 px-3 py-2 rounded-xl"><DollarSign className="w-3 h-3" /> {job.salary?.split(' - ')?.[0] || job.salary}</div>
+                      <div className="grid grid-cols-2 gap-2 mb-6 sm:mb-8">
+                        <div className="flex items-center gap-1.5 text-[8px] sm:text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-rh-light px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl"><MapPin className="w-3 h-3 text-gray-400" /> {job.location}</div>
+                        <div className="flex items-center gap-1.5 text-[8px] sm:text-[9px] font-bold text-rh-teal uppercase tracking-widest bg-rh-teal/5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl"><DollarSign className="w-3 h-3 text-rh-teal" /> {job.salary?.split(' - ')?.[0] || job.salary}</div>
                       </div>
 
                       <button
                         onClick={() => handleApplyNow(job.id)}
-                        className="w-full py-3.5 bg-rh-teal text-white rounded-xl text-[11px] font-bold hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10"
+                        className="w-full py-2.5 sm:py-3.5 bg-rh-teal text-white rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-bold hover:bg-rh-red transition-all shadow-lg shadow-rh-teal/10"
                       >
                         Apply Now
                       </button>
