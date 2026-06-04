@@ -1,19 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
-  Mail, Phone, MapPin, Send, ArrowRight, AlertCircle, MessageSquare, Clock, User, CheckCircle2, ChevronDown, ChevronUp, MessagesSquare
+  Mail, Phone, MapPin, Send, ArrowRight, AlertCircle, MessageSquare, User, ChevronDown, ChevronUp, MessagesSquare
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Button from '../components/ui/Button';
-import Dropdown from '../components/ui/Dropdown';
 import { fadeUp } from '../utils/animations';
-import { contactBoxes, contactDetails, subjectOptions } from '../data/index';
+import { contactBoxes, contactDetails } from '../data/index';
 import { contactApi, ContactMessageItem } from '../lib/contact';
 import { useAuth } from '../hooks/useAuth';
 
 export default function ContactPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const typeParam = searchParams.get('type');
   const { user } = useAuth();
