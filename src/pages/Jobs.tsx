@@ -75,6 +75,10 @@ export default function JobsPage() {
       }
     };
 
+    fetchJobs();
+  }, []);
+
+  useEffect(() => {
     const fetchApplications = async () => {
       if (!isAuthenticated || !accessToken) return;
       try {
@@ -90,7 +94,6 @@ export default function JobsPage() {
       }
     };
 
-    fetchJobs();
     fetchApplications();
   }, [isAuthenticated, accessToken]);
 

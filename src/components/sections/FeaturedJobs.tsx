@@ -72,6 +72,10 @@ export default function FeaturedJobs() {
       }
     };
 
+    fetchJobs();
+  }, []);
+
+  useEffect(() => {
     const fetchApplications = async () => {
       if (!isAuthenticated || !accessToken) return;
       try {
@@ -87,7 +91,6 @@ export default function FeaturedJobs() {
       }
     };
 
-    fetchJobs();
     fetchApplications();
   }, [isAuthenticated, accessToken]);
 
