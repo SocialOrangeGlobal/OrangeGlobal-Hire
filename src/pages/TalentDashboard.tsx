@@ -47,9 +47,34 @@ export default function TalentDashboard() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const fetchJobsOnce = useCallback(() => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
+      .then(res => res.json())
+      .then(jobsResp => {
+        if (jobsResp.success) {
+          const raw = jobsResp.data?.items || jobsResp.data;
+          const items = Array.isArray(raw) ? raw : [];
+          const jobsList = items.map((job: any) => ({
+            id: job.id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            salary: job.salary || 'Negotiable',
+            tags: job.skills?.slice(0, 3) || [],
+            match: `${Math.floor(Math.random() * 15 + 80)}%`,
+          }));
+          setRecommendedJobs(jobsList);
+        }
+      })
+      .catch(err => console.error("Error fetching recommended jobs:", err));
+  }, []);
+
+  useEffect(() => {
+    fetchJobsOnce();
+  }, [fetchJobsOnce]);
+
   const loadData = useCallback((showLoader = true) => {
     if (!isAuthenticated || !accessToken) {
-      navigate('/signin');
       return;
     }
     if (showLoader) {
@@ -61,11 +86,9 @@ export default function TalentDashboard() {
       }).then(res => res.json()),
       fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/users/me`, {
         headers: { Authorization: `Bearer ${accessToken}` }
-      }).then(res => res.json()),
-      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
-        .then(res => res.json())
+      }).then(res => res.json())
     ])
-      .then(([appsData, profileResp, jobsResp]) => {
+      .then(([appsData, profileResp]) => {
         // Process Applications
         if (appsData.success) {
           const apps = appsData.data.map((app: any) => {
@@ -130,21 +153,6 @@ export default function TalentDashboard() {
           });
         }
 
-        // Process Recommended Jobs
-        if (jobsResp.success) {
-          const raw = jobsResp.data?.items || jobsResp.data;
-          const items = Array.isArray(raw) ? raw : [];
-          const jobs = items.map((job: any) => ({
-            id: job.id,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            salary: job.salary || 'Negotiable',
-            tags: job.skills?.slice(0, 3) || [],
-            match: `${Math.floor(Math.random() * 15 + 80)}%`,
-          }));
-          setRecommendedJobs(jobs);
-        }
         if (appsData && appsData.success === false) {
           console.error("API Error fetching applications:", appsData);
           setNotification("Error fetching data. Retrying...");
@@ -157,11 +165,15 @@ export default function TalentDashboard() {
       .catch((err) => {
         console.error("Network or parsing error:", err);
       });
-  }, [isAuthenticated, accessToken, navigate]);
+  }, [isAuthenticated, accessToken]);
 
   useEffect(() => {
+    if (!isAuthenticated || !accessToken) {
+      navigate('/signin');
+      return;
+    }
     loadData(true);
-  }, [loadData]);
+  }, [isAuthenticated, accessToken, navigate, loadData]);
 
   useEffect(() => {
     if (notifications.length > prevNotificationsLength.current) {

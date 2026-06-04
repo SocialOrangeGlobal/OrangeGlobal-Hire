@@ -366,10 +366,11 @@ export default function SignUpTalent() {
       );
       setIsSuccess(true);
     } catch (err: any) {
+      console.error('Registration Error:', err.response?.data || err);
       const backendMessage = err.response?.data?.message;
       const msg = Array.isArray(backendMessage)
         ? backendMessage.join(', ')
-        : backendMessage || 'Registration failed. Please try again.';
+        : backendMessage || err.message || 'Registration failed. Please try again.';
       setSubmitError(msg);
       dispatch(setAuthError(msg));
       scrollToTop();
