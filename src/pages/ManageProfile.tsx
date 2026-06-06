@@ -298,6 +298,7 @@ export default function ManageProfile() {
   const [resumeScore, setResumeScore] = useState<number | null>(null);
   const [skillInput, setSkillInput] = useState('');
   const [resumeUploadError, setResumeUploadError] = useState('');
+  const [mainResumeError, setMainResumeError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isTalent = user?.role === 'TALENT';
@@ -872,16 +873,17 @@ export default function ManageProfile() {
 
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    setMainResumeError('');
     if (file) {
       const error = validateFileConstraints(file, 'resumes', '.pdf');
       if (error) {
-        toast.error(error);
+        setMainResumeError(error);
         event.target.value = '';
         return;
       }
 
       if ((profile?.resumes?.length || 0) >= 5) {
-        toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
+        setMainResumeError('Maximum 5 resumes allowed. Please delete an existing resume first.');
         event.target.value = '';
         return;
       }
@@ -2738,7 +2740,7 @@ export default function ManageProfile() {
 
                     <div
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-gray-100 bg-[#F9FBFF] rounded-[40px] p-8 sm:p-16 text-center cursor-pointer hover:border-rh-teal/30 hover:bg-white transition-all group mb-12"
+                      className={`border-2 border-dashed ${mainResumeError ? 'border-red-400 bg-red-50/30' : 'border-gray-100 bg-[#F9FBFF]'} rounded-[40px] p-8 sm:p-16 text-center cursor-pointer hover:border-rh-teal/30 hover:bg-white transition-all group mb-12`}
                     >
                       <input type="file" ref={fileInputRef} className="hidden" accept=".pdf" onChange={handleResumeUpload} />
                       {resumeExtracting ? (
@@ -2758,7 +2760,9 @@ export default function ManageProfile() {
                             </div>
                           </div>
                           <h4 className="text-xl sm:text-2xl font-bold text-[#081B2D] mb-3">Drop your updated CV</h4>
-                          <p className="text-gray-400 text-xs sm:text-sm mb-10 font-medium">Max Size: 5MB | Format: PDF</p>
+                          <p className={`text-xs sm:text-sm font-medium ${mainResumeError ? 'text-red-500 mb-6' : 'text-gray-400 mb-10'}`}>
+                            {mainResumeError ? mainResumeError : 'Max Size: 5MB | Format: PDF'}
+                          </p>
                           <Button variant="primary" className="w-full sm:w-auto px-8 sm:px-16 py-4 sm:py-5 bg-rh-teal text-white rounded-2xl font-bold shadow-2xl shadow-rh-teal/10 justify-center">Browse Files</Button>
                         </>
                       )}
