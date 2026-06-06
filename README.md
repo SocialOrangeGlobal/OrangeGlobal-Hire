@@ -7,6 +7,9 @@ A premium, high-fidelity recruitment and consulting platform designed for the mo
 ## 🚀 Key Features & Recent Updates
 
 ### ✨ Latest Enhancements
+*   **Resume ATS Upload Improvements**: Strengthened validation on the Manage Profile section handling large PDF files (up to 5MB) for accurate ATS Match Score uploads without triggering bad payload errors.
+*   **Dynamic Field Optimization**: Stabilized optional document upload payloads across SignUpTalent and User Edit flows to prevent empty strings from failing backend validation constraints.
+*   **Payload Stability**: Resolved object literal property duplication issues inside the Manage Profile architecture to ensure clean JSON transmissions.
 *   **Dynamic Search Overlay**: Implemented a premium, debounced search bar inside the main navigation bar. Typing queries matches both local site/visa pages (compiled dynamically from the navigation tree) and active job listings queried from the NestJS backend via a dedicated search API. Displays results in a dual-column responsive dropdown featuring category icons, badges, hover animations, and a sticky search header for optimized desktop, tablet, and mobile user experiences.
 *   **Horizontal Stepper Navigation & Resume Auto-fill**: Implemented a responsive form multistepper for job applications. Utilizes smooth native horizontal swipe scrolling on mobile/tablet (with progress line segments) and dynamic flex wrapping with custom chevrons on desktop. Clicking any resume dynamically parses and auto-populates the entire form, while starting manual apply begins from a completely empty scratch state. Form navigation is fully unlocked across all tabs.
 *   **Light Theme Date Pickers & Black Calendar Icons**: Integrated `[color-scheme:light]` on date input inputs (e.g. Date of Birth, testDate in Language Proficiency, and Passport Expiry). Restores a clear black/dark native calendar icon and ensures browser popups (`showPicker`) render in a beautiful light theme.

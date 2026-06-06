@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { logout, updateProfileSuccess } from '../store/slices/authSlice';
 import { authApi } from '../lib/auth';
-import { uploadFile } from '../lib/storage';
+import { uploadFile, validateFileConstraints } from '../lib/storage';
 import Button from '../components/ui/Button';
 import PageLoader from '../components/ui/PageLoader';
 import { toast } from 'react-hot-toast';
@@ -297,6 +297,7 @@ export default function ManageProfile() {
   const [resumeExtracting, setResumeExtracting] = useState(false);
   const [resumeScore, setResumeScore] = useState<number | null>(null);
   const [skillInput, setSkillInput] = useState('');
+  const [resumeUploadError, setResumeUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isTalent = user?.role === 'TALENT';
@@ -526,6 +527,7 @@ export default function ManageProfile() {
                 {label} {required && <span className="text-red-500">*</span>}
               </h4>
               {textElement}
+              <span className="text-[10px] text-gray-400 mt-1 block opacity-80">Max Size: 5MB | Format: {accept.replace(/\./g, '').toUpperCase()}</span>
             </div>
           </div>
 
@@ -538,6 +540,13 @@ export default function ManageProfile() {
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  const error = validateFileConstraints(file, folder, accept);
+                  if (error) {
+                    talentForm.setError(name as any, { type: 'manual', message: error });
+                    e.target.value = '';
+                    return;
+                  }
+                  talentForm.clearErrors(name as any);
                   await handleDocumentUpload(name, file, folder);
                 }
               }}
@@ -634,9 +643,7 @@ export default function ManageProfile() {
     try {
       setLoading(true);
       const data = await authApi.getMe();
-      console.log("Data: ", data);
       setProfile(data.profile);
-      console.log("Profile: ", profile);
 
       if (data.role === 'TALENT') {
         const p = data.profile || {};
@@ -866,8 +873,16 @@ export default function ManageProfile() {
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      const error = validateFileConstraints(file, 'resumes', '.pdf');
+      if (error) {
+        toast.error(error);
+        event.target.value = '';
+        return;
+      }
+
       if ((profile?.resumes?.length || 0) >= 5) {
         toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
+        event.target.value = '';
         return;
       }
 
@@ -2382,7 +2397,7 @@ export default function ManageProfile() {
                                 let buttonClass = 'border-rh-teal/10 hover:border-rh-teal hover:bg-rh-teal hover:text-white text-rh-teal';
                                 let buttonText = hasResume ? 'Update' : 'Upload';
 
-                                if (error) {
+                                if (error || resumeUploadError) {
                                   cardClass = 'border-red-500 bg-red-50/10';
                                   blurClass = 'bg-red-500/5';
                                 } else if (sessionState === 'success') {
@@ -2423,6 +2438,7 @@ export default function ManageProfile() {
                                         <div>
                                           <h4 className="text-lg font-bold text-rh-teal mb-0.5">Your Resume <span className="text-red-500">*</span></h4>
                                           {textElement}
+                                          <span className="text-[10px] text-gray-400 mt-1 block opacity-80">Max Size: 5MB | Format: PDF, DOC, DOCX</span>
                                         </div>
                                       </div>
 
@@ -2435,6 +2451,14 @@ export default function ManageProfile() {
                                           onChange={async (e) => {
                                             const file = e.target.files?.[0];
                                             if (file) {
+                                              const error = validateFileConstraints(file, 'resumes', '.pdf,.doc,.docx');
+                                              if (error) {
+                                                setResumeUploadError(error);
+                                                e.target.value = '';
+                                                return;
+                                              }
+                                              setResumeUploadError('');
+                                              talentForm.clearErrors('resumeUrl');
                                               if ((profile?.resumes?.length || 0) >= 5) {
                                                 toast.error('Maximum 5 resumes allowed. Please delete an existing resume first.');
                                                 return;
@@ -2486,9 +2510,9 @@ export default function ManageProfile() {
                                         )}
                                       </div>
                                     </div>
-                                    {error && (
+                                    {(error || resumeUploadError) && (
                                       <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-1 flex items-center gap-1.5 ml-1">
-                                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error.message}
+                                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {resumeUploadError || error?.message}
                                       </motion.p>
                                     )}
                                   </div>
@@ -2734,7 +2758,7 @@ export default function ManageProfile() {
                             </div>
                           </div>
                           <h4 className="text-xl sm:text-2xl font-bold text-[#081B2D] mb-3">Drop your updated CV</h4>
-                          <p className="text-gray-400 text-xs sm:text-sm mb-10 font-medium">PDF Documents only (Max 10MB)</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mb-10 font-medium">Max Size: 5MB | Format: PDF</p>
                           <Button variant="primary" className="w-full sm:w-auto px-8 sm:px-16 py-4 sm:py-5 bg-rh-teal text-white rounded-2xl font-bold shadow-2xl shadow-rh-teal/10 justify-center">Browse Files</Button>
                         </>
                       )}
