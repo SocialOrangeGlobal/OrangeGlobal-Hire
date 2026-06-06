@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
-import { ChevronDown, Menu, X, Search, ArrowLeft, Loader2, Briefcase, Globe, FileText, ChevronRight } from 'lucide-react';
+import { ChevronDown, Menu, X, Search, ArrowLeft, Loader2, Globe, FileText, ChevronRight } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { navItems } from '../../data';
 import Button from '../ui/Button';
@@ -260,14 +260,13 @@ export default function Navbar() {
                   >
                     <Link
                       to={item.href}
-                      className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${
-                        isNavItemActive(item)
-                          ? scrolled || isAuthPage || isSubPage
-                            ? 'text-rh-red bg-rh-light font-bold'
-                            : 'text-rh-red bg-white/10 font-bold'
-                          : scrolled || isAuthPage || isSubPage
-                            ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
-                            : 'text-white hover:text-rh-red hover:bg-white/10'
+                      className={`flex items-center gap-1.5 px-3 xl:px-5 py-2 text-[13px] xl:text-[15px] 2xl:text-[16px] font-[500] rounded-lg transition-all ${isNavItemActive(item)
+                        ? scrolled || isAuthPage || isSubPage
+                          ? 'text-rh-red bg-rh-light font-bold'
+                          : 'text-rh-red bg-white/10 font-bold'
+                        : scrolled || isAuthPage || isSubPage
+                          ? 'text-rh-teal hover:text-rh-red hover:bg-rh-light'
+                          : 'text-white hover:text-rh-red hover:bg-white/10'
                         } ${openDropdown === item.label ? 'text-rh-red' : ''}`}
                     >
                       {item.label}
@@ -309,77 +308,77 @@ export default function Navbar() {
                   {isAuthenticated ? (
                     <div className="relative group/user h-full flex items-center">
                       <button className={`flex items-center gap-3 p-1.5 pr-3 rounded-xl transition-all ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>
-                      <div className="w-9 h-9 rounded-lg bg-rh-red flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-900/20 overflow-hidden shrink-0">
-                        {user?.avatarUrl && !avatarFailed ? (
-                          <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
-                        ) : (
-                          (user?.fullName || user?.email || 'U')[0].toUpperCase()
-                        )}
-                      </div>
-                      <span className="text-sm font-bold truncate max-w-[120px] 2xl:max-w-[160px]">{user?.fullName || 'User Account'}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 group-hover/user:rotate-180 transition-transform shrink-0" />
-                    </button>
-
-                    {/* Dropdown */}
-                    <div className="absolute top-[85%] right-0 w-72 pt-5 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-300 translate-y-3 group-hover/user:translate-y-0 z-[60]">
-                      <div className="bg-white/95 backdrop-blur-xl rounded-[1.75rem] shadow-[0_1.875rem_4.375rem_rgba(0,0,0,0.15)] border border-gray-100 p-3 overflow-hidden">
-                        <div className="px-5 py-5 bg-rh-light/30 rounded-[1.375rem] mb-2 border border-rh-teal/5">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
-                              {user?.avatarUrl && !avatarFailed ? (
-                                <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
-                              ) : (
-                                (user?.fullName || user?.email || 'U')[0].toUpperCase()
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-rh-teal truncate">{user?.fullName || 'User Account'}</p>
-                              <p className="text-[10px] font-bold text-rh-red uppercase tracking-widest">{user?.role}</p>
-                            </div>
-                          </div>
-                          <p className="text-[11px] font-medium text-gray-400 truncate">{user?.email}</p>
+                        <div className="w-9 h-9 rounded-lg bg-rh-red flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-900/20 overflow-hidden shrink-0">
+                          {user?.avatarUrl && !avatarFailed ? (
+                            <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                          ) : (
+                            (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                          )}
                         </div>
+                        <span className="text-sm font-bold truncate max-w-[120px] 2xl:max-w-[160px]">{user?.fullName || 'User Account'}</span>
+                        <ChevronDown className="w-4 h-4 text-gray-400 group-hover/user:rotate-180 transition-transform shrink-0" />
+                      </button>
 
-                        <div className="space-y-1">
-                          <Link to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'} className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
-                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
-                              <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                      {/* Dropdown */}
+                      <div className="absolute top-[85%] right-0 w-72 pt-5 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-300 translate-y-3 group-hover/user:translate-y-0 z-[60]">
+                        <div className="bg-white/95 backdrop-blur-xl rounded-[1.75rem] shadow-[0_1.875rem_4.375rem_rgba(0,0,0,0.15)] border border-gray-100 p-3 overflow-hidden">
+                          <div className="px-5 py-5 bg-rh-light/30 rounded-[1.375rem] mb-2 border border-rh-teal/5">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-xl bg-rh-teal flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
+                                {user?.avatarUrl && !avatarFailed ? (
+                                  <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
+                                ) : (
+                                  (user?.fullName || user?.email || 'U')[0].toUpperCase()
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-rh-teal truncate">{user?.fullName || 'User Account'}</p>
+                                <p className="text-[10px] font-bold text-rh-red uppercase tracking-widest">{user?.role}</p>
+                              </div>
                             </div>
-                            <span className="text-sm font-bold">Dashboard</span>
-                          </Link>
-                          <Link to="/manage-profile" className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
-                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
-                              <Settings className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
-                            </div>
-                            <span className="text-sm font-bold">Manage Profile</span>
-                          </Link>
-                        </div>
-
-                        <div className="h-px bg-gray-50 my-2 mx-4" />
-
-                        <button
-                          onClick={() => {
-                            setOpenDropdown(null);
-                            handleSignOut();
-                          }}
-                          className="w-full flex items-center gap-3 px-5 py-3 rounded-[18px] text-rh-red hover:bg-red-50 transition-all group/item"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                            <LogOut className="w-4 h-4" />
+                            <p className="text-[11px] font-medium text-gray-400 truncate">{user?.email}</p>
                           </div>
-                          <span className="text-sm font-bold">Sign Out</span>
-                        </button>
+
+                          <div className="space-y-1">
+                            <Link to={user?.role === 'TALENT' ? '/talent-dashboard' : '/employer-dashboard'} className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
+                                <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                              </div>
+                              <span className="text-sm font-bold">Dashboard</span>
+                            </Link>
+                            <Link to="/manage-profile" className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
+                                <Settings className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                              </div>
+                              <span className="text-sm font-bold">Manage Profile</span>
+                            </Link>
+                          </div>
+
+                          <div className="h-px bg-gray-50 my-2 mx-4" />
+
+                          <button
+                            onClick={() => {
+                              setOpenDropdown(null);
+                              handleSignOut();
+                            }}
+                            className="w-full flex items-center gap-3 px-5 py-3 rounded-[18px] text-rh-red hover:bg-red-50 transition-all group/item"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                              <LogOut className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold">Sign Out</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   ) : (
-                  <Link
-                    to="/signin"
-                    className={`text-[15px] xl:text-[16px] 2xl:text-[17px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
-                      } hover:underline hover:underline-offset-8`}
-                  >
-                    Sign in
-                  </Link>
+                    <Link
+                      to="/signin"
+                      className={`text-[15px] xl:text-[16px] 2xl:text-[17px] font-[500] transition-all flex items-center h-full ${scrolled || isAuthPage || isSubPage ? 'text-rh-teal hover:text-rh-red' : 'text-white hover:text-rh-red'
+                        } hover:underline hover:underline-offset-8`}
+                    >
+                      Sign in
+                    </Link>
                   )}
                 </div>
 
@@ -447,310 +446,310 @@ export default function Navbar() {
             >
               <div className="max-h-[calc(100vh-70px)] overflow-y-auto custom-scrollbar">
                 <div className={`${activePanel === '__search__' ? 'max-w-4xl' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12`}>
-                {/* ── Search panel ── */}
-                {activePanel === '__search__' && (
-                  <>
-                    <div className={`sticky top-0 z-30 pt-2 pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b transition-colors ${scrolled || isSubPage || isAuthPage ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
-                      }`}>
-                      <div className="relative">
-                        <Search
-                          className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-gray-400"
-                        />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search jobs, visas, or site pages..."
-                          className={`w-full pl-12 md:pl-16 pr-12 md:pr-16 py-3.5 md:py-4.5 rounded-xl border outline-none text-base md:text-lg transition-all duration-300 ${scrolled || isSubPage || isAuthPage
-                            ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-red focus:bg-white focus:ring-4 focus:ring-rh-red/10'
-                            : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/20 focus:bg-white/10 focus:ring-4 focus:ring-white/5'
-                            }`}
-                          autoFocus
-                        />
-                        {isSearching && (
-                          <div className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2">
-                            <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-rh-red animate-spin" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Results / Navigation Section */}
-                    {!searchQuery ? (
-                      <div className="mt-8 md:mt-12">
-                        <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
-                          Quick Links
-                        </h4>
-                        <div className="flex flex-wrap gap-3 md:gap-4">
-                          {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
-                            (link) => (
-                              <Link
-                                key={link}
-                                to={link === 'Browse jobs' ? '/jobs' : '/'}
-                                onClick={() => {
-                                  setOpenDropdown(null);
-                                  setSearchOpen(false);
-                                }}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
-                                  ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                                  : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
-                                  }`}
-                              >
-                                {link}
-                              </Link>
-                            )
+                  {/* ── Search panel ── */}
+                  {activePanel === '__search__' && (
+                    <>
+                      <div className={`sticky top-0 z-30 pt-2 pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b transition-colors ${scrolled || isSubPage || isAuthPage ? 'bg-white border-gray-100' : 'bg-[#12161A] border-white/10'
+                        }`}>
+                        <div className="relative">
+                          <Search
+                            className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-gray-400"
+                          />
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search jobs, visas, or site pages..."
+                            className={`w-full pl-12 md:pl-16 pr-12 md:pr-16 py-3.5 md:py-4.5 rounded-xl border outline-none text-base md:text-lg transition-all duration-300 ${scrolled || isSubPage || isAuthPage
+                              ? 'bg-gray-50 border-gray-200 text-gray-900 focus:border-rh-red focus:bg-white focus:ring-4 focus:ring-rh-red/10'
+                              : 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-white/20 focus:bg-white/10 focus:ring-4 focus:ring-white/5'
+                              }`}
+                            autoFocus
+                          />
+                          {isSearching && (
+                            <div className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2">
+                              <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-rh-red animate-spin" />
+                            </div>
                           )}
                         </div>
                       </div>
-                    ) : (
-                      <div className="mt-8 md:mt-12">
-                        {isSearching && searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
-                          <div className="flex items-center justify-center py-12 gap-3">
-                            <Loader2 className="w-6 h-6 text-rh-red animate-spin" />
-                            <span className={`text-sm ${scrolled || isSubPage || isAuthPage ? 'text-gray-500' : 'text-gray-400'}`}>
-                              Searching listings and pathways...
-                            </span>
-                          </div>
-                        ) : searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
-                          <div className="text-center py-12">
-                            <h5 className={`text-lg font-bold ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal' : 'text-white'} mb-2`}>
-                              No results found
-                            </h5>
-                            <p className="text-sm text-gray-400">
-                              We couldn't find anything matching "{searchQuery}"
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
-                            {/* Pages / Visa subclass pathways */}
-                            <div className="lg:col-span-5 space-y-6">
-                              <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500 border-b pb-2 border-gray-100 dark:border-white/10">
-                                Migration & Pages ({searchResults.pages.length})
-                              </h4>
-                              {searchResults.pages.length === 0 ? (
-                                <p className="text-sm text-gray-400 py-2">No matching pages found.</p>
-                              ) : (
-                                <div className="space-y-2">
-                                  {searchResults.pages.map((page, idx) => (
-                                    <Link
-                                      key={idx}
-                                      to={page.href}
-                                      onClick={() => {
-                                        setSearchOpen(false);
-                                        setOpenDropdown(null);
-                                      }}
-                                      className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
-                                        ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
-                                        : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
-                                        }`}
-                                    >
-                                      <div className="flex items-start gap-3 min-w-0">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${scrolled || isSubPage || isAuthPage
-                                          ? 'bg-gray-50 group-hover:bg-rh-red/10'
-                                          : 'bg-white/5 group-hover:bg-white/10'
-                                          }`}>
-                                          {page.type === 'Visa & Migration' ? (
-                                            <Globe className="w-4 h-4 text-rh-red group-hover:scale-110 transition-transform shrink-0" />
-                                          ) : (
-                                            <FileText className="w-4 h-4 text-rh-teal group-hover:scale-110 transition-transform shrink-0" />
-                                          )}
-                                        </div>
-                                        <div className="min-w-0">
-                                          <span className={`block text-[13px] md:text-sm font-semibold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-gray-700 group-hover:text-rh-teal' : 'text-gray-200 group-hover:text-white'
-                                            }`}>
-                                            {page.label}
-                                          </span>
-                                          <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">
-                                            {page.type}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0 mt-2" />
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
 
-                            {/* Job Openings from database */}
-                            <div className="lg:col-span-7 space-y-6">
-                              <div className="flex items-center justify-between border-b pb-2 border-gray-100 dark:border-white/10">
-                                <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500">
-                                  Job Openings ({searchResults.jobs.length})
+                      {/* Results / Navigation Section */}
+                      {!searchQuery ? (
+                        <div className="mt-8 md:mt-12">
+                          <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
+                            Quick Links
+                          </h4>
+                          <div className="flex flex-wrap gap-3 md:gap-4">
+                            {['Browse jobs', 'Find your next hire', 'Our locations', 'Salary guide', 'Career advice'].map(
+                              (link) => (
+                                <Link
+                                  key={link}
+                                  to={link === 'Browse jobs' ? '/jobs' : '/'}
+                                  onClick={() => {
+                                    setOpenDropdown(null);
+                                    setSearchOpen(false);
+                                  }}
+                                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
+                                    ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                    : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
+                                    }`}
+                                >
+                                  {link}
+                                </Link>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-8 md:mt-12">
+                          {isSearching && searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
+                            <div className="flex items-center justify-center py-12 gap-3">
+                              <Loader2 className="w-6 h-6 text-rh-red animate-spin" />
+                              <span className={`text-sm ${scrolled || isSubPage || isAuthPage ? 'text-gray-500' : 'text-gray-400'}`}>
+                                Searching listings and pathways...
+                              </span>
+                            </div>
+                          ) : searchResults.jobs.length === 0 && searchResults.pages.length === 0 ? (
+                            <div className="text-center py-12">
+                              <h5 className={`text-lg font-bold ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal' : 'text-white'} mb-2`}>
+                                No results found
+                              </h5>
+                              <p className="text-sm text-gray-400">
+                                We couldn't find anything matching "{searchQuery}"
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+                              {/* Pages / Visa subclass pathways */}
+                              <div className="lg:col-span-5 space-y-6">
+                                <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500 border-b pb-2 border-gray-100 dark:border-white/10">
+                                  Migration & Pages ({searchResults.pages.length})
                                 </h4>
-                                {searchResults.jobs.length > 0 && (
-                                  <Link
-                                    to={`/jobs?search=${encodeURIComponent(searchQuery)}`}
-                                    onClick={() => {
-                                      setSearchOpen(false);
-                                      setOpenDropdown(null);
-                                    }}
-                                    className="text-[11px] font-bold text-rh-red hover:underline uppercase tracking-widest"
-                                  >
-                                    View All
-                                  </Link>
+                                {searchResults.pages.length === 0 ? (
+                                  <p className="text-sm text-gray-400 py-2">No matching pages found.</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {searchResults.pages.map((page, idx) => (
+                                      <Link
+                                        key={idx}
+                                        to={page.href}
+                                        onClick={() => {
+                                          setSearchOpen(false);
+                                          setOpenDropdown(null);
+                                        }}
+                                        className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
+                                          ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
+                                          : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
+                                          }`}
+                                      >
+                                        <div className="flex items-start gap-3 min-w-0">
+                                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${scrolled || isSubPage || isAuthPage
+                                            ? 'bg-gray-50 group-hover:bg-rh-red/10'
+                                            : 'bg-white/5 group-hover:bg-white/10'
+                                            }`}>
+                                            {page.type === 'Visa & Migration' ? (
+                                              <Globe className="w-4 h-4 text-rh-red group-hover:scale-110 transition-transform shrink-0" />
+                                            ) : (
+                                              <FileText className="w-4 h-4 text-rh-teal group-hover:scale-110 transition-transform shrink-0" />
+                                            )}
+                                          </div>
+                                          <div className="min-w-0">
+                                            <span className={`block text-[13px] md:text-sm font-semibold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-gray-700 group-hover:text-rh-teal' : 'text-gray-200 group-hover:text-white'
+                                              }`}>
+                                              {page.label}
+                                            </span>
+                                            <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">
+                                              {page.type}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0 mt-2" />
+                                      </Link>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
-                              {searchResults.jobs.length === 0 ? (
-                                <p className="text-sm text-gray-400 py-2">No matching jobs found in our database.</p>
-                              ) : (
-                                <div className="space-y-3">
-                                  {searchResults.jobs.map((job) => (
+
+                              {/* Job Openings from database */}
+                              <div className="lg:col-span-7 space-y-6">
+                                <div className="flex items-center justify-between border-b pb-2 border-gray-100 dark:border-white/10">
+                                  <h4 className="text-xs font-bold tracking-widest uppercase text-gray-500">
+                                    Job Openings ({searchResults.jobs.length})
+                                  </h4>
+                                  {searchResults.jobs.length > 0 && (
                                     <Link
-                                      key={job.id}
-                                      to={`/jobs?search=${encodeURIComponent(job.title)}`}
+                                      to={`/jobs?search=${encodeURIComponent(searchQuery)}`}
                                       onClick={() => {
                                         setSearchOpen(false);
                                         setOpenDropdown(null);
                                       }}
-                                      className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
-                                        ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
-                                        : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
-                                        }`}
+                                      className="text-[11px] font-bold text-rh-red hover:underline uppercase tracking-widest"
                                     >
-                                      <div className="flex gap-4 items-start min-w-0">
-                                        <div className="h-10 w-10 shrink-0 rounded-lg border border-gray-100/10 bg-white flex items-center justify-center overflow-hidden shadow-sm">
-                                          <img
-                                            src={job.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=100"}
-                                            alt={job.company}
-                                            className="h-full w-full object-contain p-1"
-                                          />
-                                        </div>
-                                        <div className="min-w-0">
-                                          <span className={`block text-[14px] md:text-[15px] font-bold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D] group-hover:text-rh-red' : 'text-white group-hover:text-rh-red'
-                                            }`}>
-                                            {job.title}
-                                          </span>
-                                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[11px] text-gray-400 font-medium">
-                                            <span className="truncate">{job.company}</span>
-                                            <span>•</span>
-                                            <span className="truncate">{job.location}</span>
-                                            <span>•</span>
-                                            <span className="text-rh-red font-semibold">{job.salary || 'Negotiable'}</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-2 shrink-0 ml-2 mt-2">
-                                        <span className="hidden xs:inline-block text-[10px] font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 border border-rh-teal/10 px-2 py-0.5 rounded">
-                                          {job.mode}
-                                        </span>
-                                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
-                                      </div>
+                                      View All
                                     </Link>
-                                  ))}
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* ── Nav item dropdown panel ── */}
-                {activePanel !== '__search__' && (() => {
-                  const item = navItems.find((n) => n.label === activePanel);
-                  if (!item?.children) return null;
-                  
-                  if (item.megaMenu) {
-                    return (
-                      <div className="flex flex-col w-full">
-                        <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
-                          {item.label}
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8">
-                          {item.children.map((category) => (
-                            <div key={category.label} className="flex flex-col">
-                              <h4 className="text-xs font-bold tracking-widest uppercase mb-4 text-rh-red border-b border-gray-100 pb-2">
-                                {category.label}
-                              </h4>
-                              <div className="flex flex-col gap-2">
-                                {category.children?.map((child) => (
-                                  <div key={child.label} className="flex flex-col gap-1 group/subitem relative">
-                                    {child.href !== '#' ? (
+                                {searchResults.jobs.length === 0 ? (
+                                  <p className="text-sm text-gray-400 py-2">No matching jobs found in our database.</p>
+                                ) : (
+                                  <div className="space-y-3">
+                                    {searchResults.jobs.map((job) => (
                                       <Link
-                                        to={child.href}
-                                        onClick={() => setOpenDropdown(null)}
-                                        className={`text-sm transition-all flex items-center justify-between ${scrolled || isSubPage || isAuthPage
-                                          ? 'text-gray-600 hover:text-rh-teal font-medium'
-                                          : 'text-gray-300 hover:text-white font-medium'
-                                        }`}
+                                        key={job.id}
+                                        to={`/jobs?search=${encodeURIComponent(job.title)}`}
+                                        onClick={() => {
+                                          setSearchOpen(false);
+                                          setOpenDropdown(null);
+                                        }}
+                                        className={`group flex items-start justify-between p-3.5 rounded-xl transition-all duration-300 border ${scrolled || isSubPage || isAuthPage
+                                          ? 'border-gray-100 bg-white hover:bg-rh-light hover:border-rh-red/20 hover:shadow-md hover:text-rh-teal'
+                                          : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-md hover:text-white'
+                                          }`}
                                       >
-                                        <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
-                                        {child.children && (
-                                          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
-                                        )}
-                                      </Link>
-                                    ) : (
-                                      <div className={`flex items-center justify-between text-sm cursor-default transition-all ${scrolled || isSubPage || isAuthPage
-                                        ? 'text-gray-600 hover:text-rh-teal font-medium'
-                                        : 'text-gray-300 hover:text-white font-medium'
-                                      }`}>
-                                        <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
-                                        {child.children && (
-                                          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
-                                        )}
-                                      </div>
-                                    )}
-                                    
-                                    {/* Render 4th level children if they exist, expand on hover */}
-                                    {child.children && (
-                                      <div className="grid grid-rows-[0fr] group-hover/subitem:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-in-out">
-                                        <div className="overflow-hidden">
-                                          <div className="flex flex-col gap-1.5 pl-3 border-l-2 border-rh-teal/10 ml-1 mt-1 mb-1">
-                                            {child.children.map(subChild => (
-                                              <Link
-                                                key={subChild.label}
-                                                to={subChild.href}
-                                                onClick={() => setOpenDropdown(null)}
-                                                className={`text-[12px] leading-tight py-1 transition-all hover:-translate-y-0.5 ${scrolled || isSubPage || isAuthPage
-                                                  ? 'text-gray-500 hover:text-rh-red'
-                                                  : 'text-gray-400 hover:text-white'
-                                                }`}
-                                              >
-                                                {subChild.label}
-                                              </Link>
-                                            ))}
+                                        <div className="flex gap-4 items-start min-w-0">
+                                          <div className="h-10 w-10 shrink-0 rounded-lg border border-gray-100/10 bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                                            <img
+                                              src={job.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=100"}
+                                              alt={job.company}
+                                              className="h-full w-full object-contain p-1"
+                                            />
+                                          </div>
+                                          <div className="min-w-0">
+                                            <span className={`block text-[14px] md:text-[15px] font-bold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D] group-hover:text-rh-red' : 'text-white group-hover:text-rh-red'
+                                              }`}>
+                                              {job.title}
+                                            </span>
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[11px] text-gray-400 font-medium">
+                                              <span className="truncate">{job.company}</span>
+                                              <span>•</span>
+                                              <span className="truncate">{job.location}</span>
+                                              <span>•</span>
+                                              <span className="text-rh-red font-semibold">{job.salary || 'Negotiable'}</span>
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    )}
+                                        <div className="flex items-center gap-2 shrink-0 ml-2 mt-2">
+                                          <span className="hidden xs:inline-block text-[10px] font-bold uppercase tracking-wider text-rh-teal bg-rh-teal/5 border border-rh-teal/10 px-2 py-0.5 rounded">
+                                            {job.mode}
+                                          </span>
+                                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                                        </div>
+                                      </Link>
+                                    ))}
                                   </div>
-                                ))}
+                                )}
                               </div>
                             </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* ── Nav item dropdown panel ── */}
+                  {activePanel !== '__search__' && (() => {
+                    const item = navItems.find((n) => n.label === activePanel);
+                    if (!item?.children) return null;
+
+                    if (item.megaMenu) {
+                      return (
+                        <div className="flex flex-col w-full">
+                          <h4 className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500">
+                            {item.label}
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                            {item.children.map((category) => (
+                              <div key={category.label} className="flex flex-col">
+                                <h4 className="text-xs font-bold tracking-widest uppercase mb-4 text-rh-red border-b border-gray-100 pb-2">
+                                  {category.label}
+                                </h4>
+                                <div className="flex flex-col gap-2">
+                                  {category.children?.map((child) => (
+                                    <div key={child.label} className="flex flex-col gap-1 group/subitem relative">
+                                      {child.href !== '#' ? (
+                                        <Link
+                                          to={child.href}
+                                          onClick={() => setOpenDropdown(null)}
+                                          className={`text-sm transition-all flex items-center justify-between ${scrolled || isSubPage || isAuthPage
+                                            ? 'text-gray-600 hover:text-rh-teal font-medium'
+                                            : 'text-gray-300 hover:text-white font-medium'
+                                            }`}
+                                        >
+                                          <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
+                                          {child.children && (
+                                            <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
+                                          )}
+                                        </Link>
+                                      ) : (
+                                        <div className={`flex items-center justify-between text-sm cursor-default transition-all ${scrolled || isSubPage || isAuthPage
+                                          ? 'text-gray-600 hover:text-rh-teal font-medium'
+                                          : 'text-gray-300 hover:text-white font-medium'
+                                          }`}>
+                                          <span className="hover:-translate-y-0.5 transition-transform pr-2">{child.label}</span>
+                                          {child.children && (
+                                            <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50 group-hover/subitem:rotate-180 transition-transform duration-300" />
+                                          )}
+                                        </div>
+                                      )}
+
+                                      {/* Render 4th level children if they exist, expand on hover */}
+                                      {child.children && (
+                                        <div className="grid grid-rows-[0fr] group-hover/subitem:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-in-out">
+                                          <div className="overflow-hidden">
+                                            <div className="flex flex-col gap-1.5 pl-3 border-l-2 border-rh-teal/10 ml-1 mt-1 mb-1">
+                                              {child.children.map(subChild => (
+                                                <Link
+                                                  key={subChild.label}
+                                                  to={subChild.href}
+                                                  onClick={() => setOpenDropdown(null)}
+                                                  className={`text-[12px] leading-tight py-1 transition-all hover:-translate-y-0.5 ${scrolled || isSubPage || isAuthPage
+                                                    ? 'text-gray-500 hover:text-rh-red'
+                                                    : 'text-gray-400 hover:text-white'
+                                                    }`}
+                                                >
+                                                  {subChild.label}
+                                                </Link>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        <h4
+                          className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500"
+                        >
+                          {item.label}
+                        </h4>
+                        <div className="flex flex-wrap gap-3 md:gap-4">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.label}
+                              to={child.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
+                                ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
+                                : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
+                                }`}
+                            >
+                              {child.label}
+                            </Link>
                           ))}
                         </div>
-                      </div>
+                      </>
                     );
-                  }
-
-                  return (
-                    <>
-                      <h4
-                        className="text-xs font-bold tracking-widest uppercase mb-6 text-gray-500"
-                      >
-                        {item.label}
-                      </h4>
-                      <div className="flex flex-wrap gap-3 md:gap-4">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            to={child.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${scrolled || isSubPage || isAuthPage
-                              ? 'bg-gray-100 text-gray-800 hover:bg-rh-teal hover:text-white'
-                              : 'bg-white/5 text-gray-200 hover:bg-white/20 hover:text-white'
-                              }`}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </>
-                  );
-                })()}
+                  })()}
                 </div>
               </div>
             </motion.div>
@@ -776,13 +775,12 @@ export default function Navbar() {
                     <Link
                       to="/"
                       onClick={() => setMobileOpen(false)}
-                      className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${
-                        pathname === '/'
-                          ? 'text-rh-red font-bold'
-                          : scrolled || isAuthPage || isSubPage
-                            ? 'text-rh-teal'
-                            : 'text-white'
-                      } active:text-rh-red`}
+                      className={`w-full block py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-bold transition-colors ${pathname === '/'
+                        ? 'text-rh-red font-bold'
+                        : scrolled || isAuthPage || isSubPage
+                          ? 'text-rh-teal'
+                          : 'text-white'
+                        } active:text-rh-red`}
                     >
                       Home
                     </Link>
@@ -796,13 +794,12 @@ export default function Navbar() {
                         <Link
                           to={item.href}
                           onClick={() => setMobileOpen(false)}
-                          className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${
-                            isNavItemActive(item)
-                              ? 'text-rh-red font-bold'
-                              : scrolled || isAuthPage || isSubPage
-                                ? 'text-rh-teal'
-                                : 'text-white'
-                          } active:text-rh-red`}
+                          className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${isNavItemActive(item)
+                            ? 'text-rh-red font-bold'
+                            : scrolled || isAuthPage || isSubPage
+                              ? 'text-rh-teal'
+                              : 'text-white'
+                            } active:text-rh-red`}
                         >
                           {item.label}
                         </Link>
@@ -839,18 +836,16 @@ export default function Navbar() {
                                           <Link
                                             to={child.href}
                                             onClick={() => setMobileOpen(false)}
-                                            className={`text-sm font-semibold transition-colors ${
-                                              scrolled || isAuthPage || isSubPage
-                                                ? 'text-gray-700 hover:text-rh-red'
-                                                : 'text-gray-200 hover:text-rh-red'
-                                            }`}
+                                            className={`text-sm font-semibold transition-colors ${scrolled || isAuthPage || isSubPage
+                                              ? 'text-gray-700 hover:text-rh-red'
+                                              : 'text-gray-200 hover:text-rh-red'
+                                              }`}
                                           >
                                             {child.label}
                                           </Link>
                                         ) : (
-                                          <span className={`text-sm font-semibold ${
-                                            scrolled || isAuthPage || isSubPage ? 'text-gray-700' : 'text-gray-200'
-                                          }`}>
+                                          <span className={`text-sm font-semibold ${scrolled || isAuthPage || isSubPage ? 'text-gray-700' : 'text-gray-200'
+                                            }`}>
                                             {child.label}
                                           </span>
                                         )}
@@ -863,11 +858,10 @@ export default function Navbar() {
                                                 key={subChild.label}
                                                 to={subChild.href}
                                                 onClick={() => setMobileOpen(false)}
-                                                className={`text-xs font-medium transition-colors ${
-                                                  scrolled || isAuthPage || isSubPage
-                                                    ? 'text-gray-500 hover:text-rh-red'
-                                                    : 'text-gray-400 hover:text-rh-red'
-                                                }`}
+                                                className={`text-xs font-medium transition-colors ${scrolled || isAuthPage || isSubPage
+                                                  ? 'text-gray-500 hover:text-rh-red'
+                                                  : 'text-gray-400 hover:text-rh-red'
+                                                  }`}
                                               >
                                                 {subChild.label}
                                               </Link>
