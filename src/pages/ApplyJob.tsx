@@ -9,7 +9,7 @@ import { fadeUp, scaleIn } from '../utils/animations';
 import type { Job } from '../types';
 import { useAppSelector } from '../store';
 import toast from 'react-hot-toast';
-import { uploadFile } from '../lib/storage';
+import { uploadFile, validateFileConstraints } from '../lib/storage';
 import { authApi } from '../lib/auth';
 import PageLoader from '../components/ui/PageLoader';
 import SEO from '../components/seo/SEO';
@@ -45,6 +45,7 @@ export default function ApplyJobPage() {
   const [selectedResumeId, setSelectedResumeId] = useState<string>('');
 
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeUploadError, setResumeUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const stepperRef = useRef<HTMLDivElement>(null);
 
@@ -187,6 +188,14 @@ export default function ApplyJobPage() {
       toast.error('You have reached the maximum limit of 5 uploaded resumes. Please remove one from your Manage Profile page first.');
       return;
     }
+
+    const error = validateFileConstraints(file, 'resumes', '.pdf,.doc,.docx');
+    if (error) {
+      setResumeUploadError(error);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setResumeUploadError('');
 
     setUploadingResume(true);
     try {
@@ -675,6 +684,10 @@ export default function ApplyJobPage() {
                               <span className="text-sm font-bold">
                                 {uploadingResume ? 'Uploading...' : 'Upload New Resume (Max 5)'}
                               </span>
+                              <span className="text-[10px] text-gray-400">Max Size: 5MB | Format: PDF, DOC, DOCX</span>
+                              {resumeUploadError && (
+                                <span className="text-xs text-red-500 font-semibold mt-1">{resumeUploadError}</span>
+                              )}
                             </button>
                             {resumes.length >= 5 && (
                               <p className="text-xs text-red-500 mt-2 text-center">

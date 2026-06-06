@@ -8,7 +8,7 @@ import {
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import { authApi } from '../lib/auth';
-import { uploadFile } from '../lib/storage';
+import { uploadFile, validateFileConstraints } from '../lib/storage';
 import { useAppDispatch } from '../store';
 import { setError as setAuthError } from '../store/slices/authSlice';
 import { SignUpTalentDto } from '../types/auth';
@@ -147,8 +147,17 @@ export default function SignUpTalent() {
     }
   };
 
-  const handleFileChange = (field: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (field: string, e: React.ChangeEvent<HTMLInputElement>, acceptStr?: string) => {
     const file = e.target.files?.[0] || null;
+    if (file) {
+      const error = validateFileConstraints(file, 'talent-documents', acceptStr);
+      if (error) {
+        setErrors(prev => ({ ...prev, [field]: error }));
+        e.target.value = '';
+        setFormData(prev => ({ ...prev, [field]: null }));
+        return;
+      }
+    }
     updateForm(field, file);
   };
 
@@ -521,9 +530,14 @@ export default function SignUpTalent() {
               </p>
             </div>
           ) : (
-            <p className="text-gray-400 text-[10px] sm:text-xs mb-2 sm:mb-3">Click to select file</p>
+            <div className="flex flex-col items-center">
+              <p className="text-gray-400 text-[10px] sm:text-xs mb-1">Click to select file</p>
+              <span className="text-gray-400 text-[9px] sm:text-[10px] mb-2 sm:mb-3 opacity-80">
+                Max Size: 5MB | Format: {accept.replace(/\./g, '').toUpperCase()}
+              </span>
+            </div>
           )}
-          <input type="file" className="hidden" accept={accept} onChange={e => handleFileChange(field, e)} />
+          <input type="file" className="hidden" accept={accept} onChange={e => handleFileChange(field, e, accept)} />
         </label>
         {errors[field] && (
           <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[11px] sm:text-xs font-semibold mt-2 flex items-center justify-center gap-1.5">

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, User, Mail, Phone, MapPin, GraduationCap, Briefcase, Languages, CheckSquare, FileText, Upload, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SEO from '../../components/seo/SEO';
+import { validateFileConstraints } from '../../lib/storage';
 
 const STEPS = [
   { id: 'personal', title: 'Personal Details', icon: User },
@@ -77,6 +78,7 @@ export default function ProfileEvaluationForm() {
   });
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const nextStep = () => {
@@ -666,14 +668,28 @@ export default function ProfileEvaluationForm() {
                             <input
                               type="file"
                               className="hidden"
-                              onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                if (file) {
+                                  const error = validateFileConstraints(file, 'talent-documents', '.pdf,.doc,.docx');
+                                  if (error) {
+                                    setFileError(error);
+                                    setUploadedFile(null);
+                                    e.target.value = '';
+                                    return;
+                                  }
+                                }
+                                setFileError('');
+                                setUploadedFile(file);
+                              }}
                             />
                             <div className="flex flex-col items-center text-center space-y-2">
                               <Upload className="w-6 h-6 text-rh-red" />
                               <span className="text-xs font-bold text-gray-600 block">
                                 {uploadedFile ? uploadedFile.name : 'Choose File to Upload'}
                               </span>
-                              <span className="text-[10px] text-gray-400">PDF, DOC, DOCX up to 10MB</span>
+                              <span className="text-[10px] text-gray-400">Max Size: 5MB | Format: PDF, DOC, DOCX</span>
+                              {fileError && <span className="text-[11px] text-red-500 font-semibold">{fileError}</span>}
                             </div>
                           </label>
                         </div>
