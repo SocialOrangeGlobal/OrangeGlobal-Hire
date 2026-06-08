@@ -102,7 +102,7 @@ export default function ApplyJobPage() {
               type: item.type,
               mode: item.mode,
               category: item.category,
-              postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
+              publishedAt: new Date(item.publishedAt || item.postedAt).toLocaleDateString("en-AU", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric"
@@ -365,7 +365,7 @@ export default function ApplyJobPage() {
       }
     },
     "employmentType": selectedJob.type?.includes("Full-time") ? "FULL_TIME" : selectedJob.type?.includes("Part-time") ? "PART_TIME" : "CONTRACTOR",
-    "datePosted": selectedJob.postedAt ? new Date(selectedJob.postedAt).toISOString() : new Date().toISOString(),
+    "datePosted": selectedJob.publishedAt ? new Date(selectedJob.publishedAt).toISOString() : selectedJob.postedAt ? new Date(selectedJob.postedAt).toISOString() : new Date().toISOString(),
     "validThrough": new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
   }) : undefined;
 

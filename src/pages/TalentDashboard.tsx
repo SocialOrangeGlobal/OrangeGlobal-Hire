@@ -57,7 +57,7 @@ export default function TalentDashboard() {
 
           // Sort newest first, then take top 3
           const sorted = [...items].sort((a, b) =>
-            new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+            new Date(b.publishedAt || b.postedAt).getTime() - new Date(a.publishedAt || a.postedAt).getTime()
           ).slice(0, 3);
 
           const jobsList = sorted.map((job: any) => ({
