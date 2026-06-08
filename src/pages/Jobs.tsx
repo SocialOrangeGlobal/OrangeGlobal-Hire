@@ -5,6 +5,7 @@ import { Search, MapPin, Briefcase, Filter, Clock, ArrowRight, ArrowLeft, CheckC
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';
+import PageLoader from '../components/ui/PageLoader';
 import SEO from '../components/seo/SEO';
 import { fadeUp } from '../utils/animations';
 import type { Job } from '../types';
@@ -172,6 +173,10 @@ export default function JobsPage() {
     e.stopPropagation();
     navigate(`/apply-job?id=${jobId}`);
   };
+
+  if (isLoading && searchParams.get('id')) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="bg-white min-h-screen">
