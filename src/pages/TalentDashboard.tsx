@@ -357,7 +357,9 @@ export default function TalentDashboard() {
                       {/* App Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-10">
                         <div className="flex items-center gap-3 sm:gap-6">
-                          <img src={app.logo} alt={app.company} className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[20px] object-cover" />
+                          <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[20px] bg-rh-light flex items-center justify-center text-rh-teal shrink-0">
+                            <Briefcase className="w-5 h-5 sm:w-8 sm:h-8" />
+                          </div>
                           <div>
                             <div className="flex flex-wrap items-center gap-1.5 mb-0.5 sm:mb-1">
                               <h3 className="text-xs xs:text-sm sm:text-xl font-bold text-rh-teal group-hover:text-rh-red transition-colors cursor-pointer">{app.role}</h3>
@@ -367,7 +369,7 @@ export default function TalentDashboard() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-[9px] sm:text-sm font-medium text-gray-400">{app.company} • {app.date}</p>
+                            <p className="text-[9px] sm:text-sm font-medium text-gray-400">{app.date}</p>
                           </div>
                         </div>
                         <div className="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-none pt-3 sm:pt-0">
