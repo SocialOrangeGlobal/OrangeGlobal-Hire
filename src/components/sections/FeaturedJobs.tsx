@@ -46,6 +46,7 @@ export default function FeaturedJobs() {
                 month: "short",
                 year: "numeric"
               }),
+              _postedAtRaw: new Date(item.postedAt).getTime(), // raw ms for sorting
               description: item.description,
               requirements: Array.isArray(item.requirements)
                 ? item.requirements
@@ -62,6 +63,10 @@ export default function FeaturedJobs() {
                 : JSON.parse(item.skills || "[]"),
               vacancies: item.vacancies || 1,
             }));
+
+            // Sort newest first (descending by posted date)
+            formattedJobs.sort((a: any, b: any) => b._postedAtRaw - a._postedAtRaw);
+
             setJobsList(formattedJobs);
           }
         }

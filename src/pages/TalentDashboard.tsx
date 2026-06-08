@@ -48,13 +48,19 @@ export default function TalentDashboard() {
   };
 
   const fetchJobsOnce = useCallback(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=3`)
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1"}/jobs?limit=6&published=true`)
       .then(res => res.json())
       .then(jobsResp => {
         if (jobsResp.success) {
-          const raw = jobsResp.data?.items || jobsResp.data;
-          const items = Array.isArray(raw) ? raw : [];
-          const jobsList = items.map((job: any) => ({
+          const raw = jobsResp.data?.data?.items || jobsResp.data?.items || jobsResp.data;
+          const items: any[] = Array.isArray(raw) ? raw : [];
+
+          // Sort newest first, then take top 3
+          const sorted = [...items].sort((a, b) =>
+            new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+          ).slice(0, 3);
+
+          const jobsList = sorted.map((job: any) => ({
             id: job.id,
             title: job.title,
             company: job.company,
