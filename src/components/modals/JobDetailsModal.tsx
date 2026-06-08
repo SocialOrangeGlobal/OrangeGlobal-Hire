@@ -21,12 +21,29 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
     navigate(`/apply-job?id=${jobId}`);
   };
 
-  const shareUrl = `${window.location.origin}${window.location.pathname}?id=${job?.id}`;
+  const shareUrl = `${window.location.origin}/jobs?id=${job?.id}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+      try {
+        await navigator.share({
+          title: job?.title || 'Job Opportunity',
+          text: `Check out this job: ${job?.title} at ${job?.company}`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      setShowShareOptions(!showShareOptions);
+    }
   };
 
   const shareLinks = [
@@ -108,7 +125,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
                   <Button
                     variant="outline"
                     className="w-full py-4 rounded-2xl border-gray-200 text-rh-teal hover:bg-gray-50 flex items-center justify-center gap-3 font-bold cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }}
+                    onClick={handleShareClick}
                   >
                     <Share2 className="w-4 h-4" />
                     Share this role
@@ -261,7 +278,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
               <div className="flex items-center gap-2">
                 <button
                   className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-rh-teal hover:bg-gray-100 transition-colors"
-                  onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }}
+                  onClick={handleShareClick}
                 >
                   <Share2 className="w-5 h-5" />
                 </button>
