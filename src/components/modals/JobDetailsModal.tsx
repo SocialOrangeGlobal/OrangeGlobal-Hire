@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook, CheckCircle2 } from 'lucide-react';
+import { X, MapPin, Briefcase, Globe, Clock, Building2, ChevronRight, Bookmark, Share2, Copy, Check, Twitter, Linkedin, Facebook, CheckCircle2, MessageCircle } from 'lucide-react';
 import Button from '../ui/Button';
 import type { Job } from '../../types';
 
@@ -33,6 +33,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
     { name: 'Twitter', icon: Twitter, color: 'hover:bg-black', url: `https://twitter.com/intent/tweet?text=Check out this job: ${job?.title}&url=${encodeURIComponent(shareUrl)}` },
     { name: 'LinkedIn', icon: Linkedin, color: 'hover:bg-[#0077B5]', url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` },
     { name: 'Facebook', icon: Facebook, color: 'hover:bg-[#4267B2]', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { name: 'WhatsApp', icon: MessageCircle, color: 'hover:bg-[#25D366]', url: `https://api.whatsapp.com/send?text=Check out this job: ${job?.title} - ${encodeURIComponent(shareUrl)}` },
   ];
 
   return (
