@@ -28,11 +28,15 @@ export const navItems: NavItem[] = [
     label: 'Find Jobs',
     href: '/jobs',
     children: [
-      { label: 'Finance & Accounting', href: '/jobs?category=Finance%20&%20Accounting' },
+      { label: 'Finance & Accounting', href: '/jobs?category=Finance%20%26%20Accounting' },
       { label: 'Technology', href: '/jobs?category=Technology' },
       { label: 'Legal', href: '/jobs?category=Legal' },
-      { label: 'Marketing & Creative', href: '/jobs?category=Marketing%20&%20Creative' },
+      { label: 'Marketing & Creative', href: '/jobs?category=Marketing%20%26%20Creative' },
       { label: 'Administrative', href: '/jobs?category=Administrative' },
+      { label: 'Mechanics', href: '/jobs?category=Mechanics' },
+      { label: 'Fabrication & Manufacturing', href: '/jobs?category=Fabrication%20%26%20Manufacturing' },
+      { label: 'Construction Trades', href: '/jobs?category=Construction%20Trades' },
+      { label: 'Hospitality', href: '/jobs?category=Hospitality' },
     ],
   },
   {
@@ -672,6 +676,10 @@ export const jobCategories = [
   'Marketing & Creative',
   'Administrative',
   'Executive Search',
+  'Mechanics',
+  'Fabrication & Manufacturing',
+  'Construction Trades',
+  'Hospitality',
 ];
 
 // Sign Up Employer Data
@@ -684,10 +692,15 @@ export const signUpPositionType: DropdownOption[] = [
 // Post Vacancy Data
 export const postVacancyJobCategories: DropdownOption[] = [
   { value: 'Technology', label: 'Technology' },
-  { value: 'Finance', label: 'Finance & Accounting' },
+  { value: 'Finance & Accounting', label: 'Finance & Accounting' },
   { value: 'Legal', label: 'Legal' },
-  { value: 'Marketing', label: 'Marketing' },
-  { value: 'Executive', label: 'Executive Search' }
+  { value: 'Marketing & Creative', label: 'Marketing & Creative' },
+  { value: 'Administrative', label: 'Administrative' },
+  { value: 'Executive Search', label: 'Executive Search' },
+  { value: 'Mechanics', label: 'Mechanics' },
+  { value: 'Fabrication & Manufacturing', label: 'Fabrication & Manufacturing' },
+  { value: 'Construction Trades', label: 'Construction Trades' },
+  { value: 'Hospitality', label: 'Hospitality' },
 ];
 
 export const postVacancyWorkMode: DropdownOption[] = [

@@ -231,7 +231,16 @@ export default function JobsPage() {
                 <div>
                   <h4 className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-6">Department</h4>
                   <div className="space-y-4">
-                    {['Technology', 'Finance & Accounting', 'Legal', 'Marketing & Creative'].map(cat => (
+                    {[
+                      'Technology',
+                      'Finance & Accounting',
+                      'Legal',
+                      'Marketing & Creative',
+                      'Mechanics',
+                      'Fabrication & Manufacturing',
+                      'Construction Trades',
+                      'Hospitality',
+                    ].map(cat => (
                       <label key={cat} className="flex items-center gap-4 cursor-pointer group">
                         <div
                           onClick={() => toggleCategory(cat)}
