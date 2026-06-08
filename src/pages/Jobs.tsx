@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Briefcase, Filter, Clock, ArrowRight, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { Search, MapPin, Briefcase, Filter, Clock, ArrowRight, ArrowLeft, CheckCircle2, Loader2, Building2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';
@@ -45,7 +45,7 @@ export default function JobsPage() {
             id: item.id,
             title: item.title,
             company: item.company,
-            companyLogo: item.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=150",
+            companyLogo: item.companyLogo || "",
             location: item.location,
             salary: item.salary || "Negotiable",
             type: item.type,
@@ -334,11 +334,15 @@ export default function JobsPage() {
                   >
                     <div className="flex-1 flex gap-3 sm:gap-5 items-start">
                       <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 shrink-0 rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 bg-white flex items-center justify-center shadow-sm overflow-hidden mt-1">
-                        <img
-                          src={job.companyLogo}
-                          alt={`${job.company} Logo`}
-                          className="h-full w-full object-contain p-1 md:p-2"
-                        />
+                        {job.companyLogo ? (
+                          <img
+                            src={job.companyLogo}
+                            alt={`${job.company} Logo`}
+                            className="h-full w-full object-contain p-1 md:p-2"
+                          />
+                        ) : (
+                          <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-gray-300" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-3">

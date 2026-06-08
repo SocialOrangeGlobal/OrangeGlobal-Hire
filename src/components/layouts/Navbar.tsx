@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
-import { ChevronDown, Menu, X, Search, ArrowLeft, Loader2, Globe, FileText, ChevronRight } from 'lucide-react';
+import { ChevronDown, Menu, X, Search, ArrowLeft, Loader2, Globe, FileText, ChevronRight, Building2 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { navItems } from '../../data';
 import Button from '../ui/Button';
@@ -609,11 +609,15 @@ export default function Navbar() {
                                       >
                                         <div className="flex gap-4 items-start min-w-0">
                                           <div className="h-10 w-10 shrink-0 rounded-lg border border-gray-100/10 bg-white flex items-center justify-center overflow-hidden shadow-sm">
-                                            <img
-                                              src={job.companyLogo || "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=100"}
-                                              alt={job.company}
-                                              className="h-full w-full object-contain p-1"
-                                            />
+                                            {job.companyLogo ? (
+                                              <img
+                                                src={job.companyLogo}
+                                                alt={job.company}
+                                                className="h-full w-full object-contain p-1"
+                                              />
+                                            ) : (
+                                              <Building2 className="w-5 h-5 text-gray-300" />
+                                            )}
                                           </div>
                                           <div className="min-w-0">
                                             <span className={`block text-[14px] md:text-[15px] font-bold leading-snug whitespace-normal break-words ${scrolled || isSubPage || isAuthPage ? 'text-[#081B2D] group-hover:text-rh-red' : 'text-white group-hover:text-rh-red'
