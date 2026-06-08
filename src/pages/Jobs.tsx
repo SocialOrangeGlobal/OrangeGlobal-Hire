@@ -169,6 +169,7 @@ export default function JobsPage() {
         description="Search and apply for thousands of jobs across India, Australia, UK, US, Singapore and the UAE. Browse jobs in tech, healthcare, and more."
       />
       {/* Header */}
+      {/* ── Hero Section ── Full-screen dark banner with job search bar ── */}
       <section className="bg-rh-dark pt-32 pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920')] bg-cover bg-center opacity-20" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
