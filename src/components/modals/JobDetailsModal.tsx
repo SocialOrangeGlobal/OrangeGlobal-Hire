@@ -85,7 +85,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
                     { label: 'Employment', val: job.type, icon: Briefcase },
                     { label: 'Work Mode', val: job.mode, icon: Globe },
                     { label: 'Industry', val: job.industry || 'N/A', icon: Building2 },
-                    { label: 'Posted', val: job.postedAt, icon: Clock },
+                    { label: 'Posted', val: job.publishedAt || job.postedAt, icon: Clock },
                     { label: 'Salary', val: job.salary, icon: Bookmark, highlight: true }
                   ].map((item, idx) => (
                     <div key={idx} className="flex gap-5 group">
@@ -336,7 +336,7 @@ export default function JobDetailsModal({ job, onClose, isApplied }: JobDetailsM
                     { label: 'Salary', val: job.salary, highlight: true },
                     { label: 'Work Mode', val: job.mode },
                     { label: 'Industry', val: job.industry || 'N/A' },
-                    { label: 'Posted', val: job.postedAt }
+                    { label: 'Posted', val: job.publishedAt || job.postedAt }
                   ].map((item, idx) => (
                     <div key={idx} className={`p-4 md:p-6 rounded-2xl border transition-all ${item.highlight ? 'bg-rh-red/5 border-rh-red/10' : 'bg-rh-light/50 border-gray-50'}`}>
                       <p className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">{item.label}</p>

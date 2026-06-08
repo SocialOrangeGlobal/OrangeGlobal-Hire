@@ -52,7 +52,7 @@ export default function JobsPage() {
             mode: item.mode,
             category: item.category,
             industry: item.industry || "",
-            postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
+            publishedAt: new Date(item.publishedAt || item.postedAt).toLocaleDateString("en-AU", {
               day: "2-digit",
               month: "short",
               year: "numeric"
@@ -118,10 +118,10 @@ export default function JobsPage() {
     });
 
     if (sortBy === 'latest') {
-      // Sort by posted date — newest first (descending)
+      // Sort by published date — newest first (descending), fallback to 0 if undefined
       result = [...result].sort((a, b) => {
-        const dateA = new Date(a.postedAt).getTime();
-        const dateB = new Date(b.postedAt).getTime();
+        const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+        const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
         return dateB - dateA;
       });
     } else if (sortBy === 'salary-high') {
@@ -376,7 +376,7 @@ export default function JobsPage() {
                     <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
                       <div className="flex items-center gap-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
                         <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                        {job.postedAt}
+                        {job.publishedAt}
                       </div>
 
                       <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">

@@ -26,7 +26,8 @@ export interface Job {
   type: 'Full-time' | 'Part-time' | 'Contract' | 'Temporary';
   mode: 'Remote' | 'Hybrid' | 'On-site';
   category: string;
-  postedAt: string;
+  publishedAt?: string;  // primary — date job was published
+  postedAt?: string;     // kept for static mock data backward compat
   featured?: boolean;
   description?: string;
   requirements?: string[];
@@ -37,6 +38,7 @@ export interface Job {
   skills?: string[];
   vacancies?: number;
   industry?: string;
+  _postedAtRaw?: number; // internal sort key
 }
 
 // Employer Dashboard Applicant Types

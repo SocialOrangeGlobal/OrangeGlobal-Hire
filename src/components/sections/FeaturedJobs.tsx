@@ -41,12 +41,12 @@ export default function FeaturedJobs() {
               type: item.type,
               mode: item.mode,
               category: item.category,
-              postedAt: new Date(item.postedAt).toLocaleDateString("en-AU", {
+              publishedAt: new Date(item.publishedAt || item.postedAt).toLocaleDateString("en-AU", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric"
               }),
-              _postedAtRaw: new Date(item.postedAt).getTime(), // raw ms for sorting
+              _postedAtRaw: new Date(item.publishedAt || item.postedAt).getTime(), // raw ms for sorting
               description: item.description,
               requirements: Array.isArray(item.requirements)
                 ? item.requirements
@@ -236,7 +236,7 @@ export default function FeaturedJobs() {
                 <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 border-t border-gray-50 lg:border-none pt-4 lg:pt-0">
                   <div className="flex items-center gap-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-400 shrink-0">
                     <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                    {job.postedAt}
+                    {job.publishedAt}
                   </div>
 
                   <div className="flex items-center gap-2 transition-all duration-300 lg:opacity-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 w-full xs:w-auto">
