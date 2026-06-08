@@ -118,10 +118,16 @@ export default function JobsPage() {
     });
 
     if (sortBy === 'latest') {
-      result = [...result].reverse();
+      // Sort by posted date — newest first (descending)
+      result = [...result].sort((a, b) => {
+        const dateA = new Date(a.postedAt).getTime();
+        const dateB = new Date(b.postedAt).getTime();
+        return dateB - dateA;
+      });
     } else if (sortBy === 'salary-high') {
       result = [...result].sort((a, b) => {
-        const getVal = (s: string) => parseInt(s.replace(/[^0-9]/g, '')) || 0;
+        // Parse only the first numeric value in salary strings like "AUD $75,000 - $95,000"
+        const getVal = (s: string) => parseInt(s.replace(/[^0-9].*/, '').replace(/[^0-9]/g, '')) || 0;
         return getVal(b.salary) - getVal(a.salary);
       });
     }
