@@ -1021,6 +1021,8 @@ export default function ManageProfile() {
                   <img src={selectedDoc.url} alt={selectedDoc.title} className="max-w-full rounded-2xl shadow-sm mx-auto" />
                 ) : /\.pdf(\?|$)/i.test(selectedDoc.url) ? (
                   <iframe src={selectedDoc.url} className="w-full h-[50vh] sm:h-[60vh] rounded-2xl shadow-sm border border-gray-100" />
+                ) : /\.(doc|docx)(\?|$)/i.test(selectedDoc.url) ? (
+                  <iframe src={`https://docs.google.com/gview?url=${encodeURIComponent(selectedDoc.url)}&embedded=true`} className="w-full h-[50vh] sm:h-[60vh] rounded-2xl shadow-sm border border-gray-100" />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-[50vh] text-center">
                     <FileText className="w-16 h-16 text-gray-300 mb-4" />
