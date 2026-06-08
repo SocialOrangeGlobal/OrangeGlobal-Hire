@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Briefcase, Filter, Clock, Building2, ArrowRight, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { Search, MapPin, Briefcase, Filter, Clock, ArrowRight, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Dropdown from '../components/ui/Dropdown';
 import JobDetailsModal from '../components/modals/JobDetailsModal';

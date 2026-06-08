@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Building, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { MapPin, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { staggerContainer, fadeUp } from '../../utils/animations';
 import { jobs, jobCategories } from '../../data';
 import Button from '../ui/Button';

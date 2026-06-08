@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, CheckCircle2,
   MapPin, DollarSign, Bookmark, FileText,
-  Target, Zap, TrendingUp, ArrowRight, Bell, Star, MessageCircle
+  Target, Zap, TrendingUp, ArrowRight, Bell, Star
 } from 'lucide-react';
 import { fadeUp } from '../utils/animations';
 import Button from '../components/ui/Button';

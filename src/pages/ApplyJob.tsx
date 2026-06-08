@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  ArrowLeft, CheckCircle2, User, FileText, Send, Building2, MapPin, Briefcase, Globe, Clock, Award, AlertCircle, ChevronRight, Edit3, GraduationCap, Star, MessageSquare, Zap, ArrowRight
+  ArrowLeft, CheckCircle2, User, FileText, Send, MapPin, Briefcase, Globe, Clock, Award, AlertCircle, ChevronRight, Edit3, GraduationCap, Star, MessageSquare, Zap, ArrowRight
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { fadeUp, scaleIn } from '../utils/animations';
@@ -430,7 +430,7 @@ export default function ApplyJobPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-rh-teal mb-4">Sign In Required</h3>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto">You must be signed in as Talent to apply for this job and have your resume processed by our ATS.</p>
-                    <Button variant="primary" onClick={() => navigate('/sign-in')} className="px-10 py-4 rounded-xl">Sign In to Apply</Button>
+                    <Button variant="primary" onClick={() => navigate('/signin')} className="px-10 py-4 rounded-xl">Sign In to Apply</Button>
                   </div>
                 ) : user?.role === 'EMPLOYER' ? (
                   <div className="text-center py-20">
@@ -612,31 +612,31 @@ export default function ApplyJobPage() {
 
                     <form onSubmit={currentStep === 7 ? handleFormSubmit : (e) => { e.preventDefault(); nextStep(); }} className="space-y-8">
 
-                    <ApplyFormSteps
-                      currentStep={currentStep}
-                      applyMode={applyMode}
-                      resumes={resumes}
-                      selectedResumeId={selectedResumeId}
-                      setSelectedResumeId={setSelectedResumeId}
-                      profile={profile}
-                      user={user}
-                      manualDetails={manualDetails}
-                      setManualDetails={setManualDetails}
-                      skillInput={skillInput}
-                      setSkillInput={setSkillInput}
-                      uploadingResume={uploadingResume}
-                      resumeUploadError={resumeUploadError}
-                      fileInputRef={fileInputRef}
-                      handleFileUpload={handleFileUpload}
-                      addSkill={addSkill}
-                      removeSkill={removeSkill}
-                      addExperience={addExperience}
-                      removeExperience={removeExperience}
-                      addEducation={addEducation}
-                      removeEducation={removeEducation}
-                      coverLetter={coverLetter}
-                      setCoverLetter={setCoverLetter}
-                    />
+                      <ApplyFormSteps
+                        currentStep={currentStep}
+                        applyMode={applyMode}
+                        resumes={resumes}
+                        selectedResumeId={selectedResumeId}
+                        setSelectedResumeId={setSelectedResumeId}
+                        profile={profile}
+                        user={user}
+                        manualDetails={manualDetails}
+                        setManualDetails={setManualDetails}
+                        skillInput={skillInput}
+                        setSkillInput={setSkillInput}
+                        uploadingResume={uploadingResume}
+                        resumeUploadError={resumeUploadError}
+                        fileInputRef={fileInputRef}
+                        handleFileUpload={handleFileUpload}
+                        addSkill={addSkill}
+                        removeSkill={removeSkill}
+                        addExperience={addExperience}
+                        removeExperience={removeExperience}
+                        addEducation={addEducation}
+                        removeEducation={removeEducation}
+                        coverLetter={coverLetter}
+                        setCoverLetter={setCoverLetter}
+                      />
 
                       {/* NAVIGATION BUTTONS */}
                       <div className="pt-8 flex flex-col sm:flex-row items-center gap-4 border-t border-gray-100">
