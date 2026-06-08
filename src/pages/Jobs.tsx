@@ -105,6 +105,17 @@ export default function JobsPage() {
     }
   }, [searchParams]);
 
+  // Check for job ID in URL params to auto-open modal
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id && jobsList.length > 0) {
+      const jobToOpen = jobsList.find(j => j.id === id);
+      if (jobToOpen) {
+        setSelectedJob(jobToOpen);
+      }
+    }
+  }, [searchParams, jobsList]);
+
   // Filter and Sort Jobs
   const allFilteredJobs = useMemo(() => {
     let result = jobsList.filter(job => {
@@ -471,7 +482,14 @@ export default function JobsPage() {
       {/* Full Details Overlay */}
       <JobDetailsModal
         job={selectedJob}
-        onClose={() => setSelectedJob(null)}
+        onClose={() => {
+          setSelectedJob(null);
+          if (searchParams.has('id')) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete('id');
+            navigate(`?${newParams.toString()}`, { replace: true });
+          }
+        }}
         isApplied={selectedJob ? appliedJobIds.has(selectedJob.id) : false}
       />
 
