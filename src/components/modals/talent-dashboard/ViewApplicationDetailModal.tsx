@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { CheckCircle2, X, Clock, Calendar, TrendingUp, MessageCircle, Target, Award, FileText, Link as LinkIcon } from 'lucide-react';
+import { CheckCircle2, X, Clock, Calendar, TrendingUp, MessageCircle, Target, Award, FileText, Link as LinkIcon, Briefcase } from 'lucide-react';
 
 interface ApplicationDetail {
     id: string;
@@ -60,12 +60,13 @@ function ViewApplicationDetailModal({ selectedApp, setSelectedApp }: Props) {
                 <div className="px-6 md:px-12 py-6 md:py-6 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
                     <div className="flex items-center gap-4 md:gap-6">
                         <div className="relative">
-                            <img src={selectedApp.logo} className="w-10 h-10 md:w-20 md:h-20 rounded-xl md:rounded-[28px] object-cover shadow-xl" alt="" />
+                            <div className="w-10 h-10 md:w-20 md:h-20 bg-rh-light rounded-xl md:rounded-[28px] flex items-center justify-center text-rh-teal shadow-xl">
+                                <Briefcase className="w-5 h-5 md:w-10 md:h-10" />
+                            </div>
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-rh-red rounded-lg flex items-center justify-center text-white border-2 border-white"><CheckCircle2 className="w-3 h-3" /></div>
                         </div>
                         <div>
                             <h2 className="text-md md:text-xl font-bold text-rh-teal leading-tight">{selectedApp.role}</h2>
-                            <p className="text-[10px] md:text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">{selectedApp.company}</p>
                         </div>
                     </div>
                     <button onClick={() => setSelectedApp(null)} className="w-10 h-10 md:w-12 md:h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-rh-red transition-all shadow-sm"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
