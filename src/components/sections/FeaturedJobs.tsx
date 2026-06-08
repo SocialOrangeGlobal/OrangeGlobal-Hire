@@ -174,7 +174,7 @@ export default function FeaturedJobs() {
               <p className="text-gray-300 text-xs font-semibold">Please check back later or try a different filter.</p>
             </div>
           ) : (
-            filteredJobs.map((job, i) => (
+            filteredJobs.slice(0, 10).map((job, i) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -282,11 +282,11 @@ export default function FeaturedJobs() {
           )}
         </div>
 
-        <div className="mt-8 sm:hidden">
+        <div className="mt-8 flex justify-center">
           <Button
             onClick={() => navigate('/jobs')}
             variant="outline"
-            className="w-full !h-auto !py-3.5 text-xs xs:text-sm font-bold"
+            className="w-full sm:w-auto !h-auto !py-3.5 px-8 text-xs xs:text-sm font-bold"
           >
             View All Openings
           </Button>
