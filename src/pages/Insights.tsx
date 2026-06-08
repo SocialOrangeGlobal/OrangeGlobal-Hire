@@ -11,6 +11,8 @@ import { fadeUp } from '../utils/animations';
 import BlobDetailsModal from '../components/modals/BlogDetailsModal';
 import { videoInsights, blogsInsights } from '../data';
 import { BlogInsight } from '../types';
+import toast from 'react-hot-toast';
+import { contactApi } from '../lib/contact';
 
 export default function InsightsPage() {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
@@ -18,6 +20,33 @@ export default function InsightsPage() {
   const [selectedBlog, setSelectedBlog] = useState<BlogInsight | null>(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [submittingNewsletter, setSubmittingNewsletter] = useState(false);
+
+  const handleNewsletterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    setSubmittingNewsletter(true);
+    try {
+      await contactApi.submitMessage({
+        fullName: 'Newsletter Subscriber',
+        email: newsletterEmail.trim(),
+        subject: 'Newsletter Subscription',
+        message: `New newsletter subscription from: ${newsletterEmail.trim()}`,
+        type: 'NEWSLETTER',
+      });
+      toast.success('Successfully subscribed to the newsletter!');
+      setNewsletterEmail('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setSubmittingNewsletter(false);
+    }
+  };
 
   // Auto-slide carousel
   useEffect(() => {
@@ -268,10 +297,24 @@ export default function InsightsPage() {
           <SectionLabel className="text-white/40 mb-8 mx-auto" children="Newsletter" />
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-light text-white mb-8 tracking-tight leading-tight">Stay ahead of the <br /> <span className="text-rh-red font-[300]">market curve</span></h2>
           <p className="text-white/60 text-base md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">Get exclusive salary data, hiring trends, and leadership insights delivered monthly.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
-            <input type="email" placeholder="Work email address" className="w-full sm:flex-1 bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:bg-white/10 focus:border-white/30 transition-all text-base" />
-            <Button variant="primary" className="w-full sm:w-auto px-12 py-5 rounded-2xl shadow-xl shadow-rh-red/20 font-bold whitespace-nowrap">Subscribe Now</Button>
-          </div>
+          <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto w-full">
+            <input
+              type="email"
+              placeholder="Work email address"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              className="w-full sm:flex-1 bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:bg-white/10 focus:border-white/30 transition-all text-base"
+              required
+            />
+            <Button
+              type="submit"
+              disabled={submittingNewsletter}
+              variant="primary"
+              className="w-full sm:w-auto px-12 py-5 rounded-2xl shadow-xl shadow-rh-red/20 font-bold whitespace-nowrap"
+            >
+              {submittingNewsletter ? 'Subscribing...' : 'Subscribe Now'}
+            </Button>
+          </form>
         </div>
       </section>
     </div>
