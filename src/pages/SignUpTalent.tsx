@@ -130,7 +130,18 @@ export default function SignUpTalent() {
       }
       return updated;
     });
-    if (errors[field]) {
+    if (field === 'linkedin') {
+      if (finalValue.trim()) {
+        const linkedinRegex = /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i;
+        if (!linkedinRegex.test(finalValue.trim())) {
+          setErrors(prev => ({ ...prev, linkedin: 'Please enter a valid LinkedIn URL.' }));
+        } else {
+          setErrors(prev => ({ ...prev, linkedin: '' }));
+        }
+      } else {
+        setErrors(prev => ({ ...prev, linkedin: '' }));
+      }
+    } else if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
     if (field === 'dob' && errors.age) {
@@ -182,6 +193,12 @@ export default function SignUpTalent() {
         const digitCount = formData.whatsapp.replace(/\D/g, '').length;
         if (digitCount < 5) {
           newErrors.whatsapp = 'WhatsApp Number must be at least 5 digits.';
+        }
+      }
+      if (formData.linkedin.trim()) {
+        const linkedinRegex = /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i;
+        if (!linkedinRegex.test(formData.linkedin.trim())) {
+          newErrors.linkedin = 'Please enter a valid LinkedIn URL.';
         }
       }
     }

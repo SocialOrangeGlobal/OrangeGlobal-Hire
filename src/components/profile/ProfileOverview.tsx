@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import {
   User, GraduationCap, Briefcase, Star,
-  AlertCircle, FileText, Target, ShieldCheck, Plane, FileCheck, Languages
+  AlertCircle, FileText, Target, ShieldCheck, Plane, FileCheck, Languages, Linkedin
 } from 'lucide-react';
 
 interface ProfileOverviewProps {
@@ -141,7 +141,8 @@ export const ProfileOverview: React.FC<ProfileOverviewProps> = ({
               <div className="p-4 sm:p-6 bg-rh-light/30 rounded-3xl border border-gray-50 md:col-span-2">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">LinkedIn Profile</p>
                 {profile?.linkedin ? (
-                  <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-rh-teal hover:underline break-all block">
+                  <a href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-rh-teal hover:underline break-all flex items-center gap-1.5">
+                    <Linkedin className="w-4 h-4 shrink-0" />
                     {profile.linkedin}
                   </a>
                 ) : (

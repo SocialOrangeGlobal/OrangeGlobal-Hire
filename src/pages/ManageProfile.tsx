@@ -70,7 +70,11 @@ const talentUpdateSchema = z.object({
     .refine((val) => val.replace(/\D/g, '').length >= 5, {
       message: 'WhatsApp number must have at least 5 digits',
     }),
-  linkedin: z.string().optional(),
+  linkedin: z.string()
+    .refine(val => !val || /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i.test(val), {
+      message: 'Please enter a valid LinkedIn URL'
+    })
+    .optional(),
   opportunityType: z.string().min(1, 'Please select an opportunity type'),
   preferredIndustry: z.string().min(1, 'Preferred Industry is required'),
   preferredRole: z.string().min(1, 'Preferred Role is required'),
@@ -337,6 +341,7 @@ export default function ManageProfile() {
   // --- Forms ---
   const talentForm = useForm<TalentUpdateData>({
     resolver: zodResolver(talentUpdateSchema),
+    mode: 'onChange',
     defaultValues: {
       educations: [],
       experiences: [],
