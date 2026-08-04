@@ -19,6 +19,7 @@ const DirectMessages = () => {
   const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -28,9 +29,15 @@ const DirectMessages = () => {
 
   useEffect(() => {
     const enquiryIdParam = searchParams.get("id");
+    const focusParam = searchParams.get("focus");
     if (enquiryIdParam && messages.length > 0) {
       setActiveMessageId(enquiryIdParam);
       setSearchParams({}, { replace: true });
+      if (focusParam === "true") {
+        setTimeout(() => {
+          textareaRef.current?.focus();
+        }, 500);
+      }
     }
   }, [searchParams, messages, setSearchParams]);
 
@@ -407,6 +414,7 @@ const DirectMessages = () => {
                 <div className="p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 shrink-0 relative z-10">
                   <div className="flex items-end gap-3 max-w-4xl mx-auto relative">
                     <textarea
+                      ref={textareaRef}
                       value={replyText}
                       onChange={(e) => {
                         setReplyText(e.target.value);
