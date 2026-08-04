@@ -81,8 +81,13 @@ const DirectMessages = () => {
       const customEvent = e as CustomEvent;
       const { enquiryId, reply } = customEvent.detail;
 
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => {
+      setMessages((prevMessages) => {
+        const exists = prevMessages.some(msg => msg.id === enquiryId);
+        if (!exists) {
+          fetchMessages();
+          return prevMessages;
+        }
+        return prevMessages.map((msg) => {
           if (msg.id === enquiryId) {
             if (msg.replies?.some((r: any) => r.id === reply.id)) return msg;
             return {
@@ -91,14 +96,14 @@ const DirectMessages = () => {
             };
           }
           return msg;
-        })
-      );
+        });
+      });
     };
 
     const handleNewNotification = (e: Event) => {
       const customEvent = e as CustomEvent;
       const notif = customEvent.detail;
-      if (notif.type === 'MESSAGE' && notif.link === '/direct-messages') {
+      if (notif.type === 'MESSAGE' && notif.link.includes('/direct-messages')) {
         fetchMessages();
       }
     };
