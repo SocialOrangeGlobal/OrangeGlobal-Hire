@@ -109,7 +109,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const token = getToken();
-    if (!token) return;
+    if (!token) {
+      // If token isn't in storage yet but user is logged in, retry in 1s
+      reconnectTimer.current = setTimeout(connect, 1000);
+      return;
+    }
 
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
