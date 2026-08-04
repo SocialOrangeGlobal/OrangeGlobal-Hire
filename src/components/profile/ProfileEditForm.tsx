@@ -1070,6 +1070,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
                     {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents", true)}
                     {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents", false)}
                     {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents", false)}
+                    {renderEditDocUpload("Financial Statement", "financialStatementUrl", "talent-documents", false)}
                   </div>
                 </div>
               )}

@@ -117,6 +117,7 @@ const talentUpdateSchema = z.object({
   empCertUrl: z.string().min(1, 'Employment Certificate / Experience Letter is required'),
   englishTestUrl: z.string().optional(),
   licenceUrl: z.string().optional(),
+  financialStatementUrl: z.string().optional(),
   declarationTrue: z.string().optional(),
   declarationConsent: z.string().optional(),
 }).superRefine((data, ctx) => {
@@ -505,6 +506,7 @@ export default function ManageProfile() {
           empCertUrl: p.empCertUrl || '',
           englishTestUrl: p.englishTestUrl || '',
           licenceUrl: p.licenceUrl || '',
+          financialStatementUrl: p.financialStatementUrl || '',
           declarationTrue: p.declarationTrue || '',
           declarationConsent: p.declarationConsent || '',
         });
@@ -614,6 +616,7 @@ export default function ManageProfile() {
           empCertUrl: 'documents',
           englishTestUrl: 'documents',
           licenceUrl: 'documents',
+          financialStatementUrl: 'documents',
         };
 
         const targetSection = fieldToSection[firstError];

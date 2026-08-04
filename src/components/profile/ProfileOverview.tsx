@@ -604,6 +604,22 @@ export const ProfileOverview: React.FC<ProfileOverviewProps> = ({
                   <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
                 </button>
               )}
+              {profile?.financialStatementUrl && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDoc({ url: profile.financialStatementUrl, title: 'Financial Statement' })}
+                  className="w-full text-left flex items-center justify-between p-4 sm:p-6 bg-rh-light/30 hover:bg-rh-light/60 transition-all rounded-3xl border border-gray-50 group"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-6 h-6 text-rh-teal" />
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Financial</p>
+                      <p className="text-sm font-bold text-rh-teal group-hover:text-rh-red transition-colors">Financial Statement</p>
+                    </div>
+                  </div>
+                  <Target className="w-5 h-5 text-gray-300 group-hover:text-rh-red transition-colors" />
+                </button>
+              )}
             </div>
           </section>
         </>

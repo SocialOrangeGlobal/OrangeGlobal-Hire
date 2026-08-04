@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Mail, Phone, MapPin, Send, ArrowRight, AlertCircle, MessageSquare, User, ChevronDown, ChevronUp, MessagesSquare
-} from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ArrowRight, AlertCircle, MessageSquare, MessagesSquare, Search, Clock, ChevronLeft } from 'lucide-react';
+import { Check, CheckCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import { fadeUp } from '../utils/animations';
@@ -40,6 +39,9 @@ export default function ContactPage() {
   const [replyText, setReplyText] = useState('');
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,11 +49,23 @@ export default function ContactPage() {
   useEffect(() => {
     if (activeMessageId) {
       const timer = setTimeout(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (chatEndRef.current) {
+          const container = chatEndRef.current.parentElement;
+          if (container) {
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+          }
+        }
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [activeMessageId, userMessages]);
+
+  useEffect(() => {
+    const enquiryIdParam = searchParams.get('id');
+    if (enquiryIdParam && userMessages.length > 0) {
+      setActiveMessageId(enquiryIdParam);
+    }
+  }, [searchParams, userMessages]);
 
   // Sync enquiryType when URL parameters change
   useEffect(() => {
@@ -99,9 +113,43 @@ export default function ContactPage() {
       );
     };
 
+    const handleNewNotification = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const notif = customEvent.detail;
+      if (notif.type === 'MESSAGE' && notif.link === '/contact') {
+        fetchUserMessages();
+      }
+    };
+
+    const handleChatRead = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { threadId } = customEvent.detail;
+      setUserMessages(prev => prev.map(msg => {
+        if (msg.id === threadId) {
+          return {
+            ...msg,
+            replies: msg.replies?.map(r => ({ ...r, isRead: true }))
+          };
+        }
+        return msg;
+      }));
+    };
+
+    const handleChatTyping = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { threadId, isTyping } = customEvent.detail;
+      setTypingUsers(prev => ({ ...prev, [threadId]: isTyping }));
+    };
+
+    window.addEventListener('ws_chat_read', handleChatRead);
+    window.addEventListener('ws_chat_typing', handleChatTyping);
     window.addEventListener('ws_new_chat_reply', handleNewChatReply);
+    window.addEventListener('ws_new_notification', handleNewNotification);
     return () => {
+      window.removeEventListener('ws_chat_read', handleChatRead);
+      window.removeEventListener('ws_chat_typing', handleChatTyping);
       window.removeEventListener('ws_new_chat_reply', handleNewChatReply);
+      window.removeEventListener('ws_new_notification', handleNewNotification);
     };
   }, []);
 
@@ -441,196 +489,267 @@ export default function ContactPage() {
       </section>
 
       {/* Auth Chat History Timeline (Interactive threaded support chat) */}
-      {user && (
-        <section className="py-20 md:py-24 bg-rh-light/20 border-t border-gray-100">
-          <div className="max-w-5xl mx-auto px-6 sm:px-8">
-            <div className="text-center mb-12">
-              <span className="px-4 py-1.5 bg-rh-teal/15 text-rh-teal rounded-full text-xs font-bold uppercase tracking-widest mb-4 inline-block">Support & Consultations</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-rh-teal">Your Live Enquiries</h2>
-              <p className="text-gray-500 mt-2 text-sm sm:text-base">View active conversations and get status updates from the Orange Global team.</p>
-            </div>
+      {user && (() => {
+        let supportEnquiries = userMessages.filter(msg => msg.type !== 'DIRECT_MESSAGE');
 
-            {isLoadingMessages ? (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <div className="w-8 h-8 border-4 border-rh-teal/30 border-t-rh-teal rounded-full animate-spin mb-4" />
-                <p className="text-sm font-semibold">Loading conversation history...</p>
-              </div>
-            ) : userMessages.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
-                <MessagesSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 font-bold text-lg">No conversations yet</p>
-                <p className="text-gray-400 text-xs mt-1">Submit your first query or consultation request using the form above.</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {userMessages.map((msg) => {
-                  const isActive = activeMessageId === msg.id;
-                  const repliesCount = msg.replies?.length || 0;
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`bg-white rounded-[24px] border transition-all duration-300 overflow-hidden ${isActive
-                        ? 'border-rh-teal shadow-xl ring-1 ring-rh-teal/10'
-                        : 'border-gray-100 shadow-sm hover:border-gray-200'
-                        }`}
-                    >
-                      {/* Thread Header Row */}
-                      <div
-                        onClick={() => {
-                          setActiveMessageId(isActive ? null : msg.id);
-                          setReplyText('');
-                        }}
-                        className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2.5">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${msg.type === 'CONSULTATION'
-                              ? 'bg-rh-red/10 border-rh-red/20 text-rh-red'
-                              : 'bg-rh-teal/10 border-rh-teal/20 text-rh-teal'
-                              }`}>
-                              {msg.type === 'CONSULTATION' ? 'Consultation' : 'General Query'}
-                            </span>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${msg.status === 'RESOLVED'
-                              ? 'bg-green-50 border-green-200 text-green-600'
-                              : msg.status === 'IN_PROGRESS'
-                                ? 'bg-amber-50 border-amber-200 text-amber-600'
-                                : 'bg-blue-50 border-blue-200 text-blue-600'
-                              }`}>
-                              {msg.status}
-                            </span>
-                            <span className="text-[10px] text-gray-400 font-medium">
-                              {new Date(msg.createdAt).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </div>
-                          <h3 className="font-bold text-rh-teal text-sm sm:text-base">{msg.subject}</h3>
-                        </div>
+        // Sort by latest update
+        supportEnquiries.sort((a, b) => {
+          const aLast = a.replies?.length ? new Date(a.replies[a.replies.length - 1].createdAt).getTime() : new Date(a.createdAt).getTime();
+          const bLast = b.replies?.length ? new Date(b.replies[b.replies.length - 1].createdAt).getTime() : new Date(b.createdAt).getTime();
+          return bLast - aLast;
+        });
 
-                        <div className="flex items-center justify-between sm:justify-end gap-4">
-                          <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                            <MessageSquare className="w-4 h-4 text-gray-300" />
-                            <span>{repliesCount} {repliesCount === 1 ? 'reply' : 'replies'}</span>
-                          </div>
-                          <button className="w-8 h-8 rounded-full bg-rh-light flex items-center justify-center text-rh-teal hover:bg-rh-teal hover:text-white transition-all">
-                            {isActive ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        const filteredEnquiries = supportEnquiries.filter(msg =>
+          msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          msg.message.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        const activeMessage = supportEnquiries.find(m => m.id === activeMessageId);
+
+        return (
+          <section className="py-20 md:py-24 bg-rh-light/20 border-t border-gray-100">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <span className="px-4 py-1.5 bg-rh-red/10 text-rh-red border border-rh-red/20 rounded-full text-xs font-bold uppercase tracking-widest mb-4 inline-block">Support & Consultations</span>
+                <h2 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Your Live Enquiries</h2>
+                <p className="text-gray-500 mt-2 text-sm sm:text-base">View active conversations and get status updates from the Orange Global team.</p>
+              </div>
+
+              <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 flex overflow-hidden h-[calc(100vh-200px)] lg:h-[calc(100vh-280px)] min-h-[500px] max-h-[800px]">
+                {/* Sidebar */}
+                <div className={`w-full md:w-[320px] lg:w-[380px] border-r border-gray-100 flex flex-col shrink-0 transition-transform ${activeMessageId ? 'hidden md:flex' : 'flex'}`}>
+                  <div className="p-4 sm:p-6 border-b border-gray-100 bg-white">
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search enquiries..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rh-red/20 focus:border-rh-red transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+                    {isLoadingMessages ? (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <div className="w-8 h-8 border-4 border-rh-teal/30 border-t-rh-teal rounded-full animate-spin mb-4" />
+                      </div>
+                    ) : filteredEnquiries.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full p-8 text-center text-gray-400">
+                        <MessagesSquare className="w-10 h-10 mb-3 opacity-50" />
+                        <p className="text-sm font-medium">No conversations found</p>
+                      </div>
+                    ) : (
+                      <div className="p-3 space-y-1">
+                        {filteredEnquiries.map((msg) => {
+                          const isActive = msg.id === activeMessageId;
+                          const lastReply = msg.replies && msg.replies.length > 0 ? msg.replies[msg.replies.length - 1] : null;
+                          const previewText = lastReply ? lastReply.message : msg.message;
+
+                          return (
+                            <button
+                              key={msg.id}
+                              onClick={() => { setActiveMessageId(msg.id); setReplyText(''); }}
+                              className={`w-full text-left p-4 rounded-2xl transition-all ${isActive ? 'bg-rh-red/5 ring-1 ring-rh-red/20' : 'hover:bg-gray-50'}`}
+                            >
+                              <div className="flex justify-between items-start mb-2">
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${msg.status === 'RESOLVED' ? 'bg-green-50 border-green-200 text-green-600' : msg.status === 'IN_PROGRESS' ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-blue-50 border-blue-200 text-blue-600'}`}>
+                                  {msg.status}
+                                </span>
+                                <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0 flex items-center gap-1 font-medium pl-1">
+                                  {new Date(lastReply ? lastReply.createdAt : msg.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                </span>
+                              </div>
+                              <h4 className={`font-bold text-sm truncate pr-2 max-w-[75%] mb-1 ${isActive ? 'text-rh-red' : 'text-gray-900'}`}>
+                                {msg.subject ? msg.subject.replace(/Direct Message/gi, 'Chat') : ''}
+                              </h4>
+                              <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                                {previewText}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Main Chat Area */}
+                <div className={`flex-1 flex flex-col bg-[#F8FAFC] relative ${!activeMessageId ? 'hidden md:flex' : 'flex'}`}>
+                  {!activeMessage ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-white">
+                      <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                        <MessagesSquare className="w-10 h-10 text-gray-300" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">Your Live Enquiries</h3>
+                      <p className="text-sm">Select a conversation from the left to view details or chat.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Chat Header */}
+                      <div className="h-[76px] px-6 border-b border-gray-100 bg-white/80 backdrop-blur-md flex items-center justify-between shrink-0 sticky top-0 z-10">
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={() => setActiveMessageId(null)}
+                            className="md:hidden w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-600 hover:bg-gray-100"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
                           </button>
+                          <div>
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <h3 className="font-bold text-gray-900 text-sm max-w-[140px] sm:max-w-[200px] md:max-w-xs truncate">{activeMessage.subject ? activeMessage.subject.replace(/Direct Message/gi, 'Chat') : ''}</h3>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border shrink-0 ${activeMessage.status === 'RESOLVED' ? 'bg-green-50 border-green-200 text-green-600' : activeMessage.status === 'IN_PROGRESS' ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-blue-50 border-blue-200 text-blue-600'}`}>
+                                {activeMessage.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Created {new Date(activeMessage.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Expandable Thread Content & Chat */}
-                      <AnimatePresence>
-                        {isActive && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25 }}
-                            className="border-t border-gray-100 bg-gray-50/40"
-                          >
-                            <div className="p-6 space-y-6">
-                              {/* Original Message Section */}
-                              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative">
-                                <div className="absolute top-4 right-4 flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                  <User className="w-3.5 h-3.5 text-gray-300" />
-                                  <span>Original Query</span>
-                                </div>
-                                <p className="text-xs text-gray-400 font-semibold mb-2 uppercase tracking-wide">Details</p>
-                                <p className="text-sm text-rh-teal font-medium leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                      {/* Chat Messages Container */}
+                      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
+                        {/* Original Message Context */}
+                        <div className="flex justify-center mb-6 sm:mb-8">
+                          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 max-w-[95%] sm:max-w-lg w-full shadow-sm text-center">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Original Query</p>
+                            <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap">{activeMessage.message}</p>
+                          </div>
+                        </div>
+
+                        {/* Replies List */}
+                        {activeMessage.replies?.map((reply, idx) => {
+                          const isAdmin = reply.senderRole === 'ADMIN' || (reply as any).sender_role === 'ADMIN' || reply.sender?.role === 'ADMIN' || reply.senderRole === 'admin';
+                          const senderName = isAdmin
+                            ? `${reply.sender?.adminProfile?.firstName || 'Orange'} ${reply.sender?.adminProfile?.lastName || 'Global'}`
+                            : (reply.sender?.talentProfile?.fullName || 'You');
+
+                          return (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              key={reply.id || idx}
+                              className={`flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] lg:max-w-[75%] ${isAdmin ? 'mr-auto text-left' : 'ml-auto flex-row-reverse text-right'}`}
+                            >
+                              <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold shadow-sm select-none ${isAdmin
+                                ? 'bg-gray-900 text-white'
+                                : 'bg-gradient-to-br from-rh-teal to-[#1aa19d] text-white'
+                                }`}>
+                                {senderName.charAt(0)}
                               </div>
 
-                              {/* Thread Replies */}
-                              {msg.replies && msg.replies.length > 0 && (
-                                <div className="space-y-4">
-                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">Conversation History</p>
-                                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
-                                    {msg.replies.map((reply) => {
-                                      const isAdmin = reply.senderRole === 'ADMIN';
-                                      const senderName = isAdmin
-                                        ? `${reply.sender?.adminProfile?.firstName || 'Orange'} ${reply.sender?.adminProfile?.lastName || 'Global'}`
-                                        : (reply.sender?.talentProfile?.fullName || 'You');
-
-                                      return (
-                                        <div
-                                          key={reply.id}
-                                          className={`flex gap-3 max-w-[85%] ${isAdmin ? 'mr-auto text-left' : 'ml-auto flex-row-reverse text-right'
-                                            }`}
-                                        >
-                                          {/* Mini avatar */}
-                                          <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold border shadow-sm select-none ${isAdmin
-                                            ? 'bg-rh-teal text-white border-rh-teal/10'
-                                            : 'bg-rh-red text-white border-rh-red/10'
-                                            }`}>
-                                            {senderName.charAt(0)}
-                                          </div>
-
-                                          <div className="max-w-[calc(100%-2.5rem)]">
-                                            <div className={`flex items-center gap-2 mb-1 text-[10px] font-bold ${isAdmin ? 'justify-start text-rh-teal' : 'justify-end text-rh-red'
-                                              }`}>
-                                              <span>{senderName}</span>
-                                              <span className="text-gray-300 font-light">•</span>
-                                              <span className="text-gray-400 font-medium">
-                                                {new Date(reply.createdAt).toLocaleTimeString(undefined, {
-                                                  hour: '2-digit',
-                                                  minute: '2-digit'
-                                                })}
-                                              </span>
-                                            </div>
-                                            <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm border text-left whitespace-pre-wrap break-words ${isAdmin
-                                              ? 'bg-gray-100 border-gray-200 text-gray-800 rounded-tl-none'
-                                              : 'bg-rh-teal text-white border-rh-teal/10 rounded-tr-none'
-                                              }`}>
-                                              {reply.message}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      );
+                              <div className="max-w-[calc(100%-2.5rem)]">
+                                <div className={`flex items-center gap-2 mb-1 text-[10px] font-bold ${isAdmin ? 'justify-start text-gray-500' : 'justify-end text-rh-teal'}`}>
+                                  <span>{senderName}</span>
+                                  <span className="text-gray-300 font-light">•</span>
+                                  <span>
+                                    {new Date(reply.createdAt).toLocaleTimeString(undefined, {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
                                     })}
-                                    <div ref={chatEndRef} />
+                                  </span>
+                                </div>
+                                <div className={`p-4 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${isAdmin
+                                  ? 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'
+                                  : 'bg-rh-light border border-rh-teal/10 text-gray-800 rounded-2xl rounded-tr-sm'
+                                  }`}>
+                                  {reply.message}
+                                </div>
+                                {!isAdmin && (
+                                  <div className="flex items-center ml-1">
+                                    {reply.isRead ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Check className="w-3 h-3 text-white/70" />}
                                   </div>
-                                </div>
-                              )}
-
-                              {/* Action: Send a Reply */}
-                              <div className="pt-4 border-t border-gray-100/80">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Send a follow-up reply</p>
-                                <div className="flex gap-3">
-                                  <textarea
-                                    value={replyText}
-                                    onChange={(e) => setReplyText(e.target.value)}
-                                    placeholder="Type your reply here..."
-                                    rows={1}
-                                    className="flex-1 px-5 py-3 rounded-2xl border border-gray-100 bg-white focus:ring-2 focus:ring-rh-teal/10 focus:border-rh-teal outline-none text-sm font-semibold transition-all resize-none shadow-sm h-12 [&::-webkit-scrollbar]:w-[2px]"
-                                  />
-                                  <button
-                                    disabled={isSendingReply || !replyText.trim()}
-                                    onClick={() => handleSendReply(msg.id)}
-                                    className="h-12 w-12 rounded-2xl bg-rh-teal text-white flex items-center justify-center hover:bg-rh-teal/90 shadow-lg shadow-rh-teal/15 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none transition-all shrink-0"
-                                  >
-                                    {isSendingReply ? (
-                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                      <Send className="w-4 h-4" />
-                                    )}
-                                  </button>
-                                </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                        {typingUsers[activeMessage.id] && (
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] lg:max-w-[75%] mr-auto text-left">
+                            <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold shadow-sm select-none bg-gray-900 text-white">
+                              O
+                            </div>
+                            <div className="max-w-[calc(100%-2.5rem)]">
+                              <div className="flex items-center gap-2 mb-1 text-[10px] font-bold justify-start text-gray-500">
+                                <span>Orange Global</span>
+                              </div>
+                              <div className="p-4 bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1 h-[40px]">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                               </div>
                             </div>
                           </motion.div>
                         )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
+                        <div ref={chatEndRef} />
+                      </div>
+
+                      {/* Chat Input Area */}
+                      {activeMessage.status !== 'RESOLVED' && (
+                        <div className="p-4 bg-white border-t border-gray-100 shrink-0">
+                          <div className="flex items-end gap-3 max-w-4xl mx-auto relative">
+                            <textarea
+                              value={replyText}
+                              onChange={(e) => {
+                                setReplyText(e.target.value);
+                                if (!typingTimeoutRef.current) {
+                                  contactApi.triggerTyping(activeMessage.id, true).catch(() => { });
+                                } else {
+                                  clearTimeout(typingTimeoutRef.current);
+                                }
+                                typingTimeoutRef.current = setTimeout(() => {
+                                  contactApi.triggerTyping(activeMessage.id, false).catch(() => { });
+                                  typingTimeoutRef.current = null;
+                                }, 2000);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleSendReply(activeMessage.id);
+                                }
+                              }}
+                              placeholder="Type a message..."
+                              rows={1}
+                              style={{ minHeight: '52px', maxHeight: '150px' }}
+                              className="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-teal/20 focus:border-rh-teal outline-none text-sm font-medium transition-all resize-none [&::-webkit-scrollbar]:w-[4px]"
+                            />
+                            <button
+                              disabled={isSendingReply || !replyText.trim()}
+                              onClick={() => handleSendReply(activeMessage.id)}
+                              className="h-[52px] w-[52px] rounded-2xl bg-rh-teal text-white flex items-center justify-center shadow-md hover:shadow-lg hover:shadow-rh-teal/20 disabled:opacity-50 disabled:shadow-none transition-all shrink-0"
+                            >
+                              {isSendingReply ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              ) : (
+                                <Send className="w-5 h-5 ml-1" />
+                              )}
+                            </button>
+                          </div>
+                          <p className="text-center text-[10px] text-gray-400 mt-2 font-medium">Press Enter to send, Shift + Enter for new line</p>
+                        </div>
+                      )}
+
+                      {activeMessage.status === 'RESOLVED' && (
+                        <div className="p-4 bg-gray-50 border-t border-gray-100 text-center shrink-0">
+                          <p className="text-sm font-medium text-gray-500">This enquiry has been resolved. You can no longer reply.</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
               </div>
-            )}
-          </div>
-        </section>
-      )}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Office Locations / FAQ Preview */}
       <section className="py-20 md:py-32 bg-white">

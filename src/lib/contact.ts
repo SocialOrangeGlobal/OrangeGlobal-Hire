@@ -16,6 +16,8 @@ export interface ContactReply {
   senderId: string;
   senderRole: string;
   message: string;
+  isRead?: boolean;
+  readAt?: string;
   createdAt: string;
   sender: {
     email: string;
@@ -60,5 +62,13 @@ export const contactApi = {
   sendReply: async (id: string, replyMessage: string): Promise<ContactReply> => {
     const res = await api.post<{ success: boolean; data: ContactReply }>(`/contact/${id}/reply`, { message: replyMessage });
     return res.data.data;
+  },
+  markAsRead: async (id: string): Promise<{ success: boolean; count: number }> => {
+    const res = await api.patch<{ success: boolean; count: number }>(`/contact/${id}/read`);
+    return res.data;
+  },
+  triggerTyping: async (id: string, isTyping: boolean): Promise<{ success: boolean }> => {
+    const res = await api.post<{ success: boolean }>(`/contact/${id}/typing`, { isTyping });
+    return res.data;
   },
 };

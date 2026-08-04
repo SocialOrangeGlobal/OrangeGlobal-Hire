@@ -7,9 +7,10 @@ import { navItems } from '../../data';
 import Button from '../ui/Button';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
-import { LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import { LogOut, Settings, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { authApi } from '../../lib/auth';
 import { useGlobalLoader } from '../ui/GlobalLoader';
+import NotificationBell from '../ui/NotificationBell';
 
 export default function Navbar() {
   const scrolled = useScrolled(60);
@@ -306,8 +307,10 @@ export default function Navbar() {
                     <Search className="w-5 h-5" />
                   </button>
                   {isAuthenticated ? (
-                    <div className="relative group/user h-full flex items-center">
-                      <button className={`flex items-center gap-3 p-1.5 pr-3 rounded-xl transition-all ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>
+                    <div className="flex items-center gap-6 h-full">
+                      <NotificationBell isDarkText={scrolled || isAuthPage || isSubPage} />
+                      <div className="relative group/user h-full flex items-center">
+                        <button className={`flex items-center gap-3 p-1.5 pr-3 rounded-xl transition-all ${scrolled || isSubPage || isAuthPage ? 'text-rh-teal hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>
                         <div className="w-9 h-9 rounded-lg bg-rh-red flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-red-900/20 overflow-hidden shrink-0">
                           {user?.avatarUrl && !avatarFailed ? (
                             <img src={user.avatarUrl} alt={user?.fullName || 'Avatar'} className="w-full h-full object-cover" onError={() => setAvatarFailed(true)} />
@@ -352,6 +355,12 @@ export default function Navbar() {
                               </div>
                               <span className="text-sm font-bold">Manage Profile</span>
                             </Link>
+                            <Link to="/direct-messages" className="flex items-center gap-3 px-5 py-3 rounded-[18px] text-gray-600 hover:bg-rh-light hover:text-rh-teal transition-all group/item">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/item:bg-rh-teal/10 transition-colors">
+                                <MessageSquare className="w-4 h-4 text-gray-400 group-hover/item:text-rh-teal" />
+                              </div>
+                              <span className="text-sm font-bold">Chats</span>
+                            </Link>
                           </div>
 
                           <div className="h-px bg-gray-50 my-2 mx-4" />
@@ -371,6 +380,7 @@ export default function Navbar() {
                         </div>
                       </div>
                     </div>
+                    </div>
                   ) : (
                     <Link
                       to="/signin"
@@ -385,7 +395,8 @@ export default function Navbar() {
                 {/* Mobile Toggle */}
                 <div className="flex items-center gap-2 xl:hidden h-full">
                   {isAuthenticated && (
-                    <div className="flex items-center gap-2 mr-1">
+                    <div className="flex items-center gap-3 mr-1">
+                      <NotificationBell isDarkText={scrolled || isAuthPage || isSubPage} />
                       <Link to="/manage-profile" className={`flex items-center gap-2.5 p-1 sm:pr-2 rounded-xl border shadow-sm transition-all ${scrolled || isSubPage || isAuthPage ? 'bg-gray-50 border-gray-200 hover:bg-gray-100' : 'bg-white/10 border-white/10 hover:bg-white/20'}`}>
                         <div className="w-8 h-8 rounded-lg bg-rh-teal flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rh-teal/20 overflow-hidden shrink-0">
                           {user?.avatarUrl && !avatarFailed ? (
@@ -920,6 +931,15 @@ export default function Navbar() {
                         >
                           <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
                             <Settings className="w-5 h-5" /> Manage Profile
+                          </Button>
+                        </Link>
+                        <Link
+                          to="/direct-messages"
+                          onClick={() => setMobileOpen(false)}
+                          className="block w-full"
+                        >
+                          <Button variant="outline" size="lg" className={`w-full py-4 sm:py-5 text-base sm:text-lg font-bold rounded-2xl border-2 flex items-center justify-center gap-2 shadow-sm transition-all ${scrolled || isAuthPage || isSubPage ? 'border-rh-teal/10 text-rh-teal hover:bg-rh-teal hover:text-white hover:border-rh-teal' : 'border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}>
+                            <MessageSquare className="w-5 h-5" /> Chats
                           </Button>
                         </Link>
                         <button

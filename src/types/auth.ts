@@ -80,6 +80,7 @@ export interface SignUpTalentDto {
   empCertUrl?: string;
   englishTestUrl?: string;
   licenceUrl?: string;
+  financialStatementUrl?: string;
   declarationTrue?: string;
   declarationConsent?: string;
 }

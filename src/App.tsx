@@ -23,6 +23,7 @@ import ApplyJob from './pages/ApplyJob';
 import PostVacancy from './pages/PostVacancy';
 import ForgotPassword from './pages/ForgotPassword';
 import Contact from './pages/Contact';
+import DirectMessages from './pages/DirectMessages';
 import PrivacyPolicyPage from './pages/PrivacyPolicy';
 import TermsConditionsPage from './pages/TermsConditions';
 import { GlobalLoaderProvider } from './components/ui/GlobalLoader';
@@ -99,6 +100,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/notifications" element={<Notifications />} />
+                <Route path="/direct-messages" element={<DirectMessages />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms-conditions" element={<TermsConditionsPage />} />

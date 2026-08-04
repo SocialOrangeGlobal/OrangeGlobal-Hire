@@ -532,6 +532,7 @@ export const SignupFormSteps: React.FC<SignupFormStepsProps> = ({
           {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
           {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: false })}
           {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: false })}
+          {renderFileUpload({ label: "Financial Statement", field: "financialStatementFile", required: false })}
         </div>
       )}
 
