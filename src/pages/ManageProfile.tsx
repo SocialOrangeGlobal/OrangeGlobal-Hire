@@ -117,7 +117,9 @@ const talentUpdateSchema = z.object({
   empCertUrl: z.string().min(1, 'Employment Certificate / Experience Letter is required'),
   englishTestUrl: z.string().optional(),
   licenceUrl: z.string().optional(),
-  financialStatementUrl: z.string().optional(),
+  bankStatementUrl: z.string().optional(),
+  taxDocumentUrl: z.string().optional(),
+  paySlipUrl: z.string().optional(),
   declarationTrue: z.string().optional(),
   declarationConsent: z.string().optional(),
 }).superRefine((data, ctx) => {
@@ -295,7 +297,7 @@ const calculateDynamicProfileScore = (profileData: any): number => {
 export default function ManageProfile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state: any) => state.auth);
   const [activeTab, setActiveTab] = useState<'overview' | 'edit' | 'resume'>('overview');
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -506,7 +508,9 @@ export default function ManageProfile() {
           empCertUrl: p.empCertUrl || '',
           englishTestUrl: p.englishTestUrl || '',
           licenceUrl: p.licenceUrl || '',
-          financialStatementUrl: p.financialStatementUrl || '',
+          bankStatementUrl: p.bankStatementUrl || '',
+          taxDocumentUrl: p.taxDocumentUrl || '',
+          paySlipUrl: p.paySlipUrl || '',
           declarationTrue: p.declarationTrue || '',
           declarationConsent: p.declarationConsent || '',
         });
@@ -616,7 +620,9 @@ export default function ManageProfile() {
           empCertUrl: 'documents',
           englishTestUrl: 'documents',
           licenceUrl: 'documents',
-          financialStatementUrl: 'documents',
+          bankStatementUrl: 'documents',
+          taxDocumentUrl: 'documents',
+          paySlipUrl: 'documents',
         };
 
         const targetSection = fieldToSection[firstError];

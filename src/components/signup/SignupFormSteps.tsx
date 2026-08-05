@@ -4,6 +4,7 @@ import {
   Upload, Eye, EyeOff, AlertCircle, CheckCircle, Loader2
 } from 'lucide-react';
 import Dropdown from '../ui/Dropdown';
+import { FinancialDocumentsModal } from '../modals/FinancialDocumentsModal';
 import { State, City } from 'country-state-city';
 
 interface SignupFormStepsProps {
@@ -53,6 +54,7 @@ export const SignupFormSteps: React.FC<SignupFormStepsProps> = ({
   experienceYears,
   uploadProgress
 }) => {
+  const [showFinancialModal, setShowFinancialModal] = React.useState(false);
 
   const renderInput = ({ label, field, placeholder, type = "text", required = false }: any) => (
     <div className="space-y-1 sm:space-y-2">
@@ -532,7 +534,13 @@ export const SignupFormSteps: React.FC<SignupFormStepsProps> = ({
           {renderFileUpload({ label: "Employment Certificates / Experience Letters", field: "empCertFile", required: true })}
           {renderFileUpload({ label: "English Test Results", field: "englishTestFile", required: false })}
           {renderFileUpload({ label: "Professional Licences / Certifications", field: "licenceFile", required: false })}
-          {renderFileUpload({ label: "Financial Statement", field: "financialStatementFile", required: false })}
+          <div className="border-2 border-dashed border-gray-200 rounded-[24px] p-6 text-center hover:border-rh-teal/30 hover:bg-white transition-all bg-[#F9FBFF] flex flex-col items-center justify-center">
+            <h3 className="text-sm font-bold text-[#081B2D] mb-2">Financial Documents</h3>
+            <p className="text-xs text-gray-500 mb-4">Bank Statement, Tax Document, or Pay Slip</p>
+            <button type="button" onClick={() => setShowFinancialModal(true)} className="px-6 py-2 bg-white text-rh-teal border border-gray-200 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all">
+              {formData.bankStatementFile || formData.taxDocumentFile || formData.paySlipFile ? 'Manage Documents' : 'Upload Documents'}
+            </button>
+          </div>
         </div>
       )}
 
@@ -580,6 +588,16 @@ export const SignupFormSteps: React.FC<SignupFormStepsProps> = ({
           )}
         </div>
       )}
+      <FinancialDocumentsModal
+        isOpen={showFinancialModal}
+        onClose={() => setShowFinancialModal(false)}
+        onConfirm={() => setShowFinancialModal(false)}
+        hasAtLeastOne={!!(formData.bankStatementFile || formData.taxDocumentFile || formData.paySlipFile)}
+      >
+        {renderFileUpload({ label: "Bank Statement", field: "bankStatementFile", required: false })}
+        {renderFileUpload({ label: "Tax Document", field: "taxDocumentFile", required: false })}
+        {renderFileUpload({ label: "Pay Slip", field: "paySlipFile", required: false })}
+      </FinancialDocumentsModal>
     </>
   );
 };

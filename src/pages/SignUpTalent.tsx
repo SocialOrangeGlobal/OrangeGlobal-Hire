@@ -101,7 +101,9 @@ export default function SignUpTalent() {
     empCertFile: null as File | null,
     englishTestFile: null as File | null,
     licenceFile: null as File | null,
-    financialStatementFile: null as File | null,
+    bankStatementFile: null as File | null,
+    taxDocumentFile: null as File | null,
+    paySlipFile: null as File | null,
   });
 
   const updateForm = (field: string, value: any) => {
@@ -330,7 +332,9 @@ export default function SignUpTalent() {
           uploadFileIfPresent(formData.empCertFile, 'empCertUrl');
           uploadFileIfPresent(formData.englishTestFile, 'englishTestUrl');
           uploadFileIfPresent(formData.licenceFile, 'licenceUrl');
-          uploadFileIfPresent(formData.financialStatementFile, 'financialStatementUrl');
+          uploadFileIfPresent(formData.bankStatementFile, 'bankStatementUrl');
+          uploadFileIfPresent(formData.taxDocumentFile, 'taxDocumentUrl');
+          uploadFileIfPresent(formData.paySlipFile, 'paySlipUrl');
 
           if (fileUploadPromises.length > 0) {
             setUploadProgress(`Uploading ${fileUploadPromises.length} documents to secure cloud storage...`);
@@ -341,7 +345,7 @@ export default function SignUpTalent() {
           const uploadResults = await Promise.all(fileUploadPromises);
 
           const docUrls: { [key: string]: string } = {
-            resumeUrl: '', passportUrl: '', visaUrl: '', eduCertUrl: '', empCertUrl: '', englishTestUrl: '', licenceUrl: '', financialStatementUrl: ''
+            resumeUrl: '', passportUrl: '', visaUrl: '', eduCertUrl: '', empCertUrl: '', englishTestUrl: '', licenceUrl: '', bankStatementUrl: '', taxDocumentUrl: '', paySlipUrl: ''
           };
 
           uploadResults.forEach(item => {
@@ -384,7 +388,7 @@ export default function SignUpTalent() {
             visaRefusalDetails: formData.visaRefusalDetails, relocateAloneOrFamily: formData.relocateAloneOrFamily, validPassport: formData.validPassport,
             passportExpiry: formData.passportExpiry, medicalBackgroundCheck: formData.medicalBackgroundCheck, criminalConvictions: formData.criminalConvictions,
             criminalDetails: formData.criminalDetails, passportUrl: docUrls.passportUrl, visaUrl: docUrls.visaUrl, eduCertUrl: docUrls.eduCertUrl,
-            empCertUrl: docUrls.empCertUrl, englishTestUrl: docUrls.englishTestUrl, licenceUrl: docUrls.licenceUrl, financialStatementUrl: docUrls.financialStatementUrl,
+            empCertUrl: docUrls.empCertUrl, englishTestUrl: docUrls.englishTestUrl, licenceUrl: docUrls.licenceUrl, bankStatementUrl: docUrls.bankStatementUrl, taxDocumentUrl: docUrls.taxDocumentUrl, paySlipUrl: docUrls.paySlipUrl,
             declarationTrue: formData.declarationTrue ? 'Yes' : 'No', declarationConsent: formData.declarationConsent ? 'Yes' : 'No'
           };
 

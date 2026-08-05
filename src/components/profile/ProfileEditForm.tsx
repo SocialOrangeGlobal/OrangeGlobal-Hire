@@ -13,6 +13,7 @@ import { signUpPositionType, nationalitiesList } from '../../data';
 import { uploadFile, validateFileConstraints } from '../../lib/storage';
 import { authApi } from '../../lib/auth';
 import { toast } from 'react-hot-toast';
+import { FinancialDocumentsModal } from '../modals/FinancialDocumentsModal';
 
 interface ProfileEditFormProps {
   isTalent: boolean;
@@ -101,6 +102,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   updateProfileSuccess,
   handleDocumentUpload
 }) => {
+  const [showFinancialModal, setShowFinancialModal] = React.useState(false);
 
   const renderEditInput = (label: string, name: string, placeholder?: string, type: string = "text", required: boolean = false) => {
     const isPhoneNumber = name === 'phone' || name === 'whatsapp' || name === 'businessPhone';
@@ -249,7 +251,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     let iconClass = 'bg-white text-rh-teal border-gray-50';
     let iconElement = <FileText className="w-7 h-7" />;
     let textElement = url ? (
-      <p className="text-xs text-gray-500 font-medium">Update your uploaded {label.toLowerCase()} document here</p>
+      <p className="text-xs text-gray-500 font-medium">Update your uploaded {label.toLowerCase().includes('document') ? label.toLowerCase() : `${label.toLowerCase()} document`} here</p>
     ) : (
       <p className="text-xs text-gray-500 font-medium">No document uploaded yet</p>
     );
@@ -287,7 +289,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
 
     return (
       <div className="space-y-1 w-full animate-fadeIn">
-        <div className={`rounded-[2rem] p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 transition-all ${cardClass}`}>
+        <div className={`rounded-3xl sm:rounded-[2rem] p-5 sm:p-8 border relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6 transition-all ${cardClass}`}>
           <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none ${blurClass}`} />
 
           <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
@@ -295,7 +297,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               {iconElement}
             </div>
             <div>
-              <h4 className="text-lg font-bold text-rh-teal mb-0.5">
+              <h4 className="text-base sm:text-lg font-bold text-rh-teal mb-0.5">
                 {label} {required && <span className="text-red-500">*</span>}
               </h4>
               {textElement}
@@ -303,7 +305,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 relative z-10">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0 relative z-10">
             <input
               id={inputId}
               type="file"
@@ -1070,7 +1072,24 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
                     {renderEditDocUpload("Employment Certificates / Experience Letters", "empCertUrl", "talent-documents", true)}
                     {renderEditDocUpload("English Test Results", "englishTestUrl", "talent-documents", false)}
                     {renderEditDocUpload("Professional Licences / Certifications", "licenceUrl", "talent-documents", false)}
-                    {renderEditDocUpload("Financial Statement", "financialStatementUrl", "talent-documents", false)}
+                    <div className="border-2 border-dashed border-gray-100 rounded-2xl p-6 text-center hover:border-rh-teal/30 hover:bg-white transition-all bg-gray-50 flex flex-col items-center justify-center">
+                      <h3 className="text-sm font-bold text-gray-800 mb-2">Financial Documents</h3>
+                      <p className="text-xs text-gray-500 mb-4">Bank Statement, Tax Document, or Pay Slip</p>
+                      <button type="button" onClick={() => setShowFinancialModal(true)} className="px-6 py-2 bg-white text-rh-teal border border-gray-200 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all">
+                        {(talentForm.watch('bankStatementUrl') || talentForm.watch('taxDocumentUrl') || talentForm.watch('paySlipUrl')) ? 'Manage Documents' : 'Upload Documents'}
+                      </button>
+                    </div>
+                    
+                    <FinancialDocumentsModal
+                      isOpen={showFinancialModal}
+                      onClose={() => setShowFinancialModal(false)}
+                      onConfirm={() => setShowFinancialModal(false)}
+                      hasAtLeastOne={!!(talentForm.watch('bankStatementUrl') || talentForm.watch('taxDocumentUrl') || talentForm.watch('paySlipUrl'))}
+                    >
+                      {renderEditDocUpload("Bank Statement", "bankStatementUrl", "talent-documents", false)}
+                      {renderEditDocUpload("Tax Document", "taxDocumentUrl", "talent-documents", false)}
+                      {renderEditDocUpload("Pay Slip", "paySlipUrl", "talent-documents", false)}
+                    </FinancialDocumentsModal>
                   </div>
                 </div>
               )}
