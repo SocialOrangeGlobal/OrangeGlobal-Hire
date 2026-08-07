@@ -106,16 +106,6 @@ export default function ThreadItem({
             className="border-t border-gray-100 bg-gray-50/40"
           >
             <div className="p-6 space-y-6">
-              {/* Original Message Section */}
-              <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-100 shadow-sm relative">
-                <div className="absolute top-5 right-5 flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                  <User className="w-3.5 h-3.5 text-gray-300" />
-                  <span>Original Message</span>
-                </div>
-                <p className="text-xs text-gray-400 font-bold mb-2 uppercase tracking-wide">Details</p>
-                <p className="text-sm text-gray-800 font-medium leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-              </div>
-
               {/* Thread Replies */}
               {msg.replies && msg.replies.length > 0 && (
                 <div className="space-y-4">

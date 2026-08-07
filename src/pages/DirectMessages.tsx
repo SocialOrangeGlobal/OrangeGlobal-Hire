@@ -140,9 +140,9 @@ const DirectMessages = () => {
     };
   }, []);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const data = await contactApi.getUserMessages();
       const directMessages = data.filter((msg) => msg.type === 'DIRECT_MESSAGE');
       
@@ -163,7 +163,7 @@ const DirectMessages = () => {
       console.error('Error fetching direct messages:', error);
       toast.error('Failed to load your messages');
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
@@ -176,7 +176,7 @@ const DirectMessages = () => {
       setReplyText('');
       // Optimistic update could happen here, but we can also fetch all or wait for WS
       // For instant feedback without waiting for WS/Fetch:
-      await fetchMessages();
+      await fetchMessages(true);
     } catch (error: any) {
       console.error('Error sending reply:', error);
       toast.error('Failed to send reply');
@@ -290,7 +290,12 @@ const DirectMessages = () => {
           <div className={`flex-1 flex flex-col bg-gray-50/50 relative overflow-hidden ${!activeMessageId ? 'hidden md:flex' : 'flex'}`}>
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
             
-            {!activeMessage ? (
+            {isLoading ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-rh-red bg-transparent relative z-10">
+                <div className="w-12 h-12 border-4 border-rh-red/20 border-t-rh-red rounded-full animate-spin mb-4" />
+                <p className="text-gray-500 font-medium animate-pulse">Loading conversation...</p>
+              </div>
+            ) : !activeMessage ? (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-transparent relative z-10">
                 <div className="w-24 h-24 bg-white shadow-sm border border-gray-100 rounded-full flex items-center justify-center mb-6">
                   <MessagesSquare className="w-10 h-10 text-gray-300" />
@@ -334,18 +339,10 @@ const DirectMessages = () => {
 
                 {/* Chat Messages Container */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
-                  
-                  {/* Original Message Context */}
-                  <div className="flex justify-center mb-6 sm:mb-8">
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 max-w-[95%] sm:max-w-lg w-full shadow-sm text-center">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Original Message</p>
-                      <p className="text-xs sm:text-sm text-gray-800">{activeMessage.message}</p>
-                    </div>
-                  </div>
 
                   {/* Replies List */}
                   {activeMessage.replies?.map((reply, idx) => {
-                    const isAdmin = reply.senderRole === 'ADMIN' || (reply as any).sender_role === 'ADMIN' || reply.sender?.role === 'ADMIN' || reply.senderRole === 'admin';
+                    const isAdmin = reply.senderRole?.toUpperCase() === 'ADMIN' || (reply as any).sender_role?.toUpperCase() === 'ADMIN' || reply.sender?.role?.toUpperCase() === 'ADMIN';
                     const senderName = isAdmin
                       ? `${reply.sender?.adminProfile?.firstName || 'Orange'} ${reply.sender?.adminProfile?.lastName || 'Global'}`
                       : (reply.sender?.talentProfile?.fullName || 'You');
@@ -375,7 +372,7 @@ const DirectMessages = () => {
                               })}
                             </span>
                           </div>
-                          <div className={`p-3.5 sm:p-4 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${isAdmin
+                          <div className={`p-3.5 sm:p-4 text-sm leading-relaxed whitespace-pre-wrap shadow-sm text-left w-fit break-words ${isAdmin
                             ? 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'
                             : 'bg-gradient-to-br from-rh-red to-[#ff7a33] text-white rounded-2xl rounded-tr-sm shadow-rh-red/10'
                             }`}>
@@ -423,6 +420,9 @@ const DirectMessages = () => {
                       value={replyText}
                       onChange={(e) => {
                         setReplyText(e.target.value);
+                        const target = e.target;
+                        target.style.height = 'auto';
+                        target.style.height = Math.min(target.scrollHeight, 150) + 'px';
                         if (!typingTimeoutRef.current) {
                           contactApi.triggerTyping(activeMessage.id, true).catch(() => {});
                         } else {
@@ -437,16 +437,25 @@ const DirectMessages = () => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
                           handleSendReply(activeMessage.id);
+                          setTimeout(() => {
+                            if (e.target instanceof HTMLTextAreaElement) {
+                              e.target.style.height = 'auto';
+                            }
+                          }, 0);
                         }
                       }}
                       placeholder="Type a message..."
                       rows={1}
                       style={{ minHeight: '52px', maxHeight: '150px' }}
-                      className="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/20 focus:border-rh-red outline-none text-sm font-medium transition-all resize-none [&::-webkit-scrollbar]:w-[4px]"
+                      className="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 rounded-2xl focus:bg-white focus:ring-2 focus:ring-rh-red/20 focus:border-rh-red outline-none text-sm font-medium transition-colors resize-none overflow-y-auto [&::-webkit-scrollbar]:w-[4px]"
                     />
                     <button
                       disabled={isSendingReply || !replyText.trim()}
-                      onClick={() => handleSendReply(activeMessage.id)}
+                      onClick={(e) => {
+                        handleSendReply(activeMessage.id);
+                        const textarea = e.currentTarget.parentElement?.querySelector('textarea');
+                        if (textarea) textarea.style.height = 'auto';
+                      }}
                       className="h-[52px] w-[52px] rounded-2xl bg-gradient-to-r from-rh-red to-[#ff7a33] text-white flex items-center justify-center shadow-md hover:shadow-lg hover:shadow-rh-red/20 disabled:opacity-50 disabled:shadow-none transition-all shrink-0"
                     >
                       {isSendingReply ? (

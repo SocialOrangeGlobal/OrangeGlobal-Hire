@@ -616,13 +616,6 @@ export default function ContactPage() {
 
                       {/* Chat Messages Container */}
                       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full relative z-10">
-                        {/* Original Message Context */}
-                        <div className="flex justify-center mb-6 sm:mb-8">
-                          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 max-w-[95%] sm:max-w-lg w-full shadow-sm text-center">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Original Query</p>
-                            <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap">{activeMessage.message}</p>
-                          </div>
-                        </div>
 
                         {/* Replies List */}
                         {activeMessage.replies?.map((reply, idx) => {
