@@ -22,6 +22,8 @@ export default function InsightsPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadedAt] = useState(() => Date.now());
   const [submittingNewsletter, setSubmittingNewsletter] = useState(false);
 
   const handleNewsletterSubscribe = async (e: React.FormEvent) => {
@@ -38,6 +40,8 @@ export default function InsightsPage() {
         subject: 'Newsletter Subscription',
         message: `New newsletter subscription from: ${newsletterEmail.trim()}`,
         type: 'NEWSLETTER',
+        website: honeypot || undefined,
+        _formLoadedAt: formLoadedAt,
       });
       toast.success('Successfully subscribed to the newsletter!');
       setNewsletterEmail('');
@@ -298,6 +302,17 @@ export default function InsightsPage() {
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-light text-white mb-8 tracking-tight leading-tight">Stay ahead of the <br /> <span className="text-rh-red font-[300]">market curve</span></h2>
           <p className="text-white/60 text-base md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">Get exclusive salary data, hiring trends, and leadership insights delivered monthly.</p>
           <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto w-full">
+            {/* Honeypot field - invisible to humans, filled by spam bots */}
+            <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
             <input
               type="email"
               placeholder="Work email address"

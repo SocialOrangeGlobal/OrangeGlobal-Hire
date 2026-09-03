@@ -8,6 +8,9 @@ export interface ContactMessageDto {
   message: string;
   type?: string;
   userId?: string;
+  // Anti-bot honeypot fields
+  website?: string;
+  _formLoadedAt?: number;
 }
 
 export interface ContactReply {

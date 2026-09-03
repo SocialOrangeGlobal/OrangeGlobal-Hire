@@ -29,6 +29,8 @@ export default function ContactPage() {
     phone: '',
     message: '',
   });
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadedAt] = useState(() => Date.now());
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -235,6 +237,8 @@ export default function ContactPage() {
         message: formData.message.trim(),
         type: enquiryType,
         userId: user?.id,
+        website: honeypot || undefined,
+        _formLoadedAt: formLoadedAt,
       });
 
       toast.success(
@@ -342,6 +346,17 @@ export default function ContactPage() {
                 className="bg-white rounded-[32px] sm:rounded-[48px] p-8 sm:p-12 md:p-16 shadow-2xl shadow-gray-200/50 border border-gray-100"
               >
                 <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                  {/* Honeypot field - invisible to humans, filled by spam bots */}
+                  <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
                   {submitError && (
                     <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />

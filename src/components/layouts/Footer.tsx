@@ -9,6 +9,8 @@ import { contactApi } from '../../lib/contact';
 export default function Footer() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadedAt] = useState(() => Date.now());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredFooterLinks = Object.entries(footerLinks).filter(([group]) => {
@@ -30,6 +32,8 @@ export default function Footer() {
         subject: 'Newsletter Subscription',
         message: `New newsletter subscription from: ${email.trim()}`,
         type: 'NEWSLETTER',
+        website: honeypot || undefined,
+        _formLoadedAt: formLoadedAt,
       });
       toast.success('Successfully subscribed to the newsletter!');
       setEmail('');
@@ -143,6 +147,18 @@ export default function Footer() {
               <p className="text-gray-400 leading-relaxed">Get exclusive salary data, hiring trends, and career insights delivered to your inbox.</p>
             </div>
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 items-center justify-center">
+              {/* Honeypot field - invisible to humans, filled by spam bots */}
+              <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="relative w-full sm:w-80">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
